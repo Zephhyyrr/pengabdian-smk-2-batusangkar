@@ -1,0 +1,5 @@
+1. npm install
+2. npx prisma migrate dev --name init (Jika belum migrate sebelumnya)
+3. npx prisma db seed (membuat akun super admin: {email: "superadmin@gmail.com", password: "Password123"})
+4. npm run dev
+5. stay safe
