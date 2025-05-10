@@ -22,7 +22,7 @@ export async function updateUserController(req: Request, res: Response<ResponseA
         const { id } = req.params
         const { email, nama, password, role } = req.body
 
-        const hashedPassword = await hashing(password)
+        const hashedPassword = password ? await hashing(password) : undefined
         const updatedUser = await updateUserService(Number(id), email, nama, hashedPassword!, role)
         return res.status(200).json({
             success: true,
