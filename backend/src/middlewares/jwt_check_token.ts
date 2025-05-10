@@ -5,7 +5,6 @@ export const jwtCheckToken = (req: Request, res: Response, next: NextFunction) =
     const token = req.headers.authorization?.split("Bearer ")[1];
 
     if (!token) return res.status(401).json({ messagge: "Token dibutuhkan." });
-    console.log(token);
 
     const JWT_SECRET = process.env.JWT_SECRET || "123456";
 
