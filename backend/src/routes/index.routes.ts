@@ -5,7 +5,7 @@ import { jwtCheckToken } from "../middlewares/jwt_check_token";
 import { isRole } from "../middlewares/is_role";
 import authRouter from "./auth.routes";
 import barangRouter from "./barang.routes";
-import transaksiBarangRouter from "./transaksiBarang.routes";
+import transaksiBarangRouter from "./transaksi_barang.routes";
 
 const apiRouter = Router()
 

@@ -5,7 +5,7 @@ import {
     createTransaksiBarangController,
     updateTransaksiBarangController,
     deleteTransaksiBarangController
-} from "../controllers/transaksiBarang.controller";
+} from "../controllers/transaksi_barang.controller";
 
 const router = Router();
 

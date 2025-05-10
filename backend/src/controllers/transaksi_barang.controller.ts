@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { handlerAnyError } from "../errors/api_errors";
-import { addTransaksiBarangService, getAllTransaksiBarangService, getTransaksiBarangByIdService, updateTransaksiBarangService, deleteTransaksiBarangService } from "../services/transaksiBarang.service";
+import { addTransaksiBarangService, getAllTransaksiBarangService, getTransaksiBarangByIdService, updateTransaksiBarangService, deleteTransaksiBarangService } from "../services/transaksi_barang.service";
 
 export const getAllTransaksiBarangController = async (req: Request, res: Response) => {
     try {
