@@ -26,7 +26,8 @@ export const updateUserValidator = [
             return true
         }),
     body("nama").notEmpty().withMessage("Nama harus diisi"),
-    body("password").notEmpty().withMessage("Password harus diisi"),
+    body("password").optional()
+        .notEmpty().withMessage("Password harus diisi"),
     body("role").notEmpty().withMessage("Role harus diisi").bail()
         .isIn(roleValues).withMessage(`Role harus salah satu dari ${roleValues.join(", ")}`),
 ];
