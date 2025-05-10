@@ -3,37 +3,33 @@ import { AppError } from "../errors/api_errors";
 
 export async function getAllTransaksiBarangService(
     tanggal?: string,
-    bulanTahun?: string,
+    bulan?: string,
     tahun?: string
 ) {
     let where: any = {};
 
     if (tanggal) {
-        // Cari berdasarkan tanggal
-        // Format tanggal harus dd-MM-yyyy
-        // Misal: 10=05-2023
-        const parts = tanggal.split("-");
-        if (parts.length !== 3) throw new AppError("Format tanggal harus dd-MM-yyyy.");
-        const [day, month, year] = parts;
-        const start = new Date(`${year}-${month}-${day}`);
-        const end = new Date(start);
-        end.setDate(start.getDate() + 1);
-        where.tanggal = { gte: start, lt: end };
-    } else if (bulanTahun) {
-        // Cari berdasarkan bulan dan tahun
-        // Format bulanTahun harus MM-yyyy
-        // Misal: 05-2023
-        const parts = bulanTahun.split("-");
-        if (parts.length !== 2) throw new AppError("Format bulanTahun harus MM-yyyy.");
-        const [month, year] = parts;
-        const start = new Date(`${year}-${month}-01`);
+        // Validasi format tanggal
+        // format tanggal: YYYY-MM-DD
+        // contoh: 2025-05-10
+        const date = new Date(tanggal);
+        if (isNaN(date.getTime())) throw new AppError("Format tanggal tidak valid.");
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+        where.tanggal = { gte: date, lt: nextDay };
+    } else if (bulan && tahun) {
+        // Validasi format bulan dan tahun
+        // format bulan: YYYY-MM
+        // contoh: 2025-05
+        const start = new Date(`${tahun}-${bulan}-01`);
+        if (isNaN(start.getTime())) throw new AppError("Format bulan/tahun tidak valid.");
         const end = new Date(start);
         end.setMonth(start.getMonth() + 1);
         where.tanggal = { gte: start, lt: end };
     } else if (tahun) {
-        // Cari berdasarkan tahun
-        // Format tahun harus yyyy
-        // Misal: 2025
+        // Validasi format tahun
+        // format tahun: YYYY
+        // contoh: 2025
         const start = new Date(`${tahun}-01-01`);
         const end = new Date(`${Number(tahun) + 1}-01-01`);
         where.tanggal = { gte: start, lt: end };
@@ -61,6 +57,7 @@ export async function getAllTransaksiBarangService(
         totalKeluar: totalKeluar._sum.keluar ?? 0
     };
 }
+
 
 export async function getTransaksiBarangByIdService(id: number) {
     const transaksi = await findTransaksiById(id);

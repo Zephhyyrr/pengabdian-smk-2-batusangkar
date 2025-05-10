@@ -13,5 +13,5 @@ apiRouter.use("/test", TestController)
 apiRouter.use("/users", jwtCheckToken, isRole(["super_admin"]), userRoute)
 apiRouter.use("/auth", authRouter)
 apiRouter.use("/barang", jwtCheckToken, isRole(["super_admin", "admin"]), barangRouter)
-apiRouter.use("/transaksi", jwtCheckToken, isRole(["super_admin", "admin"]), transaksiBarangRouter)
+apiRouter.use("/transaksi-barang", jwtCheckToken, isRole(["super_admin", "admin"]), transaksiBarangRouter)
 export default apiRouter

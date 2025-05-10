@@ -4,41 +4,43 @@ import { addTransaksiBarangService, getAllTransaksiBarangService, getTransaksiBa
 
 export const getAllTransaksiBarangController = async (req: Request, res: Response) => {
     try {
-        const { tanggal, bulanTahun, tahun } = req.query;
+        const { tanggal, bulan, tahun } = req.query;
 
         const result = await getAllTransaksiBarangService(
             tanggal as string,
-            bulanTahun as string,
+            bulan as string,
             tahun as string
         );
 
-        const dataKosong = result.transaksi.length === 0;
+        // Cek jika data kosong
+        if (result.transaksi.length === 0) {
+            let detail = "Data transaksi tidak ditemukan";
 
-        let message = "Berhasil mendapatkan data semua transaksi barang";
+            if (tanggal) detail += ` pada tanggal ${tanggal}`;
+            else if (bulan && tahun) detail += ` pada bulan ${bulan}-${tahun}`;
+            else if (tahun) detail += ` pada tahun ${tahun}`;
 
-        if (dataKosong) {
-            if (tanggal) {
-                message = `Tidak ditemukan data transaksi pada tanggal ${tanggal}`;
-            } else if (bulanTahun) {
-                message = `Tidak ditemukan data transaksi pada bulan dan tahun ${bulanTahun}`;
-            } else if (tahun) {
-                message = `Tidak ditemukan data transaksi pada tahun ${tahun}`;
-            } else {
-                message = "Tidak ditemukan data transaksi barang";
-            }
+            return res.status(404).json({
+                success: false,
+                message: detail,
+                data: [],
+                totalMasuk: 0,
+                totalKeluar: 0
+            });
         }
 
         return res.status(200).json({
             success: true,
-            message,
+            message: "Berhasil mendapatkan data semua transaksi barang",
             data: result.transaksi,
-            totalMasuk: result.totalMasuk ?? 0,
-            totalKeluar: result.totalKeluar ?? 0
+            totalMasuk: result.totalMasuk,
+            totalKeluar: result.totalKeluar
         });
     } catch (error) {
         return handlerAnyError(error, res);
     }
-}
+};
+
 
 export const getTransaksiBarangByIdController = async (req: Request, res: Response) => {
     try {
