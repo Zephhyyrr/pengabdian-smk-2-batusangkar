@@ -4,10 +4,14 @@ import userRoute from "./user.routes";
 import { jwtCheckToken } from "../middlewares/jwt_check_token";
 import { isRole } from "../middlewares/is_role";
 import authRouter from "./auth.routes";
+import barangRouter from "./barang.routes";
+import transaksiBarangRouter from "./transaksiBarang.routes";
 
 const apiRouter = Router()
 
 apiRouter.use("/test", TestController)
 apiRouter.use("/users", jwtCheckToken, isRole(["super_admin"]), userRoute)
 apiRouter.use("/auth", authRouter)
+apiRouter.use("/barang", jwtCheckToken, isRole(["super_admin", "admin"]), barangRouter)
+apiRouter.use("/transaksi", jwtCheckToken, isRole(["super_admin", "admin"]), transaksiBarangRouter)
 export default apiRouter
