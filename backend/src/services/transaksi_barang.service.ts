@@ -19,7 +19,7 @@ export async function getAllTransaksiBarangService(
         where.tanggal = { gte: date, lt: nextDay };
     } else if (bulan && tahun) {
         // Validasi format bulan dan tahun
-        // format bulan: YYYY-MM
+        // format bulan tahun: YYYY-MM
         // contoh: 2025-05
         const start = new Date(`${tahun}-${bulan}-01`);
         if (isNaN(start.getTime())) throw new AppError("Format bulan/tahun tidak valid.");
@@ -41,6 +41,14 @@ export async function getAllTransaksiBarangService(
         orderBy: { tanggal: "desc" }
     });
 
+    const barang = [
+        ...new Map(
+            transaksi.map((t) => [t.barang.id, t.barang])
+        ).values()
+    ];
+
+    const barang_masuk = transaksi.filter((t) => t.masuk > 0);
+
     const totalMasuk = await prisma.transaksiBarang.aggregate({
         where,
         _sum: { masuk: true }
@@ -52,12 +60,12 @@ export async function getAllTransaksiBarangService(
     });
 
     return {
-        transaksi,
+        barang,
+        barang_masuk,
         totalMasuk: totalMasuk._sum.masuk ?? 0,
         totalKeluar: totalKeluar._sum.keluar ?? 0
     };
 }
-
 
 export async function getTransaksiBarangByIdService(id: number) {
     const transaksi = await findTransaksiById(id);

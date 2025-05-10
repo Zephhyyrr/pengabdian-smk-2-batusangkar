@@ -13,7 +13,7 @@ export const getAllTransaksiBarangController = async (req: Request, res: Respons
         );
 
         // Cek jika data kosong
-        if (result.transaksi.length === 0) {
+        if (result.barang.length === 0 && result.barang_masuk.length === 0) {
             let detail = "Data transaksi tidak ditemukan";
 
             if (tanggal) detail += ` pada tanggal ${tanggal}`;
@@ -23,24 +23,29 @@ export const getAllTransaksiBarangController = async (req: Request, res: Respons
             return res.status(404).json({
                 success: false,
                 message: detail,
-                data: [],
-                totalMasuk: 0,
-                totalKeluar: 0
+                data: {
+                    barang: [],
+                    barang_masuk: [],
+                    totalMasuk: 0,
+                    totalKeluar: 0
+                }
             });
         }
 
         return res.status(200).json({
             success: true,
             message: "Berhasil mendapatkan data semua transaksi barang",
-            data: result.transaksi,
-            totalMasuk: result.totalMasuk,
-            totalKeluar: result.totalKeluar
+            data: {
+                barang: result.barang,
+                barang_masuk: result.barang_masuk,
+                totalMasuk: result.totalMasuk,
+                totalKeluar: result.totalKeluar
+            },
         });
     } catch (error) {
         return handlerAnyError(error, res);
     }
 };
-
 
 export const getTransaksiBarangByIdController = async (req: Request, res: Response) => {
     try {
