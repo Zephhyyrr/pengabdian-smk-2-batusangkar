@@ -13,7 +13,7 @@ export function DataTableSkeleton({ columns }: { columns: { header: string }[] }
       <div className="space-y-4">
         <div className="overflow-x-auto border rounded">
           <table className="table-auto w-full text-left">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
               <tr>
                 {columns.map((value, index) => (
                   <th key={index} className="p-3 border-b">

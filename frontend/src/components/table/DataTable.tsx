@@ -9,11 +9,13 @@ interface DataTableProps<T> {
   }[];
   pageSize?: number;
   emptyMessage?: string;
+  create?: () => void;
 }
 
 export function DataTable<T>({
   data,
   columns,
+  create,
   pageSize = 10,
   emptyMessage = "No items found.",
 }: DataTableProps<T>) {
@@ -31,26 +33,35 @@ export function DataTable<T>({
 
   return (
     <>
-      <div className="flex mb-4 gap-2">
+      <div className="flex mb-4 justify-between items-center">
         <input
           type="text"
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border border-gray-300 rounded p-2 w-full max-w-xs"
+          className="border bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded p-2 w-full max-w-xs"
         />
+        { create && (
+          <button
+            className="bg-green-700 hover:bg-green-600 text-white rounded px-4 py-2"
+            onClick={create}>
+            Tambhahkan
+          </button>
+        )}
       </div>
 
       <div className="overflow-x-auto border rounded">
         <table className="table-auto w-full text-left">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
             <tr>
               {columns.map((col, i) => (
-                <th key={i} className="p-3 border-b">{col.header}</th>
+                <th key={i} className="p-3 border-b">
+                  {col.header}
+                </th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
             {filteredData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center p-6 text-gray-500">
@@ -61,7 +72,7 @@ export function DataTable<T>({
               filteredData
                 .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                 .map((item, rowIdx) => (
-                  <tr key={rowIdx} className="border-b hover:bg-gray-50">
+                  <tr key={rowIdx} className="border-b hover:bg-gray-50 dark:hover:bg-gray-600">
                     {columns.map((col, colIdx) => (
                       <td key={colIdx} className="p-3">
                         {col.cell ? col.cell(item) : (item[col.accessorKey] as React.ReactNode)}
@@ -83,15 +94,13 @@ export function DataTable<T>({
           <button
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
+            className="px-3 py-1 border rounded disabled:opacity-50">
             Prev
           </button>
           <button
             onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
+            className="px-3 py-1 border rounded disabled:opacity-50">
             Next
           </button>
         </div>

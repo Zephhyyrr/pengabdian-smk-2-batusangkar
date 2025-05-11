@@ -14,7 +14,7 @@ export default function DashboardTransaksi() {
 
   return (
     <DashboardLayout title="Transaksi Barang">
-      <div className="bg-gray-50 dark:bg-gray-800">
+      <div className="">
         <DataTable
           data={transaksiBarang}
           columns={[
