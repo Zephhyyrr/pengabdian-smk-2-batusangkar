@@ -12,3 +12,100 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum RoleUser {
+  super_admin
+  admin
+  kepsek
+  siswa
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  email     String   @unique
+  password  String
+  role      RoleUser
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Jenis {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  komoditases Komoditas[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Komoditas {
+  id        Int    @id @default(autoincrement())
+  id_jenis  Int
+  nama      String
+  deskripsi String @db.Text
+  foto      String
+  satuan    String
+  jumlah    Int    @default(0)
+
+  penjualans Penjualan[]
+  jenis      Jenis       @relation(fields: [id_jenis], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model AsalProduksi {
+  id   Int    @id @default(autoincrement())
+  nama String
+
+  produksis Produksi[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Produksi {
+  id            Int    @id @default(autoincrement())
+  id_asal       Int
+  kode_produksi String
+
+  penjualans    Penjualan[]
+  asal_produksi AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Penjualan {
+  id             Int       @id @default(autoincrement())
+  id_komodity    Int
+  ukuran         String
+  jumlah_terjual Int       @default(0)
+  kualitas       String
+  id_produksi    Int
+  keterangan     String    @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  Komoditas      Komoditas @relation(fields: [id_komodity], references: [id])
+  Produksi       Produksi  @relation(fields: [id_produksi], references: [id])
+}
+
+model Barang {
+  id              Int               @id @default(autoincrement())
+  nama            String
+  satuan          String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  TransaksiBarang TransaksiBarang[]
+}
+
+model TransaksiBarang {
+  id         Int      @id @default(autoincrement())
+  id_barang  Int
+  tanggal    DateTime @default(now())
+  masuk      Int      @default(0)
+  keluar     Int      @default(0)
+  keterangan String   @db.Text
+
+  barang    Barang   @relation(fields: [id_barang], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

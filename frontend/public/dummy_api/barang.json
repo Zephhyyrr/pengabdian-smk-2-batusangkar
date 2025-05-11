@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nama": "Pupuk Urea",
+    "satuan": "kg",
+    "createdAt": "2024-05-01T10:00:00Z",
+    "updatedAt": "2024-05-05T08:00:00Z"
+  },
+  {
+    "id": 2,
+    "nama": "Plastik Packing",
+    "satuan": "roll",
+    "createdAt": "2024-05-01T11:00:00Z",
+    "updatedAt": "2024-05-06T08:00:00Z"
+  }
+]

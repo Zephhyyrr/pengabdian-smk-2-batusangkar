@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "id_jenis": 1,
+    "nama": "Cabe Merah",
+    "deskripsi": "Cabe kualitas premium",
+    "foto": "cabe.jpg",
+    "satuan": "kg",
+    "jumlah": 50,
+    "createdAt": "2024-05-01T10:00:00Z",
+    "updatedAt": "2024-05-05T08:00:00Z"
+  },
+  {
+    "id": 2,
+    "id_jenis": 2,
+    "nama": "Bawang Merah",
+    "deskripsi": "Bawang panen lokal",
+    "foto": "bawang.jpg",
+    "satuan": "kg",
+    "jumlah": 80,
+    "createdAt": "2024-05-01T11:00:00Z",
+    "updatedAt": "2024-05-06T08:00:00Z"
+  }
+]
