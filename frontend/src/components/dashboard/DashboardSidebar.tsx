@@ -1,19 +1,82 @@
 "use client";
+
 import {
   Menu,
   ChevronDown,
   BadgeCent,
-  LayoutDashboard,
+  ClipboardList ,
   Boxes,
   Tractor,
   Warehouse,
   Users,
 } from "lucide-react";
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+
+const dashboardMenu = [
+  {
+    name: "Kepala Sekolah",
+    icon: <ClipboardList className="w-5 h-5" />,
+    href: "/dashboard/kepsek",
+  },
+  {
+    name: "Penjualan",
+    icon: <BadgeCent className="w-5 h-5" />,
+    href: "#",
+  },
+  {
+    name: "Komoditas",
+    icon: <Tractor className="w-5 h-5" />,
+    childern: [
+      {
+        name: "Daftar Komoditas",
+        href: "#",
+      },
+      {
+        name: "Jenis Komoditas",
+        href: "#",
+      },
+    ],
+  },
+  {
+    name: "Produksi",
+    icon: <Warehouse className="w-5 h-5" />,
+    childern: [
+      {
+        name: "Daftar Produksi",
+        href: "#",
+      },
+      {
+        name: "Asal Produksi",
+        href: "#",
+      },
+    ],
+  },
+  {
+    name: "Gudang",
+    icon: <Boxes className="w-5 h-5" />,
+    childern: [
+      {
+        name: "Daftar Barang",
+        href: "/dashboard/gudang/barang",
+      },
+      {
+        name: "Transaksi",
+        href: "/dashboard/gudang/transaksi",
+      },
+    ],
+  },
+  {
+    name: "Admin",
+    icon: <Users className="w-5 h-5" />,
+    href: "#",
+  },
+];
 
 export default function DashboardSidebar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
@@ -31,122 +94,49 @@ export default function DashboardSidebar() {
         } sm:translate-x-0`}>
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
-            {/* Kepsek */}
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <LayoutDashboard className="w-5 h-5" />
-                <span className="ms-3">Kepala Sekolah</span>
-              </a>
-            </li>
-            
-            {/* Penjualan */}
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <BadgeCent className="w-5 h-5" />
-                <span className="ms-3">Penjualan</span>
-              </a>
-            </li>
+            {dashboardMenu.map((item, i) =>
+              item.childern ? (
+                <li className="relative">
+                  <input type="checkbox" id={`dropdown-${i}`} className="peer hidden" />
+                  <label
+                    htmlFor={`dropdown-${i}`}
+                    className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 cursor-pointer">
+                    {item.icon}
+                    <span className="flex-1 ms-3 text-left whitespace-nowrap">{item.name}</span>
+                    <ChevronDown className="w-4 h-4 peer-checked:rotate-180 transition" />
+                  </label>
 
-            {/* Komoditas */}
-            <li className="relative">
-              <input type="checkbox" id="dropdown-komoditas" className="peer hidden" />
-              <label
-                htmlFor="dropdown-komoditas"
-                className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 cursor-pointer">
-                <Tractor className="w-5 h-5" />
-                <span className="flex-1 ms-3 text-left whitespace-nowrap">Komoditas</span>
-                <ChevronDown className="w-4 h-4 peer-checked:rotate-180 transition" />
-              </label>
-
-              <ul className="max-h-0 overflow-hidden transition-all duration-300 peer-checked:max-h-40 peer-checked:opacity-100 opacity-0 py-0 peer-checked:py-2 space-y-2">
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                    Daftar Komoditas
-                  </a>
+                  <ul className="max-h-0 overflow-hidden transition-all duration-300 peer-checked:max-h-40 peer-checked:opacity-100 opacity-0 py-0 peer-checked:py-2 space-y-2">
+                    {item.childern.map((child) => (
+                      <li>
+                        <Link
+                          href={child.href}
+                          className={`flex items-center w-full p-2 rounded-lg pl-11 group transition duration-75 ${
+                            pathname === child.href
+                              ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                              : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}>
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
+              ) : (
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                    Jenis Komoditas
-                  </a>
+                  <Link
+                    href={item.href}
+                    className={`flex items-center p-2 rounded-lg group transition duration-75 ${
+                      pathname === item.href
+                        ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                        : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}>
+                    {item.icon}
+                    <span className="ms-3">{item.name}</span>
+                  </Link>
                 </li>
-              </ul>
-            </li>
-
-            {/* Produksi */}
-            <li className="relative">
-              <input type="checkbox" id="dropdown-produksi" className="peer hidden" />
-              <label
-                htmlFor="dropdown-produksi"
-                className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 cursor-pointer">
-                <Warehouse className="w-5 h-5" />
-                <span className="flex-1 ms-3 text-left whitespace-nowrap">Produksi</span>
-                <ChevronDown className="w-4 h-4 peer-checked:rotate-180 transition" />
-              </label>
-
-              <ul className="max-h-0 overflow-hidden transition-all duration-300 peer-checked:max-h-40 peer-checked:opacity-100 opacity-0 py-0 peer-checked:py-2 space-y-2">
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                    Daftar Produksi
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                    Asal Produksi
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            {/* Gudang */}
-            <li className="relative">
-              <input type="checkbox" id="dropdown-gudang" className="peer hidden" />
-              <label
-                htmlFor="dropdown-gudang"
-                className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 cursor-pointer">
-                <Boxes className="w-5 h-5" />
-                <span className="flex-1 ms-3 text-left whitespace-nowrap">Barang</span>
-                <ChevronDown className="w-4 h-4 peer-checked:rotate-180 transition" />
-              </label>
-
-              <ul className="max-h-0 overflow-hidden transition-all duration-300 peer-checked:max-h-40 peer-checked:opacity-100 opacity-0 py-0 peer-checked:py-2 space-y-2">
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                    Daftar Barang
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                    Transaksi
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            {/* Manajemen User */}
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <Users className="w-5 h-5" />
-                <span className="flex-1 ms-3 whitespace-nowrap">Admin</span>
-              </a>
-            </li>
+              )
+            )}
           </ul>
         </div>
       </aside>

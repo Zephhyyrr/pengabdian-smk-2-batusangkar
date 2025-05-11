@@ -7,17 +7,17 @@ import DashboardHeader from "../dashboard/DashboardHeader";
 
 type DashboardLayoutProps = {
   children: ReactNode;
-  role: string;
+  title: string;
 };
 
-export default function DashboardLayout({ children, role }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, title }: DashboardLayoutProps) {
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <DashboardSidebar />
 
       <div className="p-4 sm:ml-64">
         <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-          <DashboardHeader role={role} />
+          <DashboardHeader title={title} />
           {children}
         </div>
       </div>
