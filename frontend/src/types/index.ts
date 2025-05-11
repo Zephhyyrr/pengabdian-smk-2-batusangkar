@@ -59,6 +59,7 @@ export interface Penjualan {
 export interface Barang {
   id: number;
   nama: string;
+  jumlah: number;
   satuan: string;
   createdAt: string;
   updatedAt: string;

@@ -20,9 +20,9 @@ export default function DashboardBarang() {
           columns={[
             { header: "ID", accessorKey: "id" },
             { header: "Nama Barang", accessorKey: "nama" },
-            { header: "Jumlah", accessorKey: "satuan" },
-            { header: "Satuan", accessorKey: "createdAt" },
-            { header: "Tanggal Masuk", accessorKey: "updatedAt" },
+            { header: "Jumlah", accessorKey: "jumlah" },
+            { header: "Satuan", accessorKey: "satuan" },
+            { header: "Tanggal Masuk", accessorKey: "createdAt" },
           ]}
           pageSize={10}
           emptyMessage="No items found."
