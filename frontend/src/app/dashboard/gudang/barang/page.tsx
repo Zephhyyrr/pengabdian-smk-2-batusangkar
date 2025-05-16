@@ -20,6 +20,23 @@ export default function DashboardBarang() {
     setOpenCreate(true);
   };
 
+  const handleDelete = async (barang: any) => {
+    const sure = confirm("Delete nih, bang?");
+    if (sure) {
+      try {
+        await apiRequest({
+          endpoint: `/barang/${barang.id}`,
+          method: "DELETE",
+          token: token,
+        });
+
+        fetchData();
+      } catch (error) {
+        console.error("Error delete data:", error);
+      }
+    }
+  };
+
   const fetchData = async () => {
     try {
       const data = await apiRequest({
@@ -44,7 +61,8 @@ export default function DashboardBarang() {
       <div className="">
         <DataTable
           data={barang}
-          create={handleCreate}
+          _create={handleCreate}
+          _delete={handleDelete}
           columns={[
             { header: "ID", accessorKey: "id" },
             { header: "Nama Barang", accessorKey: "nama" },

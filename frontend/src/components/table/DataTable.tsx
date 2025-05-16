@@ -9,13 +9,17 @@ interface DataTableProps<T> {
   }[];
   pageSize?: number;
   emptyMessage?: string;
-  create?: () => void;
+  _create?: () => void;
+  _update?: (item: T) => void;
+  _delete?: (item: T) => void;
 }
 
 export function DataTable<T>({
   data,
   columns,
-  create,
+  _create,
+  _update,
+  _delete,
   pageSize = 10,
   emptyMessage = "No items found.",
 }: DataTableProps<T>) {
@@ -41,10 +45,10 @@ export function DataTable<T>({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded p-2 w-full max-w-xs"
         />
-        { create && (
+        {_create && (
           <button
             className="bg-green-700 hover:bg-green-600 text-white rounded px-4 py-2"
-            onClick={create}>
+            onClick={_create}>
             Tambahkan
           </button>
         )}
@@ -62,25 +66,33 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-            {filteredData.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="text-center p-6 text-gray-500">
-                  {emptyMessage}
-                </td>
-              </tr>
-            ) : (
-              filteredData
-                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                .map((item, rowIdx) => (
-                  <tr key={rowIdx} className="border-b hover:bg-gray-50 dark:hover:bg-gray-600">
-                    {columns.map((col, colIdx) => (
-                      <td key={colIdx} className="p-3">
-                        {col.cell ? col.cell(item) : (item[col.accessorKey] as React.ReactNode)}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-            )}
+            {filteredData
+              .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+              .map((item, rowIdx) => (
+                <tr key={rowIdx} className="border-b hover:bg-gray-50 dark:hover:bg-gray-600">
+                  {columns.map((col, colIdx) => (
+                    <td key={colIdx} className="p-3">
+                      {col.cell ? col.cell(item) : (item[col.accessorKey] as React.ReactNode)}
+                    </td>
+                  ))}
+                  <td className="p-3 flex gap-2">
+                    {_update && (
+                      <button
+                        onClick={() => _update(item)}
+                        className="px-2 py-1 bg-blue-600 text-white rounded">
+                        Update
+                      </button>
+                    )}
+                    {_delete && (
+                      <button
+                        onClick={() => _delete(item)}
+                        className="px-2 py-1 bg-red-600 text-white rounded">
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
