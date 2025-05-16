@@ -93,10 +93,17 @@ export default function DashboardSidebar() {
           open ? "translate-x-0" : "-translate-x-full"
         } sm:translate-x-0`}>
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+          <Link
+            href="/"
+            className="flex items-center mb-6 text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+              SMK 2 Batusangkar
+          </Link>
+          <hr />
           <ul className="space-y-2 font-medium">
             {dashboardMenu.map((item, i) =>
               item.childern ? (
-                <li className="relative">
+                <li key={`nav-item-${i}`} className="relative">
                   <input type="checkbox" id={`dropdown-${i}`} className="peer hidden" />
                   <label
                     htmlFor={`dropdown-${i}`}
@@ -107,8 +114,8 @@ export default function DashboardSidebar() {
                   </label>
 
                   <ul className="max-h-0 overflow-hidden transition-all duration-300 peer-checked:max-h-40 peer-checked:opacity-100 opacity-0 py-0 peer-checked:py-2 space-y-2">
-                    {item.childern.map((child) => (
-                      <li>
+                    {item.childern.map((child, j) => (
+                      <li key={`anaknya-menu${j}`}>
                         <Link
                           href={child.href}
                           className={`flex items-center w-full p-2 rounded-lg pl-11 group transition duration-75 ${
@@ -123,7 +130,7 @@ export default function DashboardSidebar() {
                   </ul>
                 </li>
               ) : (
-                <li>
+                <li key={`nav-item-${i}`}>
                   <Link
                     href={item.href}
                     className={`flex items-center p-2 rounded-lg group transition duration-75 ${

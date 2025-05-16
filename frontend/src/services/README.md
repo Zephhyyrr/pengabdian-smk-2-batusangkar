@@ -13,7 +13,7 @@ Fungsi ini kemudian melakukan request menggunakan `fetch` dan mengirimkan token 
 
 ```tsx
 import { useEffect, useState } from 'react';
-import { apiRequest } from '@/services/api'; // Mengimpor fungsi apiRequest
+import { apiRequest } from '@/services/api.service'; // Mengimpor fungsi apiRequest
 import { Barang } from '@/types';
 
 export default function Dashboard() {
@@ -23,10 +23,10 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await apiRequest(
-            endpoint = '/api/barang', 
-            token = token
-        );
+        const data = await apiRequest({
+          endpoint: '/api/barang',
+          token: token
+        });
         // Data adalah response dari API, sesuaikan dengan struktur data yang diharapkan
         setBarang(data);
       } catch (error) {
@@ -71,7 +71,12 @@ export default function CreateBarang() {
     };
 
     try {
-      const data = await apiRequest('/api/barang', 'POST', newBarang, token);
+      const data = await apiRequest({ 
+        endpoint: '/api/barang', 
+        method: 'POST', 
+        data: newBarang, 
+        token 
+      });
       console.log('Success:', data);
     } catch (error) {
       console.error('Error:', error);
@@ -97,7 +102,3 @@ export default function CreateBarang() {
   );
 };
 ```
-
----
-
-Ini belum ditest, nunggu bisa login, biar dapat token-nya v:

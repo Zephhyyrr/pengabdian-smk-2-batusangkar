@@ -1,25 +1,35 @@
-export const apiRequest = async (
-  endpoint: string,
-  method: string = 'GET',
-  data?: any,
-  token?: string
-) => {
-  const headers: HeadersInit = {
+import axios from 'axios';
+
+export const apiRequest = async ({
+  endpoint,
+  method = 'GET',
+  data,
+  token,
+}: {
+  endpoint: string;
+  method?: string;
+  data?: any;
+  token?: string;
+}) => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const headers = {
     'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 
-  const options: RequestInit = {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-  };
+  try {
+    const res = await axios({
+      url: `${baseUrl}${endpoint}`,
+      method,
+      headers,
+      data,
+    });
 
-  const res = await fetch(endpoint, options);
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch: ${res.statusText}`);
+    return res.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || error.message || 'Failed to fetch'
+    );
   }
-
-  return res.json();
 };
