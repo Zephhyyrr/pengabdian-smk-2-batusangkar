@@ -8,10 +8,18 @@ interface ModalFormProps {
   token: string;
   mode: "create" | "update";
   title: string;
-  fields: string[];
+  fields: FieldConfig[];
   endpoint: string;
   initialData?: Record<string, any>;
 }
+
+interface FieldConfig {
+  name: string;
+  label?: string;
+  type: "text" | "number" | "date" | "select";
+  options?: { label: string; value: any }[];
+}
+
 
 export default function ModalForm({
   open,
@@ -32,7 +40,7 @@ export default function ModalForm({
       setFormData(initialData);
     } else {
       const emptyData: any = {};
-      fields.forEach((field) => (emptyData[field] = ""));
+      fields.forEach((field) => (emptyData[field.name] = ""));
       setFormData(emptyData);
     }
     setErrors({});
@@ -77,17 +85,35 @@ export default function ModalForm({
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {fields.map((field) => (
-            <div key={field}>
-              <label className="block text-sm font-medium capitalize">{field}</label>
-              <input
-                type="text"
-                value={formData[field] || ""}
-                onChange={(e) => handleChange(field, e.target.value)}
-                className="w-full border rounded p-2 bg-gray-100 dark:bg-gray-900"
-              />
-              {errors[field] && <p className="text-red-500 text-sm">{errors[field]}</p>}
-            </div>
-          ))}
+  <div key={field.name}>
+    <label className="block text-sm font-medium capitalize">{field.label || field.name}</label>
+
+    {field.type === "select" ? (
+      <select
+        value={formData[field.name] || ""}
+        onChange={(e) => handleChange(field.name, e.target.value)}
+        className="w-full border rounded p-2"
+      >
+        <option value="">Pilih {field.label || field.name}</option>
+        {field.options?.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <input
+        type={field.type}
+        value={formData[field.name] || ""}
+        onChange={(e) => handleChange(field.name, e.target.value)}
+        className="w-full border rounded p-2"
+      />
+    )}
+
+    {errors[field.name] && <p className="text-red-500 text-sm">{errors[field.name]}</p>}
+  </div>
+))}
+
           <div className="flex justify-end gap-2">
             <button
               type="button"

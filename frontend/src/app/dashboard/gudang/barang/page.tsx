@@ -52,7 +52,6 @@ export default function DashboardBarang() {
           method: "DELETE",
           token: token,
         });
-        console.log("kehapus bang");
         fetchData();
       } catch (error) {
         console.error("Error delete data:", error);
@@ -117,7 +116,10 @@ export default function DashboardBarang() {
         token={token}
         mode={formMode}
         title="Barang"
-        fields={["nama", "satuan"]}
+        fields={[
+          {name: "nama", type:"text"}, 
+          {name: "satuan", type:"number"}
+        ]}
         endpoint="/barang"
         initialData={initialData}
       />

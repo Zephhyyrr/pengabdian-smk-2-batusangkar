@@ -23,7 +23,7 @@ const dashboardMenu = [
   {
     name: "Penjualan",
     icon: <BadgeCent className="w-5 h-5" />,
-    href: "#",
+    href: "/dashboard/produksi/penjualan",
   },
   {
     name: "Komoditas",
@@ -31,11 +31,11 @@ const dashboardMenu = [
     childern: [
       {
         name: "Daftar Komoditas",
-        href: "#",
+        href: "/dashboard/produksi/komoditas",
       },
       {
         name: "Jenis Komoditas",
-        href: "#",
+        href: "/dashboard/produksi/jenis_komoditas",
       },
     ],
   },
@@ -45,11 +45,11 @@ const dashboardMenu = [
     childern: [
       {
         name: "Daftar Produksi",
-        href: "#",
+        href: "/dashboard/produksi/produksi",
       },
       {
         name: "Asal Produksi",
-        href: "#",
+        href: "/dashboard/produksi/asal_produksi",
       },
     ],
   },
