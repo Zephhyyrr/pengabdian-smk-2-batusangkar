@@ -4,7 +4,7 @@
 import * as React from 'react';
 
 // Update the import path to the correct location or ensure the module exists
-import type { ToastActionElement, ToastProps } from '@/app/landing/components/ui/toast';
+import type { ToastActionElement, ToastProps } from '@/components/landing/ui/toast';
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
