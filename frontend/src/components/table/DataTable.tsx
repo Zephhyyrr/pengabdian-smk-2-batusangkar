@@ -10,16 +10,12 @@ interface DataTableProps<T> {
   pageSize?: number;
   emptyMessage?: string;
   _create?: () => void;
-  _update?: (item: T) => void;
-  _delete?: (item: T) => void;
 }
 
 export function DataTable<T>({
   data,
   columns,
   _create,
-  _update,
-  _delete,
   pageSize = 10,
   emptyMessage = "No items found.",
 }: DataTableProps<T>) {
@@ -75,22 +71,6 @@ export function DataTable<T>({
                       {col.cell ? col.cell(item) : (item[col.accessorKey] as React.ReactNode)}
                     </td>
                   ))}
-                  <td className="p-3 flex gap-2">
-                    {_update && (
-                      <button
-                        onClick={() => _update(item)}
-                        className="px-2 py-1 bg-blue-600 text-white rounded">
-                        Update
-                      </button>
-                    )}
-                    {_delete && (
-                      <button
-                        onClick={() => _delete(item)}
-                        className="px-2 py-1 bg-red-600 text-white rounded">
-                        Delete
-                      </button>
-                    )}
-                  </td>
                 </tr>
               ))}
           </tbody>
