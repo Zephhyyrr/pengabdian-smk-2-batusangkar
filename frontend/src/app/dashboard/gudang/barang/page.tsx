@@ -65,7 +65,7 @@ export default function DashboardBarang() {
   }, []);
 
   return (
-    <DashboardLayout title="Barang">
+    <DashboardLayout title="Barang" role="Admin">
       <div>
         <DataTable
           data={barang}
