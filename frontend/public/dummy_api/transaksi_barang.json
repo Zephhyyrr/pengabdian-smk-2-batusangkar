@@ -2,6 +2,14 @@
   {
     "id": 1,
     "id_barang": 1,
+    "barang":{
+      "id": 1,
+      "nama": "Pupuk Urea",
+      "jumlah": "120",
+      "satuan": "kg",
+      "createdAt": "2024-05-01T10:00:00Z",
+      "updatedAt": "2024-05-05T08:00:00Z"
+    },
     "tanggal": "2024-05-10T12:00:00Z",
     "masuk": 100,
     "keluar": 0,
@@ -12,6 +20,14 @@
   {
     "id": 2,
     "id_barang": 1,
+    "barang":{
+      "id": 1,
+      "nama": "Pupuk Urea",
+      "jumlah": "120",
+      "satuan": "kg",
+      "createdAt": "2024-05-01T10:00:00Z",
+      "updatedAt": "2024-05-05T08:00:00Z"
+    },
     "tanggal": "2024-05-11T10:00:00Z",
     "masuk": 0,
     "keluar": 20,

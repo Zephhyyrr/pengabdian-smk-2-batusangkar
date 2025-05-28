@@ -6,12 +6,15 @@ import CreateUpdateModal from "@/components/dashboard/CreateUpdateModal";
 import { Pencil, Trash2 } from "lucide-react";
 import { apiRequest } from "@/services/api.service";
 import { Barang } from "@/types";
+import ConfirmButton from "@/components/common/ConfirmButton";
 
 export default function DashboardBarang() {
   const [barang, setBarang] = useState<Barang[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "update">("create");
   const [initialData, setInitialData] = useState<any>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const token =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0NzM5NzQ1NCwiZXhwIjoxNzQ5OTg5NDU0fQ.ky6khUQTS2z1SXPea-8j8yun-EtaRb-rAD6RuTSYPpA";
@@ -43,19 +46,21 @@ export default function DashboardBarang() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    const sure = confirm("Delete nih, bang?");
-    if (sure) {
-      try {
-        await apiRequest({
-          endpoint: `/barang/${id}`,
-          method: "DELETE",
-          token: token,
-        });
-        fetchData();
-      } catch (error) {
-        console.error("Error delete data:", error);
-      }
+  const handleDelete = (id: number) => {
+    setDeleteId(id);
+    setShowConfirm(true);
+  };
+
+  const deleteData = async () => {
+    if (deleteId !== null) {
+      await apiRequest({
+        endpoint: `/barang/${deleteId}`,
+        method: "DELETE",
+        token: token,
+      });
+      fetchData();
+      setShowConfirm(false);
+      setDeleteId(null);
     }
   };
 
@@ -64,13 +69,17 @@ export default function DashboardBarang() {
   }, []);
 
   return (
-    <DashboardLayout title="Barang" role="Admin">
+    <DashboardLayout title="Barang | " role="Admin">
       <div>
         <DataTable
           data={barang}
           _create={handleCreate}
           columns={[
-            { header: "ID", accessorKey: "id" },
+            {
+              header: "#",
+              accessorKey: "id",
+              cell: (item) => barang.findIndex((p) => p.id === item.id) + 1,
+            },
             { header: "Nama Barang", accessorKey: "nama" },
             { header: "Jumlah", accessorKey: "jumlah" },
             { header: "Satuan", accessorKey: "satuan" },
@@ -118,11 +127,19 @@ export default function DashboardBarang() {
         title="Barang"
         fields={[
           {name: "nama", type:"text"}, 
-          {name: "satuan", type:"number"}
+          {name: "satuan", type:"text"}
         ]}
         endpoint="/barang"
         initialData={initialData}
       />
+
+      {showConfirm && (
+        <ConfirmButton
+          message="Yakin hapus data ini?"
+          onConfirm={deleteData}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </DashboardLayout>
   );
 }

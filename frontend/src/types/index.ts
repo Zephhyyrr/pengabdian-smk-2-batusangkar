@@ -15,11 +15,13 @@ export interface Jenis {
   name: string;
   createdAt: string;
   updatedAt: string;
+  komoditas: Komoditas[];
 }
 
 export interface Komoditas {
   id: number;
   id_jenis: number;
+  jenis: Jenis;
   nama: string;
   deskripsi: string;
   foto: string;
@@ -40,6 +42,7 @@ export interface Produksi {
   id: number;
   id_asal: number;
   kode_produksi: string;
+  asal_produksi: AsalProduksi;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,10 +50,12 @@ export interface Produksi {
 export interface Penjualan {
   id: number;
   id_komodity: number;
+  komodity: Komoditas;
   ukuran: string;
   jumlah_terjual: number;
   kualitas: string;
   id_produksi: number;
+  produksi: Produksi;
   keterangan: string;
   createdAt: string;
   updatedAt: string;
