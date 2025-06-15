@@ -1,14 +1,56 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { apiRequest } from "@/services/api.service";
 
-export default function InputJenisKomoditas() {
-  const [nama, setNama] = useState("");
+type Props = {
+  selectedJenis: any | null;
+  setSelectedJenis: (jenis: any | null) => void;
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
+export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis }: Props) {
+  const [name, setName] = useState("");
+  const [formMode, setFormMode] = useState<"create" | "update">("create");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (selectedJenis) {
+      setFormMode("update");
+      setName(selectedJenis.name);
+    } else {
+      setFormMode("create");
+      setName("");
+    }
+  }, [selectedJenis]);
+
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
+
+  // Submit create atau update
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Data dikirim:", nama);
-    setNama("");
+    setLoading(true);
+    try {
+      const payload = { name };
+      if (formMode === "create") {
+        await apiRequest({ endpoint: "/api/jenis", method: "POST", token, data: payload });
+        alert("Jenis berhasil ditambahkan");
+      } else if (formMode === "update" && selectedJenis?.id) {
+        await apiRequest({ endpoint: `/api/jenis/${selectedJenis.id}`, method: "PUT", token, data: payload });
+        alert("Jenis berhasil diupdate");
+      }
+
+      setName("");
+      setFormMode("create");
+      setSelectedJenis(null);
+
+    } catch (err: any) {
+      alert("Terjadi kesalahan: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+
 
   return (
     <form
@@ -18,18 +60,16 @@ export default function InputJenisKomoditas() {
       {/* Label dan Input */}
       <div className="flex items-center gap-4 flex-1">
         <label
-          htmlFor="nama"
           className="text-sm font-medium text-gray-700 dark:text-gray-300 w-24"
         >
           Nama
         </label>
         <input
           type="text"
-          id="nama"
-          value={nama}
-          onChange={(e) => setNama(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="flex-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Masukkan nama"
+          placeholder="Masukkan jenis"
           required
         />
       </div>
@@ -38,8 +78,10 @@ export default function InputJenisKomoditas() {
       <button
         type="submit"
         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        onClick={handleSubmit}
+        disabled={loading}
       >
-        Simpan
+        {loading ? "Menyimpan..." : formMode === "create" ? "Simpan" : "Update"}
       </button>
     </form>
   );

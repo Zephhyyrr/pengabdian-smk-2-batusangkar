@@ -1,13 +1,36 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { Search } from "lucide-react";
-import InputKomoditasForm from "./input";
 import UpdateKomoditasForm from "./update";
+import { apiRequest } from "@/services/api.service";
+import InputKomoditasForm from "./input";
 
 export default function Komoditas() {
+    const [komoditasList, setKomoditasList] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+
+    const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
+
+    const fetchDataJenis = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/api/komoditas",
+                token,
+            });
+            console.log("DATA DARI BACKEND:", data);
+            setKomoditasList(Array.isArray(data) ? data : [data]);
+        } catch (err) {
+            console.error("Gagal ambil data jenis:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchDataJenis();
+    }, []);
+
     return (
         <>
             {/* Search & Button */}
@@ -46,6 +69,7 @@ export default function Komoditas() {
                                 <TableRow>
                                     <TableCell isHeader className="dark:text-white">No</TableCell>
                                     <TableCell isHeader className="dark:text-white">Jenis Komoditas</TableCell>
+                                    <TableCell isHeader className="dark:text-white">Nama</TableCell>
                                     <TableCell isHeader className="dark:text-white">Deskripsi</TableCell>
                                     <TableCell isHeader className="dark:text-white">Satuan</TableCell>
                                     <TableCell isHeader className="dark:text-white">Jumlah</TableCell>
@@ -53,13 +77,14 @@ export default function Komoditas() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {[1, 2, 3].map((i) => (
-                                    <TableRow key={i}>
-                                        <TableCell className="dark:text-gray-200">{i}</TableCell>
-                                        <TableCell className="dark:text-gray-200">Melon</TableCell> {/* Id_jenis */}
-                                        <TableCell className="dark:text-gray-200">Wow Sekali Buah Ini</TableCell>
-                                        <TableCell className="dark:text-gray-200">KG</TableCell>
-                                        <TableCell className="dark:text-gray-200">10 Buah untuk kita</TableCell>
+                                {komoditasList.map((item, index) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.nama_jenis}</TableCell> 
+                                        <TableCell className="dark:text-gray-200">{item.nama}</TableCell> 
+                                        <TableCell className="dark:text-gray-200">{item.deskripsi}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.satuan} KG</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.jumlah}</TableCell>
                                         <TableCell>
                                             <button
                                                 onClick={() => setIsUpdateOpen(true)}

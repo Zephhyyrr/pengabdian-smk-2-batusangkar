@@ -1,28 +1,33 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { apiRequest } from '@/services/api.service';
+import axios from 'axios';
 
-interface InputKomoditasFormProps {
+interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
+    children: React.ReactNode;
 }
 
-export default function InputKomoditasForm({ isOpen, onClose }: InputKomoditasFormProps) {
-    // ESC untuk menutup modal
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+    // Handle ESC key to close modal
     useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') onClose();
         };
+
         if (isOpen) {
             document.addEventListener('keydown', handleEsc);
         }
+
         return () => {
             document.removeEventListener('keydown', handleEsc);
         };
     }, [isOpen, onClose]);
 
-    // Klik di luar konten
+    // Handle click outside to close
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) onClose();
     };
@@ -34,76 +39,193 @@ export default function InputKomoditasForm({ isOpen, onClose }: InputKomoditasFo
             className="fixed inset-0 z-[9999] bg-[rgba(0,0,0,0.5)] backdrop-blur-sm flex justify-center items-center"
             onClick={handleBackdropClick}
         >
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Create Komoditas</h3>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Create Komoditas</h3>
                     <button
-                        className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white focus:outline-none"
                         onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white focus:outline-none"
                     >
                         <XMarkIcon className="h-6 w-6" />
                     </button>
                 </div>
-                <div className="p-4">
-                    <form className="grid grid-cols-1 gap-4 text-gray-900 dark:text-gray-100">
-                        <div className="grid grid-cols-2 items-center gap-4">
-                            <label>Jenis Komoditas</label>
-                            <select className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option value="">Pilih Jenis Komoditas</option>
-                                <option value="melon">Melon</option>
-                                <option value="ayam">Ayam</option>
-                            </select>
-                        </div>
-                        <div className="grid grid-cols-2 items-center gap-4">
-                            <label>Deskripsi</label>
-                            <input
-                                type="text"
-                                className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 items-center gap-4">
-                            <label>Satuan</label>
-                            <input
-                                type="text"
-                                className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                placeholder="Satuan"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 items-center gap-4">
-                            <label>Jumlah</label>
-                            <input
-                                type="number"
-                                className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                placeholder="Jumlah"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 items-center gap-4">
-                            <label>Upload Gambar</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                        </div>
-                        <div className="mt-4 flex justify-end space-x-2">
-                            <button
-                                type="button"
-                                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-green-300 dark:hover:bg-green-500"
-                                onClick={onClose}
-                            >
-                                Batal
-                            </button>
-                            <button
-                                type="button"
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                onClick={() => console.log("Submit placeholder")}
-                            >
-                                Submit
-                            </button>
-                        </div>
-                    </form>
+                <div className="p-4 text-gray-800 dark:text-gray-200">
+                    {children}
                 </div>
             </div>
         </div>
+    );
+};
+
+
+export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolean; onClose: () => void; }) {
+    const [id_jenis, setIdJenis] = useState("");
+    const [nama, setNama] = useState("");
+    const [deskripsi, setDeskripsi] = useState("");
+    const [foto, setFoto] = useState<File | null>(null);
+    const [satuan, setSatuan] = useState("");
+    const [jumlah, setJumlah] = useState("");
+    const [formMode, setFormMode] = useState<"create" | "update">("create");
+    const [loading, setLoading] = useState(false);
+
+    const [jenisList, setJenisList] = useState<any[]>([]);
+
+    const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
+
+    useEffect(() => {
+        fetchDataJenis();
+    }, []);
+
+    const fetchDataJenis = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/api/jenis",
+                token,
+            });
+            setJenisList(Array.isArray(data) ? data : [data]);
+        } catch (err) {
+            console.error("Gagal ambil data jenis:", err);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append("id_jenis", id_jenis.toString());
+            formData.append("nama", nama);
+            formData.append("deskripsi", deskripsi);
+            formData.append("satuan", satuan);
+            formData.append("jumlah", jumlah.toString());
+            if (foto) {
+                formData.append("foto", foto);
+            }
+
+            await apiRequest({
+                endpoint: "/api/komoditas",
+                method: "POST",
+                token,
+                data: formData, 
+            });
+
+            alert("Komoditas berhasil ditambahkan");
+            setNama("");
+            setDeskripsi("");
+            setSatuan("");
+            setJumlah("");
+            setFoto(null);
+            setIdJenis("");
+            onClose(); 
+        } catch (err: any) {
+            alert("Gagal menambahkan komoditas: " + err.message);
+            console.error("Response error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose}>
+            <div className="p-4">
+                <form
+                    onSubmit={handleSubmit}
+                    className="grid grid-cols-2 gap-4 text-gray-900 dark:text-gray-100"
+                >
+                    <div className="flex items-center gap-4">
+                        <label>Jenis Komoditas</label>
+                    </div>
+                    <select
+                        value={id_jenis}
+                        onChange={(e) => setIdJenis(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white w-full"
+                        required
+                    >
+                        <option value="">Pilih Jenis Komoditas</option>
+                        {jenisList.map((jenis) => (
+                            <option key={jenis.id} value={jenis.id}>
+                                {jenis.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <label>Nama</label>
+                    <input
+                        type="text"
+                        value={nama}
+                        onChange={(e) => setNama(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                    />
+
+                    <label>Deskripsi</label>
+                    <textarea
+                        value={deskripsi}
+                        onChange={(e) => setDeskripsi(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-y"
+                        rows={4}
+                    />
+
+
+                    <label>Satuan</label>
+                    <input
+                        type="text"
+                        value={satuan}
+                        onChange={(e) => setSatuan(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+
+                    <label>Jumlah</label>
+                    <input
+                        type="number"
+                        value={jumlah}
+                        onChange={(e) => setJumlah(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+
+                    <label>Upload Gambar</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                                setFoto(e.target.files[0]);
+                            }
+                        }}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+
+                    <label>Preview</label>
+                    {foto ? (
+                        <img
+                            src={URL.createObjectURL(foto)}
+                            alt="Preview"
+                            className="max-h-48 rounded border"
+                        />
+                    ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-300">Belum ada gambar</p>
+                    )}
+                    <div className="col-span-2 mt-4 flex justify-end space-x-2">
+                        <button
+                            type="button"
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-green-300 dark:hover:bg-green-500"
+                            onClick={onClose}
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                            {loading ? "Menyimpan..." : "Submit"}
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </Modal>
     );
 }
