@@ -11,6 +11,7 @@ const nextConfig = {
                 hostname: 'unsplash.com',
             },
         ],
+        domains: ['drive.google.com']
     },
 };
 

@@ -32,10 +32,10 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis }:
     try {
       const payload = { name };
       if (formMode === "create") {
-        await apiRequest({ endpoint: "/api/jenis", method: "POST", token, data: payload });
+        await apiRequest({ endpoint: "/jenis", method: "POST", token, data: payload });
         alert("Jenis berhasil ditambahkan");
       } else if (formMode === "update" && selectedJenis?.id) {
-        await apiRequest({ endpoint: `/api/jenis/${selectedJenis.id}`, method: "PUT", token, data: payload });
+        await apiRequest({ endpoint: `/jenis/${selectedJenis.id}`, method: "PUT", token, data: payload });
         alert("Jenis berhasil diupdate");
       }
 

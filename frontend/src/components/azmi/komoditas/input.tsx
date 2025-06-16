@@ -57,15 +57,27 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     );
 };
 
+interface InputKomoditasFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+    formMode?: "create" | "update";
+    initialData?: any;
+    onSubmitSuccess?: () => void;
+}
 
-export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolean; onClose: () => void; }) {
+export default function InputKomoditasForm({
+    isOpen,
+    onClose,
+    formMode = "create",
+    initialData,
+    onSubmitSuccess,
+}: InputKomoditasFormProps) {
     const [id_jenis, setIdJenis] = useState("");
     const [nama, setNama] = useState("");
     const [deskripsi, setDeskripsi] = useState("");
     const [foto, setFoto] = useState<File | null>(null);
     const [satuan, setSatuan] = useState("");
     const [jumlah, setJumlah] = useState("");
-    const [formMode, setFormMode] = useState<"create" | "update">("create");
     const [loading, setLoading] = useState(false);
 
     const [jenisList, setJenisList] = useState<any[]>([]);
@@ -75,12 +87,20 @@ export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolea
 
     useEffect(() => {
         fetchDataJenis();
-    }, []);
+
+        if (formMode === "update" && initialData) {
+            setIdJenis(initialData.id_jenis?.toString() || "");
+            setNama(initialData.nama || "");
+            setDeskripsi(initialData.deskripsi || "");
+            setSatuan(initialData.satuan || "");
+            setJumlah(initialData.jumlah?.toString() || "");
+        }
+    }, [formMode, initialData]);
 
     const fetchDataJenis = async () => {
         try {
             const data = await apiRequest({
-                endpoint: "/api/jenis",
+                endpoint: "/jenis",
                 token,
             });
             setJenisList(Array.isArray(data) ? data : [data]);
@@ -104,24 +124,26 @@ export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolea
                 formData.append("foto", foto);
             }
 
+            const endpoint =
+                formMode === "create"
+                    ? "/komoditas"
+                    : `/komoditas/${initialData?.id}`;
+            const method = formMode === "create" ? "POST" : "PUT";
+
             await apiRequest({
-                endpoint: "/api/komoditas",
-                method: "POST",
+                endpoint,
+                method,
                 token,
-                data: formData, 
+                data: formData,
             });
 
-            alert("Komoditas berhasil ditambahkan");
-            setNama("");
-            setDeskripsi("");
-            setSatuan("");
-            setJumlah("");
-            setFoto(null);
-            setIdJenis("");
-            onClose(); 
+            alert(
+                `Komoditas berhasil ${formMode === "create" ? "ditambahkan" : "diperbarui"}`
+            );
+            if (onSubmitSuccess) onSubmitSuccess();
+            onClose();
         } catch (err: any) {
-            alert("Gagal menambahkan komoditas: " + err.message);
-            console.error("Response error:", err);
+            alert("Gagal menyimpan komoditas: " + err.message);
         } finally {
             setLoading(false);
         }
@@ -189,11 +211,9 @@ export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolea
                     <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
-                            if (e.target.files && e.target.files.length > 0) {
-                                setFoto(e.target.files[0]);
-                            }
-                        }}
+                        onChange={(e) =>
+                            e.target.files && setFoto(e.target.files[0])
+                        }
                         className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
 
@@ -204,8 +224,16 @@ export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolea
                             alt="Preview"
                             className="max-h-48 rounded border"
                         />
+                    ) : initialData?.foto ? (
+                        <img
+                            src={initialData.foto}
+                            alt="Preview"
+                            className="max-h-48 rounded border"
+                        />
                     ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-300">Belum ada gambar</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-300">
+                            Belum ada gambar
+                        </p>
                     )}
                     <div className="col-span-2 mt-4 flex justify-end space-x-2">
                         <button
@@ -220,7 +248,7 @@ export default function InputKomoditasForm({ isOpen, onClose }: { isOpen: boolea
                             disabled={loading}
                             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
-                            {loading ? "Menyimpan..." : "Submit"}
+                            {loading ? "Menyimpan..." : formMode === "create" ? "Submit" : "Update"}
                         </button>
                     </div>
                 </form>

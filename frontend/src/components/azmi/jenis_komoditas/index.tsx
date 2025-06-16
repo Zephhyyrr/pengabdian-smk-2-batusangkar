@@ -18,7 +18,7 @@ export default function Jenis_Komoditas({ onEdit }: Props) {
   const fetchDataJenis = async () => {
     try {
       const data = await apiRequest({
-        endpoint: "/api/jenis",
+        endpoint: "/jenis",
         token,
       });
       setJenisList(Array.isArray(data) ? data : [data]);
@@ -35,7 +35,7 @@ export default function Jenis_Komoditas({ onEdit }: Props) {
   const deleteDataJenis = async (id: number) => {
     try {
       await apiRequest({
-        endpoint: `/api/jenis/${id}`,
+        endpoint: `/jenis/${id}`,
         method: "DELETE",
         token,
       });

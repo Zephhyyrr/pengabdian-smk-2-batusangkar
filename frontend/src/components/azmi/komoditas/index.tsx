@@ -1,35 +1,59 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { Search } from "lucide-react";
-import UpdateKomoditasForm from "./update";
+import { InfoIcon, PenBox, RefreshCcw, Search, Trash2 } from "lucide-react";
 import { apiRequest } from "@/services/api.service";
 import InputKomoditasForm from "./input";
+import InfoKomoditasForm from "./info";
 
 export default function Komoditas() {
     const [komoditasList, setKomoditasList] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [isInfoOpen, setIsInfoOpen] = useState(false);
+    const [selectedKomoditas, setSelectedKomoditas] = useState(null);
+    const [komoditasYgDipilih, setKomoditasYgDipilih] = useState<any>(null);
 
     const token =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
 
-    const fetchDataJenis = async () => {
+    const fetchDataKomoditas = async () => {
         try {
             const data = await apiRequest({
-                endpoint: "/api/komoditas",
+                endpoint: "/komoditas",
                 token,
             });
             console.log("DATA DARI BACKEND:", data);
             setKomoditasList(Array.isArray(data) ? data : [data]);
         } catch (err) {
-            console.error("Gagal ambil data jenis:", err);
+            console.error("Gagal ambil data Komoditas:", err);
         }
     };
 
     useEffect(() => {
-        fetchDataJenis();
+        fetchDataKomoditas();
     }, []);
+
+    // update modal
+    const handleOpenUpdateModal = (data: any) => {
+        setKomoditasYgDipilih(data);
+        setIsUpdateOpen(true);
+    };
+
+    const deleteDataKomoditas = async (id: number) => {
+        try {
+            await apiRequest({
+                endpoint: `/komoditas/${id}`,
+                method: "DELETE",
+                token,
+            });
+            alert("Data berhasil dihapus.");
+            fetchDataKomoditas();
+        } catch (error) {
+            console.error("Gagal hapus data Komoditas", error);
+            alert("Gagal menghapus data.")
+        }
+    };
 
     return (
         <>
@@ -70,7 +94,6 @@ export default function Komoditas() {
                                     <TableCell isHeader className="dark:text-white">No</TableCell>
                                     <TableCell isHeader className="dark:text-white">Jenis Komoditas</TableCell>
                                     <TableCell isHeader className="dark:text-white">Nama</TableCell>
-                                    <TableCell isHeader className="dark:text-white">Deskripsi</TableCell>
                                     <TableCell isHeader className="dark:text-white">Satuan</TableCell>
                                     <TableCell isHeader className="dark:text-white">Jumlah</TableCell>
                                     <TableCell isHeader className="dark:text-white">Action</TableCell>
@@ -80,21 +103,35 @@ export default function Komoditas() {
                                 {komoditasList.map((item, index) => (
                                     <TableRow key={item.id}>
                                         <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
-                                        <TableCell className="dark:text-gray-200">{item.nama_jenis}</TableCell> 
-                                        <TableCell className="dark:text-gray-200">{item.nama}</TableCell> 
-                                        <TableCell className="dark:text-gray-200">{item.deskripsi}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.nama_jenis}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.nama}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.satuan} KG</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.jumlah}</TableCell>
                                         <TableCell>
                                             <button
-                                                onClick={() => setIsUpdateOpen(true)}
+                                                onClick={() => handleOpenUpdateModal(item)}
                                                 className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded">
-                                                Edit
+                                                <PenBox size={15} />
                                             </button>
-                                            <UpdateKomoditasForm isOpen={isUpdateOpen} onClose={() => setIsUpdateOpen(false)} />
-                                            <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
-                                                Hapus
+
+                                            <button
+                                                onClick={() => deleteDataKomoditas(item.id)}
+                                                className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
+                                                <Trash2 size={15} />
                                             </button>
+                                            <button
+                                                className="ml-2 bg-blue-600 hover:bg-blue-700 text-white hover:underline py-1 px-3 rounded"
+                                                onClick={() => {
+                                                    setSelectedKomoditas(item);
+                                                    setIsInfoOpen(true);
+                                                }}>
+                                                <InfoIcon size={15} />
+                                            </button>
+                                            <InfoKomoditasForm
+                                                isOpen={isInfoOpen}
+                                                onClose={() => setIsInfoOpen(false)}
+                                                selectedKomoditas={selectedKomoditas}
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -131,6 +168,16 @@ export default function Komoditas() {
                     </li>
                 </ul>
             </nav>
+            <InputKomoditasForm
+                isOpen={isUpdateOpen}
+                onClose={() => setIsUpdateOpen(false)}
+                formMode="update"
+                initialData={komoditasYgDipilih}
+                onSubmitSuccess={() => {
+                    setIsUpdateOpen(false);     // tutup modal setelah update
+                    fetchDataKomoditas();       // refresh data
+                }}
+            />
         </>
     );
 }

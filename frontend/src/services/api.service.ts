@@ -13,9 +13,17 @@ export const apiRequest = async ({
 }) => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
+  // const headers = {
+  //   'Content-Type': 'application/json',
+  //   ...(token && { Authorization: `Bearer ${token}` }),
+  // };
+
+
+  const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+
   const headers = {
-    'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
   };
 
   try {
