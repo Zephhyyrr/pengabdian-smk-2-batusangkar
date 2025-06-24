@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "id_asal": 1,
+        "kode_produksi": "PROD001",
+        "ukuran": "50kg",
+        "kualitas": "Premium",
+        "createdAt": "2024-06-01T10:00:00Z",
+        "updatedAt": "2024-06-01T10:00:00Z",
+        "asal_produksi": {
+            "id": 1,
+            "nama": "Pabrik A",
+            "createdAt": "2024-06-01T10:00:00Z",
+            "updatedAt": "2024-06-01T10:00:00Z"
+        }
+    },
+    {
+        "id": 2,
+        "id_asal": 2,
+        "kode_produksi": "PROD002",
+        "ukuran": "25kg",
+        "kualitas": "Medium",
+        "createdAt": "2024-06-05T08:30:00Z",
+        "updatedAt": "2024-06-05T08:30:00Z",
+        "asal_produksi": {
+            "id": 2,
+            "nama": "Pabrik B",
+            "createdAt": "2024-06-05T08:30:00Z",
+            "updatedAt": "2024-06-05T08:30:00Z"
+        }
+    }
+]
