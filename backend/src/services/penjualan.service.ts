@@ -1,0 +1,67 @@
+import prisma from "../config/prisma";
+
+export async function getAllPenjualanService() {
+    const penjualans = await prisma.penjualan.findMany({
+        include: {
+            Komoditas: true,
+            Produksi: true
+        }
+    })
+    return penjualans
+}
+
+export async function createPenjualanService(
+    keterangan: string,
+    kualitas: string,
+    ukuran: string,
+    id_komodity: number,
+    id_produksi: number
+) {
+    const newPenjualan = await prisma.penjualan.create({
+        data: {
+            keterangan,
+            kualitas,
+            ukuran,
+            id_komodity,
+            id_produksi,
+        }
+    })
+
+    return newPenjualan
+}
+
+export async function getPenjualanByIdService(id: number) {
+    const penjualan = await prisma.penjualan.findFirst({
+        where: { id }
+    })
+
+    return penjualan
+}
+
+export async function updatePenjualanService(
+    id: number,
+    keterangan: string,
+    kualitas: string,
+    ukuran: string,
+    id_komodity: number,
+    id_produksi: number
+) {
+    const updated = await prisma.penjualan.update({
+        where: { id },
+        data: {
+            keterangan,
+            kualitas,
+            ukuran,
+            id_komodity,
+            id_produksi
+        }
+    })
+
+    return updated
+}
+
+export async function deletePenjualanService(id: number) {
+    const deleted = await prisma.penjualan.delete({ where: { id } })
+
+    return deleted
+}

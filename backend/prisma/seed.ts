@@ -7,7 +7,7 @@ async function main() {
     // Seed a super admin user
     await prisma.user.create({
         data: {
-            nama: 'Super Admib',
+            nama: 'Super Admin',
             email: 'superadmin@gmail.com',
             password: (await hashing("Password123"))!,
             role: "super_admin"
