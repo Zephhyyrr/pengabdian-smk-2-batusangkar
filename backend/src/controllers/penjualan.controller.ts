@@ -21,12 +21,10 @@ export async function createPenjualanController(req: Request, res: Response<Resp
     try {
         const penjualans = await getAllPenjualanService()
         const { keterangan,
-            kualitas,
-            ukuran,
             id_komodity,
             id_produksi } = req.body;
 
-        const newPenjualan = await createPenjualanService(keterangan, kualitas, ukuran, Number(id_komodity), Number(id_produksi))
+        const newPenjualan = await createPenjualanService(keterangan, Number(id_komodity), Number(id_produksi))
         return res.status(200).json({
             success: true,
             message: "Berhasil mendapatkan data penjualan",

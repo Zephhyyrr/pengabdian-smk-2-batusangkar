@@ -12,16 +12,12 @@ export async function getAllPenjualanService() {
 
 export async function createPenjualanService(
     keterangan: string,
-    kualitas: string,
-    ukuran: string,
     id_komodity: number,
     id_produksi: number
 ) {
     const newPenjualan = await prisma.penjualan.create({
         data: {
             keterangan,
-            kualitas,
-            ukuran,
             id_komodity,
             id_produksi,
         }
@@ -41,8 +37,6 @@ export async function getPenjualanByIdService(id: number) {
 export async function updatePenjualanService(
     id: number,
     keterangan: string,
-    kualitas: string,
-    ukuran: string,
     id_komodity: number,
     id_produksi: number
 ) {
@@ -50,8 +44,6 @@ export async function updatePenjualanService(
         where: { id },
         data: {
             keterangan,
-            kualitas,
-            ukuran,
             id_komodity,
             id_produksi
         }
