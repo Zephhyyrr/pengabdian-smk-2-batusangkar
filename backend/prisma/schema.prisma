@@ -67,6 +67,8 @@ model Produksi {
   id            Int    @id @default(autoincrement())
   id_asal       Int
   kode_produksi String
+  ukuran        String
+  kualitas      String
 
   penjualans    Penjualan[]
   asal_produksi AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
@@ -77,9 +79,7 @@ model Produksi {
 model Penjualan {
   id             Int       @id @default(autoincrement())
   id_komodity    Int
-  ukuran         String
   jumlah_terjual Int       @default(0)
-  kualitas       String
   id_produksi    Int
   keterangan     String    @db.Text
   createdAt      DateTime  @default(now())
