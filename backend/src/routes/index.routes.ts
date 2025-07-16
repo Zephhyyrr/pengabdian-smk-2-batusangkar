@@ -8,6 +8,8 @@ import barangRouter from "./barang.routes";
 import transaksiBarangRouter from "./transaksi_barang.routes";
 import jenisRouter from "./jenis.routes";
 import komoditasRouter from "./komoditas.routes";
+import produksiRouter from "./produksi.routes";
+import asalProduksiRouter from "./asal_produksi.routes";
 
 const apiRouter = Router()
 
@@ -18,4 +20,6 @@ apiRouter.use("/jenis", jwtCheckToken, isRole(["super_admin", "admin"]), jenisRo
 apiRouter.use("/komoditas", jwtCheckToken, isRole(["super_admin", "admin"]), komoditasRouter)
 apiRouter.use("/barang", jwtCheckToken, isRole(["super_admin", "admin"]), barangRouter)
 apiRouter.use("/transaksi-barang", jwtCheckToken, isRole(["super_admin", "admin"]), transaksiBarangRouter)
+apiRouter.use("/produksi", jwtCheckToken, isRole(["super_admin", "admin"]),  produksiRouter);
+apiRouter.use("/asal-produksi", jwtCheckToken, isRole(["super_admin", "admin"]), asalProduksiRouter);
 export default apiRouter
