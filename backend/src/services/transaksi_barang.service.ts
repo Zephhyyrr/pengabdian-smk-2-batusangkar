@@ -37,6 +37,7 @@ export const getAllTransaksiBarangService = async (
     const barang_masuk = transaksi
         .filter((t) => t.masuk > 0)
         .map((t) => ({
+            id: t.id,
             id_barang: t.id_barang,
             nama: t.barang.nama,
             satuan: t.barang.satuan,
@@ -48,6 +49,7 @@ export const getAllTransaksiBarangService = async (
     const barang_keluar = transaksi
         .filter((t) => t.keluar > 0)
         .map((t) => ({
+            id: t.id,
             id_barang: t.id_barang,
             nama: t.barang.nama,
             satuan: t.barang.satuan,
