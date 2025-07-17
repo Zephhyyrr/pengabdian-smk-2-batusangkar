@@ -17,7 +17,7 @@ export const apiRequest = async ({
   var token = localStorage.getItem('token');
 
   if (!token){
-    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1Mjc0NDg1OSwiZXhwIjoxNzU1MzM2ODU5fQ.4Dv9b7pJdkRNEqdgD-U3yNNV3EMWIk7BY3lnGfg---4';
+    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1Mjc1MTk2MSwiZXhwIjoxNzU1MzQzOTYxfQ.jH8ayxxhtyqLPS7BfkXDR1YzQxnJsv6Ub2VZhVAQH6k';
     // console.log('No token found in localStorage');
   }
 

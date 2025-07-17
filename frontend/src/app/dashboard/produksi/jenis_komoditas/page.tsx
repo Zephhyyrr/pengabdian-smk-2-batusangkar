@@ -1,6 +1,6 @@
 "use client";
-import Jenis_Komoditas from "@/components/azmi/jenis_komoditas";
-import InputJenisKomoditas from "@/components/azmi/jenis_komoditas/input";
+import Jenis_Komoditas from "@/components/table_master/jenis_komoditas";
+import InputJenisKomoditas from "@/components/table_master/jenis_komoditas/input";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useState } from "react";
 
