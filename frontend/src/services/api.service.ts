@@ -1,0 +1,43 @@
+import axios from 'axios';
+
+export const apiRequest = async ({
+  endpoint,
+  method = 'GET',
+  data,
+  token,
+}: {
+  endpoint: string;
+  method?: string;
+  data?: any;
+  token?: string;
+}) => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  // const headers = {
+  //   'Content-Type': 'application/json',
+  //   ...(token && { Authorization: `Bearer ${token}` }),
+  // };
+
+
+  const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+
+  const headers = {
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+  };
+
+  try {
+    const res = await axios({
+      url: `${baseUrl}${endpoint}`,
+      method,
+      headers,
+      data,
+    });
+
+    return res.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || error.message || 'Failed to fetch'
+    );
+  }
+};

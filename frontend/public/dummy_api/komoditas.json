@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "id_jenis": 1,
+    "jenis": {
+      "id": 1,
+      "name": "Pangan",
+      "createdAt": "2025-05-01T10:00:00Z",
+      "updatedAt": "2025-05-01T10:00:00Z",
+      "komoditas": []
+    },
+    "nama": "Beras Premium",
+    "deskripsi": "Beras kualitas tinggi",
+    "foto": "/images/beras.jpg",
+    "satuan": "kg",
+    "jumlah": 200,
+    "createdAt": "2025-05-01T10:00:00Z",
+    "updatedAt": "2025-05-01T10:00:00Z"
+  }
+]
