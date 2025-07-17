@@ -1,0 +1,18 @@
+import { Router } from "express";
+import {
+    getAllAsalProduksiController,
+    createAsalProduksiController,
+    updateAsalProduksiController,
+    deleteAsalProduksiController
+} from "../controllers/asal_produksi.controller";
+import { asalProduksiValidator } from "../validators/asal_produksi.validator";
+import { handleValidationErrors } from "../middlewares/handle_validation_errors";
+
+const asalProduksiRouter = Router();
+
+asalProduksiRouter.get("/", getAllAsalProduksiController);
+asalProduksiRouter.post("/", asalProduksiValidator, handleValidationErrors, createAsalProduksiController);
+asalProduksiRouter.put("/:id", asalProduksiValidator, handleValidationErrors, updateAsalProduksiController);
+asalProduksiRouter.delete("/:id", deleteAsalProduksiController);
+
+export default asalProduksiRouter;
