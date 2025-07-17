@@ -30,13 +30,15 @@ export async function getAllPenjualanService() {
 export async function createPenjualanService(
     keterangan: string,
     id_komodity: number,
-    id_produksi: number
+    id_produksi: number,
+    jumlah_terjual: number 
 ) {
     const newPenjualan = await prisma.penjualan.create({
         data: {
             keterangan,
             id_komodity,
             id_produksi,
+            jumlah_terjual
         }
     })
 
