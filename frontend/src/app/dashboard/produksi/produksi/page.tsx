@@ -5,10 +5,7 @@ import Produksi from "@/components/azmi/produksi";
 
 export default function JenisKomoditasPage() {
     return (
-        <DashboardLayout title="Jenis Komoditas" role="produksi">
-            <div className="mt-5">
-                <InputProduksi />
-            </div>
+        <DashboardLayout title="Produksi" role="">
             <div className="mt-6">
                 <Produksi />
             </div>

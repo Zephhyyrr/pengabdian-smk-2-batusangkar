@@ -5,9 +5,10 @@ import { apiRequest } from "@/services/api.service";
 type Props = {
   selectedJenis: any | null;
   setSelectedJenis: (jenis: any | null) => void;
+  onSuccess: () => void;
 };
 
-export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis }: Props) {
+export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis, onSuccess }: Props) {
   const [name, setName] = useState("");
   const [formMode, setFormMode] = useState<"create" | "update">("create");
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,7 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis }:
   }, [selectedJenis]);
 
   const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
 
   // Submit create atau update
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,6 +44,7 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis }:
       setFormMode("create");
       setSelectedJenis(null);
 
+      onSuccess(); 
     } catch (err: any) {
       alert("Terjadi kesalahan: " + err.message);
     } finally {
