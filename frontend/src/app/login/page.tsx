@@ -41,7 +41,12 @@ export default function LoginPage() {
       // Assuming the API returns a token
       if (response.token) {
         document.cookie = `token=${response.token}; path=/; secure; samesite=strict`;
-        router.push('/dashboard/kepsek');
+        document.cookie = `role=${response.role}; path=/; secure; samesite=strict`;
+        if (response.role === "siswa") {
+          router.push('/siswa');
+        }else{
+          router.push('/dashboard/kepsek');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
