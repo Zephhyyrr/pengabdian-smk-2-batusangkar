@@ -3,11 +3,28 @@ import prisma from "../config/prisma";
 export async function getAllPenjualanService() {
     const penjualans = await prisma.penjualan.findMany({
         include: {
-            Komoditas: true,
-            Produksi: true
+            Komoditas: {
+                include: {
+                    jenis: true
+                }
+            },
+            Produksi: {
+                include: {
+                    asal_produksi: true
+                }
+            }
         }
     })
-    return penjualans
+
+    return penjualans.map(penjualan=>{
+        const { Komoditas, Produksi, ...rest } = penjualan;
+
+        return {
+            ...rest,
+            komoditas: Komoditas,
+            produksi: Produksi 
+        }
+    })
 }
 
 export async function createPenjualanService(

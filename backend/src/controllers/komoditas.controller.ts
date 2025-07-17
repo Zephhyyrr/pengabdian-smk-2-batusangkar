@@ -33,7 +33,7 @@ export async function getAllKomoditasController(req: Request, res: Response<Resp
         const komoditas = (await getAllKomoditasService()).map((komoditas) => ({
             "id": komoditas.id,
             "id_jenis": komoditas.id_jenis,
-            "nama_jenis": komoditas.jenis.name,
+            "jenis": komoditas.jenis,
             "nama": komoditas.nama,
             "deskripsi": komoditas.deskripsi,
             "foto": komoditas.foto,
