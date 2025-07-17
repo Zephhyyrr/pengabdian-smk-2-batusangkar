@@ -29,26 +29,46 @@ export async function getAllTransaksiBarangService(
     const transaksi = await prisma.transaksiBarang.findMany({
         where,
         include: { barang: true },
-        orderBy: { tanggal: "desc" }
+        orderBy: { tanggal: "desc" },
     });
 
-    // Gabungkan barang dan barang_masuk
-    const barang = transaksi.map((t) => t.barang);
+    const barangMap = new Map<
+        number,
+        {
+            id: number;
+            nama: string;
+            satuan: string;
+            masuk: number;
+            keluar: number;
+        }
+    >();
 
-    const totalMasuk = await prisma.transaksiBarang.aggregate({
-        where,
-        _sum: { masuk: true }
-    });
+    let totalMasuk = 0;
+    let totalKeluar = 0;
 
-    const totalKeluar = await prisma.transaksiBarang.aggregate({
-        where,
-        _sum: { keluar: true }
-    });
+    for (const t of transaksi) {
+        totalMasuk += t.masuk;
+        totalKeluar += t.keluar;
+
+        const existing = barangMap.get(t.barang.id);
+        if (existing) {
+            existing.masuk += t.masuk;
+            existing.keluar += t.keluar;
+        } else {
+            barangMap.set(t.barang.id, {
+                id: t.barang.id,
+                nama: t.barang.nama,
+                satuan: t.barang.satuan,
+                masuk: t.masuk,
+                keluar: t.keluar,
+            });
+        }
+    }
 
     return {
-        barang,
-        totalMasuk: totalMasuk._sum.masuk ?? 0,
-        totalKeluar: totalKeluar._sum.keluar ?? 0
+        barang: Array.from(barangMap.values()),
+        totalMasuk,
+        totalKeluar,
     };
 }
 
