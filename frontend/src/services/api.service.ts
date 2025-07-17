@@ -14,12 +14,7 @@ export const apiRequest = async ({
 
   const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
 
-  var token = localStorage.getItem('token');
-
-  if (!token){
-    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1Mjc0NDg1OSwiZXhwIjoxNzU1MzM2ODU5fQ.4Dv9b7pJdkRNEqdgD-U3yNNV3EMWIk7BY3lnGfg---4';
-    // console.log('No token found in localStorage');
-  }
+  var token = typeof window !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined;
 
   const headers = {
     ...(token && { Authorization: `Bearer ${token}` }),
