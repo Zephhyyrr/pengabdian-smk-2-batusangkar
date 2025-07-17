@@ -1,69 +1,214 @@
 "use client";
-import { useState } from "react";
+import { apiRequest } from "@/services/api.service";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
 
-export default function InputProduksi() {
-    const [nama, setNama] = useState("");
-    const [kode, setKode] = useState(""); 
+interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+}
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Data dikirim:", { nama, kode });
-        setNama("");
-        setKode("");
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+    // Handle ESC key to close modal
+    useEffect(() => {
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') onClose();
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEsc);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [isOpen, onClose]);
+
+    // Handle click outside to close
+    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) onClose();
     };
 
+    if (!isOpen) return null;
+
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="w-full bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md space-y-4"
+        <div
+            className="fixed inset-0 z-[9999] bg-[rgba(0,0,0,0.5)] backdrop-blur-sm flex justify-center items-center"
+            onClick={handleBackdropClick}
         >
-            <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                <label
-                    htmlFor="nama"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                    Asal Produksi
-                </label>
-                <input
-                    type="text"
-                    id="nama"
-                    value={nama}
-                    onChange={(e) => setNama(e.target.value)}
-                    className="md:col-span-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Masukkan nama asal produksi"
-                    required
-                />
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Tambah Produksi</h3>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white focus:outline-none"
+                    >
+                        <XMarkIcon className="h-6 w-6" />
+                    </button>
+                </div>
+                <div className="p-4 text-gray-800 dark:text-gray-200">
+                    {children}
+                </div>
             </div>
+        </div>
+    );
+};
 
-            <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                <label
-                    htmlFor="KodeProduksi"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                    Kode Produksi
-                </label>
-                <select
-                    id="kode"
-                    value={kode}
-                    onChange={(e) => setKode(e.target.value)}
-                    className="md:col-span-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                >
-                    <option value="">Pilih Asal Produksi</option>
-                    <option value="Lapangan 1">Lapangan 1</option>
-                    <option value="Lapangan 2">Lapangan 2</option>
-                </select>
-            </div>
+interface InputFormProps {
+    isOpen: boolean,
+    onClose: () => void,
+    formMode: "create" | "update",
+    initialData?: any,
+    onSubmitSuccess: () => void
+}
 
-            {/* Tombol Simpan */}
-            <div className="flex justify-end">
-                <button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md transition-colors duration-200"
+export default function InputProduksiForm({
+    isOpen,
+    onClose,
+    formMode = "create",
+    initialData,
+    onSubmitSuccess }: InputFormProps) {
+    const [id_asal, setId_Asal] = useState("");
+    const [kode_produksi, setKode_Produksi] = useState("");
+    const [ukuran, setUkuran] = useState("");
+    const [kualitas, setKualitas] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const [asalList, setAsalList] = useState<any[]>([]);
+
+    const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
+
+    useEffect(() => {
+        console.log("initialData.idAsal:", initialData?.idAsal);
+        fetchDataAsal();
+
+        if (formMode === "update" && initialData) {
+            setId_Asal(initialData.id_asal?.toString() || "");
+            setKode_Produksi(initialData.kode_produksi || "");
+            setUkuran(initialData.ukuran || "");
+            setKualitas(initialData.kualitas || "");
+        }
+    }, [formMode, initialData]);
+
+    const fetchDataAsal = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/asal-produksi",
+                token,
+            });
+            setAsalList(data);
+        } catch (error) {
+            console.error("Gagal ambil data Asal:", error);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const payload = {
+            id_asal: parseInt(id_asal),
+            kode_produksi,
+            ukuran,
+            kualitas
+        };
+
+        try {
+        
+            const endpoint = formMode === "create" ? "/produksi" : `/produksi/${initialData.id}`;
+            const method = formMode === "create" ? "POST" : "PUT";
+
+            await apiRequest({
+                endpoint,
+                method,
+                token,
+                data: payload
+            });
+
+            alert(
+                `produksi berhasil ${formMode === "create" ? "ditambahkan" : "diperbarui"}`
+            );
+            if (onSubmitSuccess) onSubmitSuccess();
+            onClose();
+        } catch (error) {
+            console.error("Gagal simpan data Produksi:", error);
+            alert("Gagal menyimpan data.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose}>
+            <div className="p-4">
+                <form
+                    onSubmit={handleSubmit}
+                    className="grid grid-cols-2 gap-4 text-gray-900 dark:text-gray-100"
                 >
-                    Simpan
-                </button>
+                    <div className="flex items-center gap-4">
+                        <label>Asal Produksi</label>
+                    </div>
+                    <select
+                        value={id_asal}
+                        onChange={(e) => setId_Asal(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white w-full"
+                        required
+                    >
+                        <option value="">Pilih Asal Produksi</option>
+                        {asalList.map((asal) => (
+                            <option key={asal.id} value={asal.id}>
+                                {asal.nama}
+                            </option>
+                        ))}
+                    </select>
+
+                    <label>Kode Produksi</label>
+                    <input
+                        type="text"
+                        value={kode_produksi}
+                        onChange={(e) => setKode_Produksi(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                    />
+
+                    <label>Ukuran</label>
+                    <input
+                        type="text"
+                        value={ukuran}
+                        onChange={(e) => setUkuran(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                    />
+
+                    <label>Kualitas</label>
+                    <input
+                        type="text"
+                        value={kualitas}
+                        onChange={(e) => setKualitas(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+
+                    <div className="col-span-2 mt-4 flex justify-end space-x-2">
+                        <button
+                            type="button"
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                            onClick={onClose}
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                            {loading ? "Menyimpan..." : formMode === "create" ? "Submit" : "Update"}
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </Modal>
     );
 }

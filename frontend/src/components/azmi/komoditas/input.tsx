@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { apiRequest } from '@/services/api.service';
-import axios from 'axios';
 
 interface ModalProps {
     isOpen: boolean;
@@ -83,7 +82,7 @@ export default function InputKomoditasForm({
     const [jenisList, setJenisList] = useState<any[]>([]);
 
     const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
 
     useEffect(() => {
         fetchDataJenis();
@@ -238,7 +237,7 @@ export default function InputKomoditasForm({
                     <div className="col-span-2 mt-4 flex justify-end space-x-2">
                         <button
                             type="button"
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-green-300 dark:hover:bg-green-500"
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
                             onClick={onClose}
                         >
                             Batal
@@ -246,7 +245,7 @@ export default function InputKomoditasForm({
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                         >
                             {loading ? "Menyimpan..." : formMode === "create" ? "Submit" : "Update"}
                         </button>
