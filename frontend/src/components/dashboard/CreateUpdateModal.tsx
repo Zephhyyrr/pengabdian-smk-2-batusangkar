@@ -5,7 +5,6 @@ interface ModalFormProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  token: string;
   mode: "create" | "update";
   title: string;
   fields: FieldConfig[];
@@ -20,12 +19,10 @@ interface FieldConfig {
   options?: { label: string; value: any }[];
 }
 
-
 export default function ModalForm({
   open,
   onClose,
   onSuccess,
-  token,
   mode,
   title,
   fields,
@@ -57,7 +54,6 @@ export default function ModalForm({
       await apiRequest({
         endpoint: mode === "create" ? endpoint : `${endpoint}/${initialData?.id}`,
         method: mode === "create" ? "POST" : "PUT",
-        token,
         data: formData,
       });
 
@@ -85,47 +81,46 @@ export default function ModalForm({
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {fields.map((field) => (
-  <div key={field.name}>
-    <label className="block text-sm font-medium capitalize">{field.label || field.name}</label>
+            <div key={field.name}>
+              <label className="block text-sm font-medium capitalize">
+                {field.label || field.name}
+              </label>
 
-    {field.type === "select" ? (
-      <select
-        value={formData[field.name] || ""}
-        onChange={(e) => handleChange(field.name, e.target.value)}
-        className="w-full border rounded p-2"
-      >
-        <option value="">Pilih {field.label || field.name}</option>
-        {field.options?.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    ) : (
-      <input
-        type={field.type}
-        value={formData[field.name] || ""}
-        onChange={(e) => handleChange(field.name, e.target.value)}
-        className="w-full border rounded p-2"
-      />
-    )}
+              {field.type === "select" ? (
+                <select
+                  value={formData[field.name] || ""}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  className="w-full border rounded p-2">
+                  <option value="">Pilih {field.label || field.name}</option>
+                  {field.options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={field.type}
+                  value={formData[field.name] || ""}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  className="w-full border rounded p-2"
+                />
+              )}
 
-    {errors[field.name] && <p className="text-red-500 text-sm">{errors[field.name]}</p>}
-  </div>
-))}
+              {errors[field.name] && <p className="text-red-500 text-sm">{errors[field.name]}</p>}
+            </div>
+          ))}
 
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
-            >
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
               Batal
             </button>
             <button
               type="submit"
-              className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded"
-            >
+              className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded">
               {mode === "create" ? "Simpan" : "Update"}
             </button>
           </div>

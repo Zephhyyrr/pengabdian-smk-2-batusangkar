@@ -3,7 +3,6 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/table/DataTable";
 import { apiRequest } from "@/services/api.service";
-import { getPenjualan, getKomoditas } from "@/services/dummy_api";
 import { Penjualan, Komoditas } from "@/types";
 import { 
   PieChart, 
@@ -53,12 +52,8 @@ export default function DashboardKepsek() {
     try {
       setLoading(true);
       const penj = await apiRequest({ endpoint: "/penjualan" });
-      // const penj = await getPenjualan();
       setPenjualan(penj);
-      console.log("penj", penj, typeof(penj));
       const komo = await apiRequest({ endpoint: "/komoditas" });
-      // const komo = await getKomoditas();
-      console.log("komoditas", komo);
       setKomoditas(komo);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -69,7 +64,6 @@ export default function DashboardKepsek() {
 
   useEffect(() => {
     fetchData();
-    console.log("penjualan", penjualan, typeof(penjualan));
   }, []);
 
   // Hitung statistik untuk overview
@@ -187,7 +181,7 @@ export default function DashboardKepsek() {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Penjualan Terbaru */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">

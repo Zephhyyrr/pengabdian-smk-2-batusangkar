@@ -73,7 +73,7 @@ export interface Barang {
 export interface TransaksiBarang {
   id: number;
   id_barang: number;
-  barang: Barang;
+  nama: string;
   tanggal: string;
   masuk: number;
   keluar: number;

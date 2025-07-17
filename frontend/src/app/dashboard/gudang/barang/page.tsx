@@ -16,16 +16,9 @@ export default function DashboardBarang() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
- const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
-
-    
   const fetchData = async () => {
     try {
-      const data = await apiRequest({
-        endpoint: "/barang",
-        token: token,
-      });
+      const data = await apiRequest({endpoint: "/barang"});
       setBarang(data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -57,7 +50,6 @@ export default function DashboardBarang() {
       await apiRequest({
         endpoint: `/barang/${deleteId}`,
         method: "DELETE",
-        token: token,
       });
       fetchData();
       setShowConfirm(false);
@@ -123,7 +115,6 @@ export default function DashboardBarang() {
           fetchData();
           setOpenCreate(false);
         }}
-        token={token}
         mode={formMode}
         title="Barang"
         fields={[

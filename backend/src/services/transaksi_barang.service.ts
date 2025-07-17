@@ -1,56 +1,74 @@
 import prisma from "../config/prisma";
 import { AppError } from "../errors/api_errors";
 
-export async function getAllTransaksiBarangService(
+export const getAllTransaksiBarangService = async (
     tanggal?: string,
     bulan?: string,
     tahun?: string
-) {
-    let where: any = {};
-
+) => {
+    // Filter tanggal jika ada
+    const filterTanggal: any = {};
     if (tanggal) {
-        const date = new Date(tanggal);
-        if (isNaN(date.getTime())) throw new AppError("Format tanggal tidak valid.");
-        const nextDay = new Date(date);
-        nextDay.setDate(date.getDate() + 1);
-        where.tanggal = { gte: date, lt: nextDay };
+        filterTanggal.tanggal = tanggal;
     } else if (bulan && tahun) {
-        const start = new Date(`${tahun}-${bulan}-01`);
-        if (isNaN(start.getTime())) throw new AppError("Format bulan/tahun tidak valid.");
-        const end = new Date(start);
-        end.setMonth(start.getMonth() + 1);
-        where.tanggal = { gte: start, lt: end };
+        filterTanggal.tanggal = {
+            gte: `${tahun}-${bulan.padStart(2, "0")}-01`,
+            lt: `${tahun}-${String(Number(bulan) + 1).padStart(2, "0")}-01`,
+        };
     } else if (tahun) {
-        const start = new Date(`${tahun}-01-01`);
-        const end = new Date(`${Number(tahun) + 1}-01-01`);
-        where.tanggal = { gte: start, lt: end };
+        filterTanggal.tanggal = {
+            gte: `${tahun}-01-01`,
+            lt: `${Number(tahun) + 1}-01-01`,
+        };
     }
 
+    // Ambil semua transaksi barang
     const transaksi = await prisma.transaksiBarang.findMany({
-        where,
-        include: { barang: true },
-        orderBy: { tanggal: "desc" }
+        where: filterTanggal,
+        include: {
+            barang: true,
+        },
+        orderBy: {
+            tanggal: "asc",
+        },
     });
 
-    // Gabungkan barang dan barang_masuk
-    const barang = transaksi.map((t) => t.barang);
+    // Pisahkan transaksi masuk dan keluar
+    const barang_masuk = transaksi
+        .filter((t) => t.masuk > 0)
+        .map((t) => ({
+            id: t.id,
+            id_barang: t.id_barang,
+            nama: t.barang.nama,
+            satuan: t.barang.satuan,
+            jumlah: t.masuk,
+            keterangan: t.keterangan,
+            tanggal: t.tanggal.toISOString().split("T")[0],
+        }));
 
-    const totalMasuk = await prisma.transaksiBarang.aggregate({
-        where,
-        _sum: { masuk: true }
-    });
+    const barang_keluar = transaksi
+        .filter((t) => t.keluar > 0)
+        .map((t) => ({
+            id: t.id,
+            id_barang: t.id_barang,
+            nama: t.barang.nama,
+            satuan: t.barang.satuan,
+            jumlah: t.keluar,
+            keterangan: t.keterangan,
+            tanggal: t.tanggal.toISOString().split("T")[0],
+        }));
 
-    const totalKeluar = await prisma.transaksiBarang.aggregate({
-        where,
-        _sum: { keluar: true }
-    });
+    // Hitung total
+    const totalMasuk = barang_masuk.reduce((sum, item) => sum + item.jumlah, 0);
+    const totalKeluar = barang_keluar.reduce((sum, item) => sum + item.jumlah, 0);
 
     return {
-        barang,
-        totalMasuk: totalMasuk._sum.masuk ?? 0,
-        totalKeluar: totalKeluar._sum.keluar ?? 0
+        barang_masuk,
+        barang_keluar,
+        totalMasuk,
+        totalKeluar,
     };
-}
+};
 
 export async function getTransaksiBarangByIdService(id: number) {
     const transaksi = await findTransaksiById(id);
