@@ -13,7 +13,7 @@ export const getAllTransaksiBarangController = async (req: Request, res: Respons
         );
 
         // Cek jika data kosong
-        if (result.barang.length === 0 && result.barang_masuk.length === 0) {
+        if (result.barang.length === 0 && result.barang.length === 0) {
             let detail = "Data transaksi tidak ditemukan";
 
             if (tanggal) detail += ` pada tanggal ${tanggal}`;
@@ -25,7 +25,6 @@ export const getAllTransaksiBarangController = async (req: Request, res: Respons
                 message: detail,
                 data: {
                     barang: [],
-                    barang_masuk: [],
                     totalMasuk: 0,
                     totalKeluar: 0
                 }
@@ -37,7 +36,6 @@ export const getAllTransaksiBarangController = async (req: Request, res: Respons
             message: "Berhasil mendapatkan data semua transaksi barang",
             data: {
                 barang: result.barang,
-                barang_masuk: result.barang_masuk,
                 totalMasuk: result.totalMasuk,
                 totalKeluar: result.totalKeluar
             },

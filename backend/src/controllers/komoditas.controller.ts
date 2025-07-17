@@ -1,21 +1,26 @@
 import { Request, Response } from "express";
 import { ResponseApiType } from "../types/api_types";
 import { handlerAnyError } from "../errors/api_errors";
-import { deleteFileFromDrive, uploadFileToDrive } from "../services/google_drive.service";
 import { createdKomoditasService, deleteKomoditasService, getAllKomoditasService, getKomoditasByIdService, updateKomoditasService } from "../services/komoditas.service";
+import cloudinary from "../config/cloudinary";
+import { unlinkSync } from "fs"
+import path from "path";
 
 export async function createKomoditasController(req: Request, res: Response<ResponseApiType>) {
     try {
         const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body
-        const file = req.file
+        const file = req.file;
 
-        const fileBuffer = file?.buffer!;
-        const fileName = file?.originalname!;
-        const mimeType = file?.mimetype!;
-        const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || ""
+        let fotoUrl = "";
+        if (file && file.path) {
+            const fullPath = path.resolve(file.path);
+            const uploadResult = await cloudinary.uploader.upload(fullPath, {
+                folder: "PengabdianSMK2Batusangkar/komoditas",
+            });
+            unlinkSync(fullPath);
+            fotoUrl = uploadResult.secure_url;
+        }
 
-        const uploadResult = await uploadFileToDrive(fileBuffer, fileName, mimeType, folderId)
-        const fotoUrl = `https://drive.google.com/uc?id=${uploadResult.id}`
         const newKomoditas = await createdKomoditasService(Number(id_jenis), nama, deskripsi, fotoUrl, satuan, Number(jumlah))
 
         return res.status(201).json({
@@ -59,25 +64,33 @@ export async function updateKomoditasController(req: Request, res: Response<Resp
         const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body
 
         const file = req?.file;
-        let fotoUrl = undefined;
+        let fotoUrl: string | undefined = undefined;
 
         // cek jika ada file yang diupload
-        if (file !== undefined) {
-
-            const { foto } = await getKomoditasByIdService((Number(id)))
-            const fileID = foto.split("=")[1]
-
-            await deleteFileFromDrive(fileID)
-            const fileBuffer = file?.buffer!;
-            const fileName = file?.originalname!;
-            const mimeType = file?.mimetype!;
-            const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || ""
-
-            const uploadResult = await uploadFileToDrive(fileBuffer, fileName, mimeType, folderId)
-            fotoUrl = `https://drive.google.com/uc?id=${uploadResult.id}`
+        if (file && file.path) {
+            const fullPath = path.resolve(file.path);
+            const uploadResult = await cloudinary.uploader.upload(fullPath, {
+                folder: "PengabdianSMK2Batusangkar/komoditas",
+            });
+            unlinkSync(fullPath);
+            fotoUrl = uploadResult.secure_url;
         }
 
-        const updatedKomoditas = await updateKomoditasService(Number(id), (Number(id_jenis) || undefined), nama, deskripsi, fotoUrl!, satuan, jumlah ? Number(jumlah) : jumlah as number)
+        // Ambil foto lama jika tidak ada file baru
+        if (!fotoUrl) {
+            const { foto } = await getKomoditasByIdService(Number(id));
+            fotoUrl = foto;
+        }
+
+        const updatedKomoditas = await updateKomoditasService(
+            Number(id),
+            (Number(id_jenis) || undefined),
+            nama,
+            deskripsi,
+            fotoUrl,
+            satuan,
+            jumlah ? Number(jumlah) : jumlah as number
+        );
 
         return res.status(200).json({
             success: true,
@@ -93,9 +106,21 @@ export async function deleteKomoditasController(req: Request, res: Response<Resp
     try {
         const { id } = req.params
 
-        const deletedKomoditas = await deleteKomoditasService(Number(id))
-        const fileID = deletedKomoditas.foto.split("=")[1]
-        await deleteFileFromDrive(fileID)
+        // Ambil data komoditas dulu untuk dapat URL foto
+        const komoditas = await getKomoditasByIdService(Number(id));
+        const fotoUrl = komoditas.foto;
+
+        // Ekstrak public_id dari URL Cloudinary
+        // Contoh URL: https://res.cloudinary.com/demo/image/upload/v1234567890/folder/filename.jpg
+        // public_id: folder/filename (tanpa ekstensi)
+        const matches = fotoUrl.match(/\/([^\/]+\/[^\/]+)\.[a-zA-Z]+$/);
+        const publicId = matches ? matches[1] : undefined;
+
+        if (publicId) {
+            await cloudinary.uploader.destroy(publicId);
+        }
+
+        const deletedKomoditas = await deleteKomoditasService(Number(id));
         return res.status(200).json({
             success: true,
             message: `Berhasil menghapus komoditas: ${deletedKomoditas.nama}`
