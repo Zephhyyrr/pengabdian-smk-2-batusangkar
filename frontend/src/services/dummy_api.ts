@@ -25,6 +25,9 @@ export const getPenjualan = async (): Promise<Penjualan[]> => {
   const res = await fetch("/dummy_api/penjualan.json");
   if (!res.ok) throw new Error("Failed to fetch penjualan");
   const data = await res.json();
+  
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   return data;
 };
 
@@ -32,6 +35,9 @@ export const getProduksi = async (): Promise<Produksi[]> => {
   const res = await fetch("/dummy_api/produksi.json");
   if (!res.ok) throw new Error("Failed to fetch produksi");
   const data = await res.json();
+  
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   return data;
 };
 
@@ -79,6 +85,8 @@ export const createPenjualan = async (data: Partial<Penjualan>): Promise<Penjual
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+
+  await new Promise(resolve => setTimeout(resolve, 2000));
 
   return mockPenjualan;
 };
