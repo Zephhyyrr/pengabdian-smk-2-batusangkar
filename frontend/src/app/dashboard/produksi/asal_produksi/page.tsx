@@ -1,7 +1,7 @@
 "use client";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import AsalProduksi from "@/components/azmi/asal_produksi";
-import InputAsalProduksi from "@/components/azmi/asal_produksi/input";
+import AsalProduksi from "@/components/table_master/asal_produksi";
+import InputAsalProduksi from "@/components/table_master/asal_produksi/input";
 import { useState } from "react";
 
 export default function AsalProduksiPage() {

@@ -1,13 +1,53 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { Search } from "lucide-react";
-import InputPenjualanForm from "./input";
-import UpdatePenjualanForm from "./update";
+import { PenBox, Search, Trash2 } from "lucide-react";
+import { apiRequest } from "@/services/api.service";
+import InputProduksiForm from "./input";
 
-export default function Penjualan() {
+export default function Produksi() {
+    const [produksiList, setProduksiList] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [selectedProduksi, setSelectedProduksi] = useState(null);
+    const [produksiYgDipilih, setProduksiYgDipilih] = useState<any>(null);
+
+
+    const fetchDataProduksi = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/produksi",
+            });
+            console.log("DATA DARI BACKEND:", data);
+            setProduksiList(Array.isArray(data) ? data : [data]);
+        } catch (err) {
+            console.error("Gagal ambil data Produksi:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchDataProduksi();
+    }, []);
+
+    const handleOpenUpdateModal = (data: any) => {
+        setProduksiYgDipilih(data);
+        setIsUpdateOpen(true);
+    };
+
+    const deleteDataProduksi = async (id: number) => {
+        try {
+            await apiRequest({
+                endpoint: `/produksi/${id}`,
+                method: "DELETE",
+            });
+            alert("Data berhasil dihapus.");
+            fetchDataProduksi();
+        } catch (error) {
+            console.error("Gagal hapus data Produksi", error);
+            alert("Gagal menghapus data.")
+        }
+    };
+
     return (
         <>
             {/* Search & Button */}
@@ -31,10 +71,19 @@ export default function Penjualan() {
                 </form>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                    Buat Penjualan Baru
+                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
+                    Tambah Produksi
                 </button>
-                <InputPenjualanForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                <InputProduksiForm
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    formMode="create"
+                    initialData={null}
+                    onSubmitSuccess={() => {
+                        setIsModalOpen(false);
+                        fetchDataProduksi();
+                    }}
+                />
             </div>
 
             {/* Table */}
@@ -45,34 +94,34 @@ export default function Penjualan() {
                             <TableHeader>
                                 <TableRow>
                                     <TableCell isHeader className="dark:text-white">No</TableCell>
-                                    <TableCell isHeader className="dark:text-white">Komoditas</TableCell>
+                                    <TableCell isHeader className="dark:text-white">Kode Produksi</TableCell>
+                                    <TableCell isHeader className="dark:text-white">Asal Produksi</TableCell>
                                     <TableCell isHeader className="dark:text-white">Ukuran</TableCell>
-                                    <TableCell isHeader className="dark:text-white">Jumlah Terjual</TableCell>
                                     <TableCell isHeader className="dark:text-white">Kualitas</TableCell>
-                                    <TableCell isHeader className="dark:text-white">Produksi</TableCell>
-                                    <TableCell isHeader className="dark:text-white">Keterangan</TableCell>
                                     <TableCell isHeader className="dark:text-white">Action</TableCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {[1, 2, 3].map((i) => (
-                                    <TableRow key={i}>
-                                        <TableCell className="dark:text-gray-200">{i}</TableCell>
-                                        <TableCell className="dark:text-gray-200">Melon</TableCell> {/* Id_jenis */}
-                                        <TableCell className="dark:text-gray-200">XL</TableCell>
-                                        <TableCell className="dark:text-gray-200">{i}0 Buah</TableCell>
-                                        <TableCell className="dark:text-gray-200">Premium</TableCell>
-                                        <TableCell className="dark:text-gray-200">Lapangan 1</TableCell> {/* Id_produksi */}
-                                        <TableCell className="dark:text-gray-200">Hadiah untuk kita</TableCell>
+                                {produksiList.map((item, index) => (
+                                    <TableRow key={item}>
+                                        <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.kode_produksi}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.asal_produksi.nama}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.ukuran}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.kualitas}</TableCell>
                                         <TableCell>
                                             <button
-                                                onClick={() => setIsUpdateOpen(true)}
-                                                className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded">
-                                                Edit
+                                                className="bg-yellow-500 hover:bg-yellow-400 text-white hover:underline py-1 px-3 rounded"
+                                                onClick={() =>
+                                                    handleOpenUpdateModal(item)
+                                                }
+                                            >
+                                                <PenBox size={15} />
                                             </button>
-                                            <UpdatePenjualanForm isOpen={isUpdateOpen} onClose={() => setIsUpdateOpen(false)} />
-                                            <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
-                                                Hapus
+                                            <button
+                                                onClick={() => deleteDataProduksi(item.id)}
+                                                className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
+                                                <Trash2 size={15} />
                                             </button>
                                         </TableCell>
                                     </TableRow>
@@ -81,10 +130,10 @@ export default function Penjualan() {
                         </Table>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Pagination */}
-            <nav aria-label="Page navigation" className="flex justify-center mt-6">
+            < nav aria-label="Page navigation" className="flex justify-center mt-6" >
                 <ul className="inline-flex -space-x-px text-sm">
                     <li>
                         <button className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-300 border border-e-0 border-gray-300 dark:border-gray-700 rounded-s-lg hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -109,7 +158,17 @@ export default function Penjualan() {
                         </button>
                     </li>
                 </ul>
-            </nav>
+            </nav >
+            <InputProduksiForm
+                isOpen={isUpdateOpen}
+                onClose={() => setIsUpdateOpen(false)}
+                formMode="update"
+                initialData={produksiYgDipilih}
+                onSubmitSuccess={() => {
+                    setIsUpdateOpen(false);
+                    fetchDataProduksi();
+                }}
+            />
         </>
     );
 }

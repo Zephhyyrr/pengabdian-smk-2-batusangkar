@@ -1,6 +1,6 @@
 "use client";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import Penjualan from "@/components/azmi/penjualan";
+import Penjualan from "@/components/table_master/penjualan";
 
 export default function JenisKomoditasPage() {
     return (
