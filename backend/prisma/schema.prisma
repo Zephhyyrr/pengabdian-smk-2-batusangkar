@@ -52,6 +52,7 @@ model Komoditas {
   jenis      Jenis       @relation(fields: [id_jenis], references: [id], onDelete: Cascade)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+  Produksi   Produksi[]
 }
 
 model AsalProduksi {
@@ -66,10 +67,12 @@ model AsalProduksi {
 model Produksi {
   id            Int    @id @default(autoincrement())
   id_asal       Int
+  id_komoditas  Int?
   kode_produksi String
   ukuran        String
   kualitas      String
 
+  komoditas     Komoditas?   @relation(fields: [id_komoditas], references: [id], onDelete: Cascade)
   penjualans    Penjualan[]
   asal_produksi AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
   createdAt     DateTime     @default(now())

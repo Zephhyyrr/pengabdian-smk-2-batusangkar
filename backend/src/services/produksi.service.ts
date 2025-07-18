@@ -30,13 +30,26 @@ export async function getProduksiByIdService(id: number) {
 
 export async function addProduksiService(
     id_asal: number,
+    id_komoditas: number,
     kode_produksi: string,
     ukuran: string,
-    kualitas: string
+    kualitas: string,
+    jumlah_diproduksi: number
 ) {
+    const komoditas = await prisma.komoditas.findUnique({ where: { id: id_komoditas } });
+    if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
+
+    const updatedKomoditas = await prisma.komoditas.update({
+        where: { id: id_komoditas },
+        data: {
+            jumlah: komoditas.jumlah + jumlah_diproduksi
+        }
+    });
+
     return await prisma.produksi.create({
         data: {
             id_asal,
+            id_komoditas,
             kode_produksi,
             ukuran,
             kualitas
