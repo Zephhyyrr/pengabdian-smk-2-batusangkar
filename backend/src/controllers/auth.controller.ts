@@ -23,7 +23,7 @@ export async function loginController(req: Request, res: Response<ResponseApiTyp
         return res.status(200).json({
             success: true,
             message: "Login berhasil",
-            data: { token }
+            data: { token, user }
         })
     } catch (error) {
         return handlerAnyError(error, res)
