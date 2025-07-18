@@ -5,6 +5,7 @@ export async function getAllProduksiService() {
     const produksis = await prisma.produksi.findMany({
         include: {
             penjualans: true,
+            komoditases: true,
             asal_produksi: true
         },
         orderBy: {
@@ -30,6 +31,7 @@ export async function getProduksiByIdService(id: number) {
 
 export async function addProduksiService(
     id_asal: number,
+    id_komoditas: number,
     kode_produksi: string,
     ukuran: string,
     kualitas: string
@@ -37,6 +39,7 @@ export async function addProduksiService(
     return await prisma.produksi.create({
         data: {
             id_asal,
+            id_komoditas,
             kode_produksi,
             ukuran,
             kualitas
@@ -47,6 +50,7 @@ export async function addProduksiService(
 export async function updateProduksiService(
     id: number,
     id_asal: number,
+    id_komoditas: number,
     kode_produksi: string,
     ukuran: string,
     kualitas: string
@@ -58,6 +62,7 @@ export async function updateProduksiService(
         where: { id },
         data: {
             id_asal,
+            id_komoditas,
             kode_produksi,
             ukuran,
             kualitas
