@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 
 interface DataTableProps<T> {
   data: T[];
@@ -6,10 +7,19 @@ interface DataTableProps<T> {
     header: string;
     accessorKey: keyof T;
     cell?: (item: T) => React.ReactNode;
+    sortable?: boolean;
   }[];
   pageSize?: number;
   emptyMessage?: string;
+  loading?: boolean;
   _create?: () => void;
+}
+
+type SortDirection = 'asc' | 'desc' | null;
+
+interface SortConfig<T> {
+  key: keyof T | null;
+  direction: SortDirection;
 }
 
 export function DataTable<T>({
@@ -17,10 +27,39 @@ export function DataTable<T>({
   columns,
   _create,
   pageSize = 10,
+  loading,
   emptyMessage = "No items found.",
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<SortConfig<T>>({ key: null, direction: null });
+
+  const handleSort = (key: keyof T) => {
+    let direction: SortDirection = 'asc';
+    
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null;
+    }
+    
+    setSortConfig({ key, direction });
+    setCurrentPage(1); // Reset to first page when sorting
+  };
+
+  const getSortIcon = (columnKey: keyof T) => {
+    if (sortConfig.key !== columnKey) {
+      return <ChevronsUpDown className="w-4 h-4 text-gray-400" />;
+    }
+    
+    if (sortConfig.direction === 'asc') {
+      return <ChevronUp className="w-4 h-4 text-blue-600" />;
+    } else if (sortConfig.direction === 'desc') {
+      return <ChevronDown className="w-4 h-4 text-blue-600" />;
+    }
+    
+    return <ChevronsUpDown className="w-4 h-4 text-gray-400" />;
+  };
 
   const filteredData = data.filter((item: any) =>
     Object.values(item).some((value: any) =>
@@ -28,8 +67,41 @@ export function DataTable<T>({
     )
   );
 
-  const totalPages = Math.ceil(filteredData.length / pageSize);
-  const totalItems = filteredData.length;
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (!sortConfig.key || !sortConfig.direction) return 0;
+
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+
+    // Handle null/undefined values
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortConfig.direction === 'asc' ? 1 : -1;
+    if (bValue == null) return sortConfig.direction === 'asc' ? -1 : 1;
+
+    // Convert to strings for comparison
+    const aStr = String(aValue).toLowerCase();
+    const bStr = String(bValue).toLowerCase();
+
+    // Try to parse as numbers if possible
+    const aNum = Number(aValue);
+    const bNum = Number(bValue);
+    
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+    }
+
+    // String comparison
+    if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedData.length / pageSize);
+  const totalItems = sortedData.length;
+
+  if (loading) {
+    return <div className="p-4">Loading...</div>;
+  }
 
   return (
     <>
@@ -56,13 +128,30 @@ export function DataTable<T>({
             <tr>
               {columns.map((col, i) => (
                 <th key={i} className="p-3 border-b">
-                  {col.header}
+                  {col.sortable !== false ? (
+                    <button
+                      className="flex items-center gap-2 hover:bg-gray-300 dark:hover:bg-gray-700 p-1 rounded transition-colors w-full text-left"
+                      onClick={() => handleSort(col.accessorKey)}
+                    >
+                      <span>{col.header}</span>
+                      {getSortIcon(col.accessorKey)}
+                    </button>
+                  ) : (
+                    col.header
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-            {filteredData
+            {sortedData.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="p-3 text-center text-gray-500">
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : null}
+            {sortedData
               .slice((currentPage - 1) * pageSize, currentPage * pageSize)
               .map((item, rowIdx) => (
                 <tr key={rowIdx} className="border-b hover:bg-gray-50 dark:hover:bg-gray-600">

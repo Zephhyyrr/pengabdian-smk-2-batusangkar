@@ -62,7 +62,7 @@ const dashboardMenu = [
         href: "/dashboard/gudang/barang",
       },
       {
-        name: "Transaksi",
+        name: "Barang Masuk/Keluar",
         href: "/dashboard/gudang/transaksi",
       },
     ],

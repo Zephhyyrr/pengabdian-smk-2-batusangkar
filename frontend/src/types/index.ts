@@ -77,6 +77,7 @@ export interface TransaksiBarang {
   tanggal: string;
   masuk: number;
   keluar: number;
+  jumlah: number;
   keterangan: string;
   createdAt: string;
   updatedAt: string;

@@ -6,6 +6,7 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Skeleton } from '@/components/common/Skeleton';
 import { apiRequest } from '@/services/api.service';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -44,7 +46,7 @@ export default function LoginPage() {
         document.cookie = `role=${response.role}; path=/; secure; samesite=strict`;
         if (response.role === "siswa") {
           router.push('/siswa');
-        }else{
+        } else {
           router.push('/dashboard/kepsek');
         }
       }
@@ -55,20 +57,38 @@ export default function LoginPage() {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleBackToHome = () => {
+    router.push('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        {/* Header with theme toggle */}
+        {/* Back to Home Button */}
+        <div className="flex justify-start">
+          <Button
+            onClick={handleBackToHome}
+            className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 rounded-md transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Home</span>
+          </Button>
+        </div>
 
         {/* Login Form */}
         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
-        <div className="flex justify-center items-center">
-          <div className='mb-10'>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Sign in to your account
-            </h2>
+          <div className="flex justify-center items-center">
+            <div className='mb-10'>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
+                Sign in to your account
+              </h2>
+            </div>
           </div>
-        </div>
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
@@ -100,17 +120,31 @@ export default function LoginPage() {
               {isLoading ? (
                 <Skeleton className="h-10 w-full mt-1" />
               ) : (
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Enter your password"
-                  disabled={isLoading}
-                />
+                <div className="relative mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="Enter your password"
+                    disabled={isLoading}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               )}
             </div>
 
@@ -130,7 +164,7 @@ export default function LoginPage() {
               ) : (
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   disabled={isLoading || !formData.email || !formData.password}
                 >
                   Sign in
