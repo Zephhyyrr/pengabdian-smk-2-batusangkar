@@ -64,7 +64,7 @@ export default function InfoKomoditasForm({ isOpen, onClose, selectedKomoditas }
                 {selectedKomoditas && (
                     <div className="grid grid-cols-2 gap-4 text-gray-900 dark:text-gray-100">
                         <label>Nama Jenis</label>
-                        <p className="break-words">{selectedKomoditas.nama_jenis}</p>
+                        <p className="break-words">{selectedKomoditas.jenis.name}</p>
 
                         <label>Nama</label>
                         <p className="break-words">{selectedKomoditas.nama}</p>
@@ -77,13 +77,11 @@ export default function InfoKomoditasForm({ isOpen, onClose, selectedKomoditas }
                         <p>{selectedKomoditas.jumlah}</p>
                         
                         <label>Gambar</label>
-                        {selectedKomoditas.foto ? (
-                            <Image
+                        {selectedKomoditas?.foto ? (
+                            <img
                                 src={selectedKomoditas.foto}
-                                alt="Foto Komoditas"
-                                className=" rounded"
-                                width={160}
-                                height={160}
+                                alt="Preview Gambar"
+                                className="max-h-48 rounded border"
                             />
                         ) : (
                             <p className="col-span-1">Tidak ada gambar</p>

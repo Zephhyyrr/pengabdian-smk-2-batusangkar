@@ -23,9 +23,6 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis, o
     }
   }, [selectedJenis]);
 
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
-
   // Submit create atau update
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +30,10 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis, o
     try {
       const payload = { name };
       if (formMode === "create") {
-        await apiRequest({ endpoint: "/jenis", method: "POST", token, data: payload });
+        await apiRequest({ endpoint: "/jenis", method: "POST", data: payload });
         alert("Jenis berhasil ditambahkan");
       } else if (formMode === "update" && selectedJenis?.id) {
-        await apiRequest({ endpoint: `/jenis/${selectedJenis.id}`, method: "PUT", token, data: payload });
+        await apiRequest({ endpoint: `/jenis/${selectedJenis.id}`, method: "PUT", data: payload });
         alert("Jenis berhasil diupdate");
       }
 

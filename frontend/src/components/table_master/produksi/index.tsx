@@ -9,7 +9,6 @@ export default function Produksi() {
     const [produksiList, setProduksiList] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-    const [selectedProduksi, setSelectedProduksi] = useState(null);
     const [produksiYgDipilih, setProduksiYgDipilih] = useState<any>(null);
 
 
@@ -96,8 +95,10 @@ export default function Produksi() {
                                     <TableCell isHeader className="dark:text-white">No</TableCell>
                                     <TableCell isHeader className="dark:text-white">Kode Produksi</TableCell>
                                     <TableCell isHeader className="dark:text-white">Asal Produksi</TableCell>
+                                    <TableCell isHeader className="dark:text-white">Jenis Komunitas</TableCell>
                                     <TableCell isHeader className="dark:text-white">Ukuran</TableCell>
                                     <TableCell isHeader className="dark:text-white">Kualitas</TableCell>
+                                    <TableCell isHeader className="dark:text-white">Jumlah Produksi</TableCell>
                                     <TableCell isHeader className="dark:text-white">Action</TableCell>
                                 </TableRow>
                             </TableHeader>
@@ -107,8 +108,10 @@ export default function Produksi() {
                                         <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.kode_produksi}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.asal_produksi.nama}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.komoditas?.nama}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.ukuran}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.kualitas}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.jumlah}</TableCell>
                                         <TableCell>
                                             <button
                                                 className="bg-yellow-500 hover:bg-yellow-400 text-white hover:underline py-1 px-3 rounded"

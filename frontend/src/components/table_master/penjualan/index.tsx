@@ -112,7 +112,7 @@ export default function Penjualan() {
                                         <TableCell>
                                             <button
                                                 onClick={() => handleOpenUpdateModal(item)}
-                                                className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded">
+                                                className="bg-yellow-400 hover:bg-yellow-500 text-white hover:underline py-1 px-3 rounded">
                                                 <PenBox size={15} />
                                             </button>
                                             <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline"
