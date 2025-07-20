@@ -4,7 +4,6 @@ export const apiRequest = async ({
   endpoint,
   method = 'GET',
   data,
-  token,
 }: {
   endpoint: string;
   method?: string;
@@ -13,13 +12,9 @@ export const apiRequest = async ({
 }) => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // const headers = {
-  //   'Content-Type': 'application/json',
-  //   ...(token && { Authorization: `Bearer ${token}` }),
-  // };
-
-
   const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+
+  var token = typeof window !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined;
 
   const headers = {
     ...(token && { Authorization: `Bearer ${token}` }),

@@ -57,8 +57,8 @@ export interface Penjualan {
   keterangan: string;
   createdAt: string;
   updatedAt: string;
-  komodity: Komoditas;
-  produksi: Produksi;
+  komoditas?: Komoditas;
+  produksi?: Produksi;
 }
 
 export interface Barang {
@@ -73,10 +73,11 @@ export interface Barang {
 export interface TransaksiBarang {
   id: number;
   id_barang: number;
-  barang: Barang;
+  nama: string;
   tanggal: string;
   masuk: number;
   keluar: number;
+  jumlah: number;
   keterangan: string;
   createdAt: string;
   updatedAt: string;

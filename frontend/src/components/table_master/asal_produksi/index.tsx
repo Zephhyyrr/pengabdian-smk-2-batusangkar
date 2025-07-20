@@ -1,9 +1,50 @@
 "use client";
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { PenBox, Search, Trash2 } from "lucide-react";
+import { apiRequest } from "@/services/api.service";
 
-export default function AsalProduksi() {
+type Props = {
+    onEditAsal: (asal: any) => void;
+    reloadTrigger: boolean;
+};
+
+export default function AsalProduksi({ onEditAsal, reloadTrigger }: Props) {
+    const [asalProduksiList, setAsalProduksiList] = useState<any[]>([]);
+
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
+
+    const fetchDataAsalProduksi = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/asal-produksi",
+                token,
+            });
+            setAsalProduksiList(Array.isArray(data) ? data : [data]);
+        } catch (error) {
+            console.error("Gagal ambil data Asal Produksi:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchDataAsalProduksi();
+    }, [reloadTrigger]);
+
+    const deleteDataAsalProduksi = async (id: number) => {
+        try {
+            await apiRequest({
+                endpoint: `/asal-produksi/${id}`,
+                method: "DELETE",
+                token,
+            });
+            alert("Data berhasil dihapus.");
+            fetchDataAsalProduksi();
+        } catch (error) {
+            console.error("Gagal hapus data Asal Produksi:", error);
+            alert("Gagal menghapus data.");
+        }
+    };
+
     return (
         <>
             {/* Search & Button */}
@@ -40,16 +81,17 @@ export default function AsalProduksi() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {[1, 2, 3].map((i) => (
-                                    <TableRow key={i}>
-                                        <TableCell className="dark:text-gray-200">{i}</TableCell>
-                                        <TableCell className="dark:text-gray-200">Lapangan {i}</TableCell>
+                                {asalProduksiList.map((asal, index) => (
+                                    <TableRow key={asal.id}>
+                                        <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{asal.nama}</TableCell>
                                         <TableCell>
-                                            <button className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded">
-                                                Edit
+                                            <button className="bg-yellow-400 hover:bg-yellow-500 text-white hover:underline py-1 px-3 rounded"
+                                                onClick={() => { onEditAsal(asal) }}>
+                                                <PenBox size={15} />
                                             </button>
                                             <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
-                                                Hapus
+                                                <Trash2 size={15} />
                                             </button>
                                         </TableCell>
                                     </TableRow>
@@ -72,8 +114,8 @@ export default function AsalProduksi() {
                         <li key={p}>
                             <button
                                 className={`flex items-center justify-center px-3 h-8 leading-tight border ${p === 1
-                                        ? "text-blue-600 border-gray-300 bg-blue-50 dark:bg-blue-900 dark:border-gray-700"
-                                        : "text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700"
+                                    ? "text-blue-600 border-gray-300 bg-blue-50 dark:bg-blue-900 dark:border-gray-700"
+                                    : "text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700"
                                     }`}
                             >
                                 {p}

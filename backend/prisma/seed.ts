@@ -10,11 +10,7 @@ async function main() {
     await prisma.komoditas.deleteMany({});
     await prisma.asalProduksi.deleteMany({});
     await prisma.jenis.deleteMany({});
-    await prisma.user.deleteMany({
-        where: {
-            email: 'superadmin@gmail.com'
-        }
-    });
+    await prisma.user.deleteMany({});
 
     // 1. Seed User
     const superAdmin = await prisma.user.create({
@@ -23,6 +19,14 @@ async function main() {
             email: 'superadmin@gmail.com',
             password: (await hashing("Password123"))!,
             role: "super_admin"
+        },
+    });
+    const siswa = await prisma.user.create({
+        data: {
+            nama: 'Ucok',
+            email: 'ucok@gmail.com',
+            password: (await hashing("123123123"))!,
+            role: "siswa"
         },
     });
     console.log('User seeded successfully!');
@@ -53,7 +57,6 @@ async function main() {
             deskripsi: 'Sayuran hijau segar kaya serat.',
             foto: 'kangkung.jpg',
             satuan: 'ikat',
-            jumlah: 100,
         }
     });
     const komoditasMangga = await prisma.komoditas.create({
@@ -63,7 +66,6 @@ async function main() {
             deskripsi: 'Buah mangga manis dan harum.',
             foto: 'mangga.jpg',
             satuan: 'kg',
-            jumlah: 50,
         }
     });
     console.log('Komoditas seeded successfully!');
@@ -75,6 +77,8 @@ async function main() {
             kode_produksi: 'PROD-KANGKUNG-001',
             ukuran: 'Besar',
             kualitas: 'A',
+            id_komoditas: komoditasKangkung.id,
+            jumlah: 100,
         }
     });
     const produksiMangga = await prisma.produksi.create({
@@ -83,6 +87,8 @@ async function main() {
             kode_produksi: 'PROD-MANGGA-001',
             ukuran: 'Sedang',
             kualitas: 'B',
+            id_komoditas: komoditasMangga.id,
+            jumlah: 50,
         }
     });
     console.log('Produksi seeded successfully!');

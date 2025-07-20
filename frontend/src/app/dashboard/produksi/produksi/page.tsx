@@ -1,14 +1,11 @@
 "use client";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import InputProduksi from "@/components/azmi/produksi/input";
-import Produksi from "@/components/azmi/produksi";
+import InputProduksi from "@/components/table_master/produksi/input";
+import Produksi from "@/components/table_master/produksi";
 
 export default function JenisKomoditasPage() {
     return (
-        <DashboardLayout title="Jenis Komoditas" role="produksi">
-            <div className="mt-5">
-                <InputProduksi />
-            </div>
+        <DashboardLayout title="Produksi" role="">
             <div className="mt-6">
                 <Produksi />
             </div>

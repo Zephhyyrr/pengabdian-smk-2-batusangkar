@@ -14,8 +14,8 @@ export default function Komoditas() {
     const [selectedKomoditas, setSelectedKomoditas] = useState(null);
     const [komoditasYgDipilih, setKomoditasYgDipilih] = useState<any>(null);
 
-    const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
+      const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
 
     const fetchDataKomoditas = async () => {
         try {
@@ -78,10 +78,10 @@ export default function Komoditas() {
                 </form>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                    className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
                     Buat Komoditas Baru
                 </button>
-                <InputKomoditasForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                <InputKomoditasForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmitSuccess={fetchDataKomoditas}/>
             </div>
 
             {/* Table */}

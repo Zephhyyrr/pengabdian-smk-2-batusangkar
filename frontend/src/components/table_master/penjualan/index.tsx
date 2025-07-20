@@ -1,13 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { PenBox, Search, Trash2 } from "lucide-react";
 import InputPenjualanForm from "./input";
-import UpdatePenjualanForm from "./update";
+import { apiRequest } from "@/services/api.service";
 
 export default function Penjualan() {
+    const [penjualanList, setPenjualanList] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [penjualanYgDipilih, setPenjualanYgDipilih] = useState<any>(null);
+
+    const fetchDataPenjualan = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/penjualan",
+            });
+            console.log("DATA DARI BACKEND:", data);
+            setPenjualanList(Array.isArray(data) ? data : [data]);
+        } catch (err) {
+            console.error("Gagal ambil data Penjualan:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchDataPenjualan();
+    }, []);
+
+    const handleOpenUpdateModal = (data: any) => {
+        setPenjualanYgDipilih(data);
+        setIsUpdateOpen(true);
+    };
+
+    const deleteDataPenjualan = async (id: number) => {
+        try {
+            await apiRequest({
+                endpoint: `/penjualan/${id}`,
+                method: "DELETE",
+            });
+            alert("Data berhasil dihapus.");
+            fetchDataPenjualan();
+        } catch (error) {
+            console.error("Gagal hapus data Penjualan", error);
+            alert("Gagal menghapus data.")
+        }
+    };
+
     return (
         <>
             {/* Search & Button */}
@@ -31,10 +69,17 @@ export default function Penjualan() {
                 </form>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                    Buat Penjualan Baru
+                    className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
+                    Buat Penjualan
                 </button>
-                <InputPenjualanForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                <InputPenjualanForm
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    formMode="create"
+                    onSubmitSuccess={() => {
+                        setIsModalOpen(false);
+                        fetchDataPenjualan();
+                    }} />
             </div>
 
             {/* Table */}
@@ -55,24 +100,24 @@ export default function Penjualan() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {[1, 2, 3].map((i) => (
-                                    <TableRow key={i}>
-                                        <TableCell className="dark:text-gray-200">{i}</TableCell>
-                                        <TableCell className="dark:text-gray-200">Melon</TableCell> {/* Id_jenis */}
-                                        <TableCell className="dark:text-gray-200">XL</TableCell>
-                                        <TableCell className="dark:text-gray-200">{i}0 Buah</TableCell>
-                                        <TableCell className="dark:text-gray-200">Premium</TableCell>
-                                        <TableCell className="dark:text-gray-200">Lapangan 1</TableCell> {/* Id_produksi */}
-                                        <TableCell className="dark:text-gray-200">Hadiah untuk kita</TableCell>
+                                {penjualanList.map((item, index) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.komoditas.nama}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.produksi.ukuran}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.jumlah_terjual}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.produksi.kualitas}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.produksi.asal_produksi.nama}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.keterangan}</TableCell>
                                         <TableCell>
                                             <button
-                                                onClick={() => setIsUpdateOpen(true)}
+                                                onClick={() => handleOpenUpdateModal(item)}
                                                 className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded">
-                                                Edit
+                                                <PenBox size={15} />
                                             </button>
-                                            <UpdatePenjualanForm isOpen={isUpdateOpen} onClose={() => setIsUpdateOpen(false)} />
-                                            <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
-                                                Hapus
+                                            <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline"
+                                            onClick={() => deleteDataPenjualan(item.id)}>
+                                                <Trash2 size={15} />
                                             </button>
                                         </TableCell>
                                     </TableRow>
@@ -110,6 +155,15 @@ export default function Penjualan() {
                     </li>
                 </ul>
             </nav>
+            <InputPenjualanForm
+                isOpen={isUpdateOpen}
+                onClose={() => setIsUpdateOpen(false)}
+                initialData={penjualanYgDipilih}
+                formMode="update"
+                onSubmitSuccess={() => {
+                    setIsUpdateOpen(false);
+                    fetchDataPenjualan();
+                }} />
         </>
     );
 }

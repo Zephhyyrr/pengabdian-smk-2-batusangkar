@@ -6,13 +6,14 @@ import { apiRequest } from "@/services/api.service";
 
 type Props = {
   onEdit: (jenis: any) => void;
+  reloadTrigger: boolean;
 };
 
-export default function Jenis_Komoditas({ onEdit }: Props) {
+export default function Jenis_Komoditas({ onEdit, reloadTrigger }: Props) {
   const [jenisList, setJenisList] = useState<any[]>([]);
 
   const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTk4MDQ2NSwiZXhwIjoxNzUyNTcyNDY1fQ.mec-ptM4ajefyDOIFjJbVJ-CJZzl10NtJlB6wqosCEM";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
 
   // Menampilkan data
   const fetchDataJenis = async () => {
@@ -29,7 +30,7 @@ export default function Jenis_Komoditas({ onEdit }: Props) {
 
   useEffect(() => {
     fetchDataJenis();
-  }, []);
+  }, [reloadTrigger]);
 
   // delete data
   const deleteDataJenis = async (id: number) => {

@@ -1,5 +1,5 @@
 "use client";
-import Komoditas from "@/components/azmi/komoditas";
+import Komoditas from "@/components/table_master/komoditas";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 
 export default function JenisKomoditasPage() {
