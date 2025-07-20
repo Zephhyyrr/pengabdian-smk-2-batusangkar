@@ -43,18 +43,18 @@ export default function KasirPage() {
 
   const [showPenjualan, setShowPenjualan] = useState(false);
 
-  // Get unique komoditas from produksi data
+  // Get unique komoditas from produksi data - Fixed property name
   const uniqueKomoditas = produksi.reduce((acc, prod) => {
-    const existing = acc.find(item => item.id === prod.komoditases?.id);
-    if (!existing && prod.komoditases) {
-      acc.push(prod.komoditases);
+    const existing = acc.find(item => item.id === prod.komoditas?.id);
+    if (!existing && prod.komoditas) {
+      acc.push(prod.komoditas);
     }
     return acc;
   }, [] as Komoditas[]);
 
-  // Get filtered produksi based on selected komoditas
+  // Get filtered produksi based on selected komoditas - Fixed property name
   const filteredProduksiByKomoditas = formData.id_komodity 
-    ? produksi.filter(prod => prod.komoditases?.id === formData.id_komodity)
+    ? produksi.filter(prod => prod.komoditas?.id === formData.id_komodity)
     : produksi;
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function KasirPage() {
     if (formData.id_produksi && formData.jumlah_terjual) {
       const selectedProduksi = produksi.find((p) => p.id === formData.id_produksi);
       if (selectedProduksi && formData.jumlah_terjual > selectedProduksi.jumlah) {
-        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.jumlah} ${selectedProduksi.komoditases?.satuan}`;
+        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.jumlah} ${selectedProduksi.komoditas?.satuan}`;
       }
     }
 
@@ -257,7 +257,7 @@ export default function KasirPage() {
               {uniqueKomoditas.length > 0 ? (
                 uniqueKomoditas.map((item) => {
                   const totalStock = produksi
-                    .filter(p => p.komoditases?.id === item.id)
+                    .filter(p => p.komoditas?.id === item.id)
                     .reduce((sum, p) => sum + p.jumlah, 0);
 
                   return (
@@ -350,7 +350,7 @@ export default function KasirPage() {
                       setFormData((prev) => ({ 
                         ...prev, 
                         id_produksi: item.id,
-                        id_komodity: prev.id_komodity || item.komoditases?.id || 0
+                        id_komodity: prev.id_komodity || item.komoditas?.id || 0
                       }));
                       setShowProduksiDropdown(false);
                     }}
@@ -364,7 +364,7 @@ export default function KasirPage() {
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          Stok: {item.jumlah} {item.komoditases?.satuan}
+                          Stok: {item.jumlah} {item.komoditas?.satuan}
                         </div>
                         {item.jumlah <= 5 && (
                           <div className="text-xs text-red-500 font-medium">Stok Menipis!</div>
@@ -431,7 +431,7 @@ export default function KasirPage() {
                   Jumlah *
                   {selectedProduksi && (
                     <span className="text-xs text-gray-500 ml-2">
-                      (Tersedia: {selectedProduksi.jumlah} {selectedProduksi.komoditases?.satuan})
+                      (Tersedia: {selectedProduksi.jumlah} {selectedProduksi.komoditas?.satuan})
                     </span>
                   )}
                 </label>

@@ -49,7 +49,7 @@ export interface Produksi {
   createdAt: string;
   updatedAt: string;
   asal_produksi: AsalProduksi;
-  komoditases: Komoditas;
+  komoditas: Komoditas;
 }
 
 export interface Penjualan {
