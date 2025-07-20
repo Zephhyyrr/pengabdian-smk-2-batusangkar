@@ -37,25 +37,41 @@ export async function addProduksiService(
     kualitas: string,
     jumlah_diproduksi: number
 ) {
-    const komoditas = await prisma.komoditas.findUnique({ where: { id: id_komoditas } });
+    // Validasi jumlah_diproduksi
+    if (
+        typeof jumlah_diproduksi !== "number" ||
+        isNaN(jumlah_diproduksi) ||
+        jumlah_diproduksi <= 0
+    ) {
+        throw new AppError("Jumlah diproduksi harus berupa angka > 0", 400);
+    }
+
+    const komoditas = await prisma.komoditas.findUnique({
+        where: { id: id_komoditas }
+    });
     if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
 
-    const updatedKomoditas = await prisma.komoditas.update({
+    await prisma.komoditas.update({
         where: { id: id_komoditas },
         data: {
-            jumlah: komoditas.jumlah + jumlah_diproduksi
+            jumlah: {
+                increment: jumlah_diproduksi
+            }
         }
     });
 
-    return await prisma.produksi.create({
+    const produksi = await prisma.produksi.create({
         data: {
             id_asal,
             id_komoditas,
             kode_produksi,
             ukuran,
-            kualitas
+            kualitas,
+            jumlah: jumlah_diproduksi
         }
     });
+
+    return produksi;
 }
 
 export async function updateProduksiService(
