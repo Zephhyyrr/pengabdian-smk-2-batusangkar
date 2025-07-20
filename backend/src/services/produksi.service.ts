@@ -79,7 +79,8 @@ export async function updateProduksiService(
     id_asal: number,
     kode_produksi: string,
     ukuran: string,
-    kualitas: string
+    kualitas: string,
+    jumlah: number
 ) {
     const check = await prisma.produksi.findUnique({ where: { id } });
     if (!check) throw new AppError("Produksi tidak ditemukan", 404);
@@ -90,7 +91,8 @@ export async function updateProduksiService(
             id_asal,
             kode_produksi,
             ukuran,
-            kualitas
+            kualitas,
+            jumlah
         }
     });
 }
