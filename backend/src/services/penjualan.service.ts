@@ -17,13 +17,13 @@ export async function getAllPenjualanService() {
         }
     })
 
-    return penjualans.map(penjualan=>{
+    return penjualans.map(penjualan => {
         const { Komoditas, Produksi, ...rest } = penjualan;
 
         return {
             ...rest,
             komoditas: Komoditas,
-            produksi: Produksi 
+            produksi: Produksi
         }
     })
 }
@@ -51,14 +51,19 @@ export async function createPenjualanService(
     const newPenjualan = await prisma.penjualan.create({
         data: {
             keterangan,
-            id_komodity,
-            id_produksi,
-            jumlah_terjual
+            jumlah_terjual,
+            Komoditas: {
+                connect: { id: id_komodity }
+            },
+            Produksi: {
+                connect: { id: id_produksi }
+            }
         }
     });
 
     return newPenjualan;
 }
+
 export async function getPenjualanByIdService(id: number) {
     const penjualan = await prisma.penjualan.findFirst({
         where: { id }

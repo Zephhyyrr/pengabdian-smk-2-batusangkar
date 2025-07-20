@@ -19,19 +19,22 @@ export async function getAllPenjualanController(req: Request, res: Response<Resp
 
 export async function createPenjualanController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { keterangan,
-            id_komodity,
-            id_produksi,
-            jumlah_terjual
-        } = req.body;
+        const { keterangan, id_komodity, id_produksi, jumlah_terjual } = req.body;
 
-        const newPenjualan = await createPenjualanService(keterangan,Number(jumlah_terjual), Number(id_komodity), Number(id_produksi))
+        const newPenjualan = await createPenjualanService(
+            keterangan,
+            Number(id_komodity),
+            Number(id_produksi),
+            Number(jumlah_terjual)
+        );
+
         return res.status(201).json({
             success: true,
             message: "Berhasil menambahkan data penjualan",
-            data: newPenjualan
-        })
+            data: newPenjualan,
+        });
     } catch (error) {
-        return handlerAnyError(error, res)
+        return handlerAnyError(error, res);
     }
 }
+

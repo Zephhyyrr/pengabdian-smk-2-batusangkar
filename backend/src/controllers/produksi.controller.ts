@@ -62,7 +62,7 @@ export async function updateProduksiController(req: Request, res: Response<Respo
     try {
         const { id } = req.params;
         const { id_asal, kode_produksi, ukuran, kualitas } = req.body;
-        const updatedProduksi = await updateProduksiService(Number(id), id_asal, kode_produksi, ukuran, kualitas);
+        const updatedProduksi = await updateProduksiService(Number(id), id_asal, kode_produksi, ukuran, kualitas, req.body.jumlah_diproduksi);
 
         return res.status(200).json({
             success: true,
