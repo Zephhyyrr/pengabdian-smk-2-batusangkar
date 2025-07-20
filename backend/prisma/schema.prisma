@@ -49,11 +49,10 @@ model Komoditas {
   jumlah    Int    @default(0)
 
   penjualans Penjualan[]
-  produksis  Produksi[]
+  produksis  Produksi[] @relation("KomoditasToProduksi") // satu-satunya relasi ke Produksi
   jenis      Jenis       @relation(fields: [id_jenis], references: [id], onDelete: Cascade)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  Produksi   Produksi[]
 }
 
 model AsalProduksi {
@@ -72,11 +71,10 @@ model Produksi {
   kode_produksi String
   ukuran        String
   kualitas      String
-  jumlah    Int    @default(0)
+  jumlah        Int    @default(0)
 
-  komoditas     Komoditas?   @relation(fields: [id_komoditas], references: [id], onDelete: Cascade)
+  komoditas     Komoditas? @relation("KomoditasToProduksi", fields: [id_komoditas], references: [id], onDelete: Cascade)
   penjualans    Penjualan[]
-  komoditases     Komoditas   @relation(fields: [id_komoditas], references: [id], onDelete: Cascade)
   asal_produksi AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
