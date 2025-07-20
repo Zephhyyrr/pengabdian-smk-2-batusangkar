@@ -16,6 +16,7 @@ import { Input } from "@/components/common/Input";
 import ToggleDark from "@/components/common/ToggleDark";
 import { toast } from "sonner";
 import { apiRequest } from "@/services/api.service";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
 export default function KasirPage() {
   const [produksi, setProduksi] = useState<Produksi[]>([]);
@@ -111,8 +112,8 @@ export default function KasirPage() {
     // Validasi stok tersedia dari produksi
     if (formData.id_produksi && formData.jumlah_terjual) {
       const selectedProduksi = produksi.find((p) => p.id === formData.id_produksi);
-      if (selectedProduksi && formData.jumlah_terjual > selectedProduksi.jumlah) {
-        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.jumlah} ${selectedProduksi.komoditas?.satuan}`;
+      if (selectedProduksi && formData.jumlah_terjual > selectedProduksi.komoditas?.jumlah) {
+        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.komoditas?.jumlah} ${selectedProduksi.komoditas?.satuan}`;
       }
     }
 
@@ -364,9 +365,9 @@ export default function KasirPage() {
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          Stok: {item.jumlah} {item.komoditas?.satuan}
+                          Stok: {item.komoditas?.jumlah} {item.komoditas?.satuan}
                         </div>
-                        {item.jumlah <= 5 && (
+                        {item.komoditas?.jumlah <= 5 && (
                           <div className="text-xs text-red-500 font-medium">Stok Menipis!</div>
                         )}
                       </div>
@@ -390,14 +391,8 @@ export default function KasirPage() {
   return (
     <div className="min-h-screen text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="text-blue-600" size={24} />
-            <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Kasir</h1>
-          </div>
-          <ToggleDark />
-        </div>
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b px-5 pt-4">
+        <DashboardHeader role="Siswa" title="Kasir" />
       </div>
 
       <div className="p-4 space-y-4">
@@ -431,7 +426,7 @@ export default function KasirPage() {
                   Jumlah *
                   {selectedProduksi && (
                     <span className="text-xs text-gray-500 ml-2">
-                      (Tersedia: {selectedProduksi.jumlah} {selectedProduksi.komoditas?.satuan})
+                      (Tersedia: {selectedProduksi.komoditas?.jumlah} {selectedProduksi.komoditas?.satuan})
                     </span>
                   )}
                 </label>

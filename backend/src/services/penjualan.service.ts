@@ -41,10 +41,21 @@ export async function createPenjualanService(
         throw new AppError("Stok komoditas tidak mencukupi", 400);
     }
 
+    const produksi = await prisma.produksi.findUnique({ where: { id: id_produksi  } });
+    if (!produksi) {
+        throw new AppError("Produksi tidak ditemukan", 400)
+    }
+
     await prisma.komoditas.update({
         where: { id: id_komodity },
         data: {
             jumlah: komoditas.jumlah - jumlah_terjual
+        }
+    });
+    await prisma.produksi.update({
+        where: { id: id_produksi },
+        data: {
+            jumlah: produksi.jumlah - jumlah_terjual
         }
     });
 

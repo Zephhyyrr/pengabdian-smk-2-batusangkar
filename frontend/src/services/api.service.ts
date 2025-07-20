@@ -21,8 +21,12 @@ export const apiRequest = async ({
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
   };
 
-  // console.log(`Making API request to ${baseUrl}${endpoint} with method ${method}, token ${token}, and data:`, data);
-  
+  // console.log(`Making API request...`);
+  // console.log(`  URL     : ${baseUrl}${endpoint}`);
+  // console.log(`  Method  : ${method}`);
+  // console.log(`  Token   : ${token}`);
+  // console.log(`  Payload :`, data);
+
   try {
     const res = await axios({
       url: `${baseUrl}${endpoint}`,
@@ -33,6 +37,7 @@ export const apiRequest = async ({
 
     return res.data.data;
   } catch (error: any) {
+    console.log("error", error.response?.data.errors)
     throw new Error(
       error.response?.data?.message || error.response?.error || error.message || 'Failed to fetch'
     );

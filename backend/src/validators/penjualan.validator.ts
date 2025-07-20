@@ -3,7 +3,7 @@ import { getAllKomoditasService } from "../services/komoditas.service";
 import { getAllProduksiService } from "../services/produksi.service";
 
 export const penjualanValidator = [
-    body("keterangan").notEmpty().withMessage("Keterangan harus diisi."),
+    // body("keterangan").notEmpty().withMessage("Keterangan harus diisi."),
 
     body("id_komodity").notEmpty().withMessage("ID Komoditas harus diisi.").isInt().withMessage("ID Komoditas harus berupa angka.")
         // .bail()

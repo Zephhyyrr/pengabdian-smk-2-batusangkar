@@ -57,6 +57,7 @@ async function main() {
             deskripsi: 'Sayuran hijau segar kaya serat.',
             foto: 'kangkung.jpg',
             satuan: 'ikat',
+            jumlah: 100
         }
     });
     const komoditasMangga = await prisma.komoditas.create({
@@ -66,6 +67,7 @@ async function main() {
             deskripsi: 'Buah mangga manis dan harum.',
             foto: 'mangga.jpg',
             satuan: 'kg',
+            jumlah: 50
         }
     });
     console.log('Komoditas seeded successfully!');
