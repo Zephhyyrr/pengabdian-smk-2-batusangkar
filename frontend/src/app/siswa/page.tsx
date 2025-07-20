@@ -8,8 +8,6 @@ import {
   Receipt,
   AlertCircle,
   Package,
-  Search,
-  X,
 } from "lucide-react";
 import { Komoditas, Penjualan, Produksi } from "@/types";
 import { DataTable } from "@/components/table/DataTable";
@@ -21,41 +19,59 @@ import { apiRequest } from "@/services/api.service";
 
 export default function KasirPage() {
   const [produksi, setProduksi] = useState<Produksi[]>([]);
-  const [komoditas, setKomoditas] = useState<Komoditas[]>([]);
   const [penjualan, setPenjualan] = useState<Penjualan[]>([]);
 
-  const [searchProduk, setSearchProduk] = useState("");
-  const [searchProduksi, setSearchProduksi] = useState("");
   const [showProdukDropdown, setShowProdukDropdown] = useState(false);
   const [showProduksiDropdown, setShowProduksiDropdown] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [formData, setFormData] = useState<Partial<Penjualan>>({
-    id_komodity: 0,
-    jumlah_terjual: 0,
-    id_produksi: 0,
+  const [formData, setFormData] = useState<{
+    keterangan: string;
+    id_komodity: number;
+    id_produksi: number;
+    jumlah_terjual: number;
+  }>({
     keterangan: "",
+    id_komodity: 0,
+    id_produksi: 0,
+    jumlah_terjual: 0,
   });
 
   const [showPenjualan, setShowPenjualan] = useState(false);
 
+  // Get unique komoditas from produksi data
+  const uniqueKomoditas = produksi.reduce((acc, prod) => {
+    const existing = acc.find(item => item.id === prod.komoditases?.id);
+    if (!existing && prod.komoditases) {
+      acc.push(prod.komoditases);
+    }
+    return acc;
+  }, [] as Komoditas[]);
+
+  // Get filtered produksi based on selected komoditas
+  const filteredProduksiByKomoditas = formData.id_komodity 
+    ? produksi.filter(prod => prod.komoditases?.id === formData.id_komodity)
+    : produksi;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [dataPenjualan, dataProduksi, dataKomoditas] = await Promise.all([
+        setError(null);
+        const [dataPenjualan, dataProduksi] = await Promise.all([
           apiRequest({ endpoint: "/penjualan" }),
           apiRequest({ endpoint: "/produksi" }),
-          apiRequest({ endpoint: "/komoditas" }),
         ]);
         setPenjualan(dataPenjualan);
         setProduksi(dataProduksi);
-        setKomoditas(dataKomoditas);
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Gagal memuat data");
+        const errorMessage = "Gagal memuat data. Periksa koneksi internet Anda.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -92,11 +108,11 @@ export default function KasirPage() {
       errors.jumlah_terjual = "Jumlah harus lebih dari 0";
     }
 
-    // Validasi stok tersedia
-    if (formData.id_komodity && formData.jumlah_terjual) {
-      const selectedKomoditas = komoditas.find((k) => k.id === formData.id_komodity);
-      if (selectedKomoditas && formData.jumlah_terjual > selectedKomoditas.jumlah) {
-        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedKomoditas.jumlah} ${selectedKomoditas.satuan}`;
+    // Validasi stok tersedia dari produksi
+    if (formData.id_produksi && formData.jumlah_terjual) {
+      const selectedProduksi = produksi.find((p) => p.id === formData.id_produksi);
+      if (selectedProduksi && formData.jumlah_terjual > selectedProduksi.jumlah) {
+        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.jumlah} ${selectedProduksi.komoditases?.satuan}`;
       }
     }
 
@@ -113,14 +129,6 @@ export default function KasirPage() {
           ? Number(value)
           : value,
     }));
-
-    // Clear error when user starts typing
-    if (formErrors[name]) {
-      setFormErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,33 +141,44 @@ export default function KasirPage() {
 
     try {
       setIsLoading(true);
-      const newPenjualan = await apiRequest({
+      setError(null);
+      
+      const requestBody = {
+        keterangan: formData.keterangan,
+        id_komodity: formData.id_komodity,
+        id_produksi: formData.id_produksi,
+        jumlah_terjual: formData.jumlah_terjual,
+      };
+
+      await apiRequest({
         endpoint: "/penjualan",
         method: "POST",
-        data: formData,
+        data: requestBody,
       });
 
-      // Update stok komoditas
-      const updatedKomoditas = komoditas.map((k) =>
-        k.id === formData.id_komodity
-          ? { ...k, jumlah: k.jumlah - (formData.jumlah_terjual || 0) }
-          : k
-      );
-      setKomoditas(updatedKomoditas);
-      const [dataPenjualan] = await Promise.all([apiRequest({ endpoint: "/penjualan" })]);
+      // Refresh data
+      const [dataPenjualan, dataProduksi] = await Promise.all([
+        apiRequest({ endpoint: "/penjualan" }),
+        apiRequest({ endpoint: "/produksi" }),
+      ]);
       setPenjualan(dataPenjualan);
+      setProduksi(dataProduksi);
+      
+      // Reset form
       setFormData({
-        id_komodity: 0,
-        jumlah_terjual: 0,
-        id_produksi: 0,
         keterangan: "",
+        id_komodity: 0,
+        id_produksi: 0,
+        jumlah_terjual: 0,
       });
       setFormErrors({});
 
       toast.success("Transaksi berhasil disimpan");
     } catch (error) {
       console.error("Error creating penjualan:", error);
-      toast.error("Transaksi gagal disimpan");
+      const errorMessage = "Transaksi gagal disimpan. Silakan coba lagi.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -203,21 +222,8 @@ export default function KasirPage() {
     },
   ];
 
-  const filteredKomoditas = komoditas.filter(
-    (item) =>
-      item.nama.toLowerCase().includes(searchProduk.toLowerCase()) ||
-      item.deskripsi?.toLowerCase().includes(searchProduk.toLowerCase())
-  );
-
-  const filteredProduksi = produksi.filter(
-    (item) =>
-      item.kode_produksi.toLowerCase().includes(searchProduksi.toLowerCase()) ||
-      item.ukuran?.toLowerCase().includes(searchProduksi.toLowerCase()) ||
-      item.kualitas?.toLowerCase().includes(searchProduksi.toLowerCase())
-  );
-
   const ProdukSelect = () => {
-    const selectedProduk = komoditas.find((k) => k.id === formData.id_komodity);
+    const selectedProduk = uniqueKomoditas.find((k) => k.id === formData.id_komodity);
 
     return (
       <div className="dropdown-container relative">
@@ -247,40 +253,24 @@ export default function KasirPage() {
           )}
 
           {showProdukDropdown && (
-            <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-hidden">
-              <div className="p-2 border-b border-gray-200 dark:border-gray-600">
-                <div className="relative">
-                  <Search
-                    size={16}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Cari produk..."
-                    value={searchProduk}
-                    onChange={(e) => setSearchProduk(e.target.value)}
-                    className="w-full pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  {searchProduk && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchProduk("")}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className="max-h-48 overflow-y-auto">
-                {filteredKomoditas.length > 0 ? (
-                  filteredKomoditas.map((item) => (
+            <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+              {uniqueKomoditas.length > 0 ? (
+                uniqueKomoditas.map((item) => {
+                  const totalStock = produksi
+                    .filter(p => p.komoditases?.id === item.id)
+                    .reduce((sum, p) => sum + p.jumlah, 0);
+
+                  return (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => {
-                        setFormData((prev) => ({ ...prev, id_komodity: item.id }));
+                        setFormData((prev) => ({ 
+                          ...prev, 
+                          id_komodity: item.id,
+                          id_produksi: 0
+                        }));
                         setShowProdukDropdown(false);
-                        setSearchProduk("");
                       }}
                       className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                       <div className="flex justify-between items-center">
@@ -292,21 +282,21 @@ export default function KasirPage() {
                         </div>
                         <div className="text-right">
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Stok: {item.jumlah} {item.satuan}
+                            Total Stok: {totalStock} {item.satuan}
                           </div>
-                          {item.jumlah <= 5 && (
+                          {totalStock <= 5 && (
                             <div className="text-xs text-red-500 font-medium">Stok Menipis!</div>
                           )}
                         </div>
                       </div>
                     </button>
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-                    Tidak ada produk ditemukan
-                  </div>
-                )}
-              </div>
+                  );
+                })
+              ) : (
+                <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                  Tidak ada produk tersedia
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -321,16 +311,20 @@ export default function KasirPage() {
       <div className="dropdown-container relative">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Kode Produksi *
+          {!formData.id_komodity && (
+            <span className="text-xs text-gray-500 ml-2">(Pilih produk terlebih dahulu)</span>
+          )}
         </label>
         <div className="relative">
           <button
             type="button"
+            disabled={!formData.id_komodity}
             onClick={() => setShowProduksiDropdown(!showProduksiDropdown)}
             className={`w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between transition-colors ${
               formErrors.id_produksi
                 ? "border-red-500 dark:border-red-400"
                 : "border-gray-300 dark:border-gray-600"
-            }`}>
+            } ${!formData.id_komodity ? "opacity-50 cursor-not-allowed" : ""}`}>
             <span
               className={selectedProduksi ? "text-gray-900 dark:text-gray-100" : "text-gray-500"}>
               {selectedProduksi?.kode_produksi || "Pilih Kode Produksi"}
@@ -345,57 +339,45 @@ export default function KasirPage() {
             </div>
           )}
 
-          {showProduksiDropdown && (
-            <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-hidden">
-              <div className="p-2 border-b border-gray-200 dark:border-gray-600">
-                <div className="relative">
-                  <Search
-                    size={16}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Cari kode produksi..."
-                    value={searchProduksi}
-                    onChange={(e) => setSearchProduksi(e.target.value)}
-                    className="w-full pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  {searchProduksi && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchProduksi("")}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className="max-h-48 overflow-y-auto">
-                {filteredProduksi.length > 0 ? (
-                  filteredProduksi.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev) => ({ ...prev, id_produksi: item.id }));
-                        setShowProduksiDropdown(false);
-                        setSearchProduksi("");
-                      }}
-                      className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm border-b border-gray-100 dark:border-gray-700 last:border-b-0">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium font-mono">{item.kode_produksi}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+          {showProduksiDropdown && formData.id_komodity && (
+            <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+              {filteredProduksiByKomoditas.length > 0 ? (
+                filteredProduksiByKomoditas.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({ 
+                        ...prev, 
+                        id_produksi: item.id,
+                        id_komodity: prev.id_komodity || item.komoditases?.id || 0
+                      }));
+                      setShowProduksiDropdown(false);
+                    }}
+                    className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-medium font-mono">{item.kode_produksi}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           {item.ukuran} - {item.kualitas}
-                        </span>
+                        </div>
                       </div>
-                    </button>
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-                    Tidak ada kode produksi ditemukan
-                  </div>
-                )}
-              </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Stok: {item.jumlah} {item.komoditases?.satuan}
+                        </div>
+                        {item.jumlah <= 5 && (
+                          <div className="text-xs text-red-500 font-medium">Stok Menipis!</div>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                  Tidak ada kode produksi ditemukan
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -403,7 +385,7 @@ export default function KasirPage() {
     );
   };
 
-  const selectedKomoditas = komoditas.find((k) => k.id === formData.id_komodity);
+  const selectedProduksi = produksi.find((p) => p.id === formData.id_produksi);
 
   return (
     <div className="min-h-screen text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900">
@@ -419,6 +401,17 @@ export default function KasirPage() {
       </div>
 
       <div className="p-4 space-y-4">
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-red-800 dark:text-red-200">
+              <AlertCircle size={20} />
+              <span className="font-medium">Error:</span>
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Transaction Form */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-4">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -436,9 +429,9 @@ export default function KasirPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Jumlah *
-                  {selectedKomoditas && (
+                  {selectedProduksi && (
                     <span className="text-xs text-gray-500 ml-2">
-                      (Tersedia: {selectedKomoditas.jumlah} {selectedKomoditas.satuan})
+                      (Tersedia: {selectedProduksi.jumlah} {selectedProduksi.komoditases?.satuan})
                     </span>
                   )}
                 </label>
@@ -449,7 +442,7 @@ export default function KasirPage() {
                   onChange={handleInputChange}
                   placeholder="0"
                   min="1"
-                  max={selectedKomoditas?.jumlah || undefined}
+                  max={selectedProduksi?.jumlah || undefined}
                   className={`w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     formErrors.jumlah_terjual
                       ? "border-red-500 dark:border-red-400"

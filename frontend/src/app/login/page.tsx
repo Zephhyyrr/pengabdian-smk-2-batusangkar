@@ -24,7 +24,6 @@ export default function LoginPage() {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (error) setError('');
   };
 
@@ -43,8 +42,8 @@ export default function LoginPage() {
       // Assuming the API returns a token
       if (response.token) {
         document.cookie = `token=${response.token}; path=/; secure; samesite=strict`;
-        document.cookie = `role=${response.role}; path=/; secure; samesite=strict`;
-        if (response.role === "siswa") {
+        document.cookie = `role=${response.user.role}; path=/; secure; samesite=strict`;
+        if (response.user.role === "siswa") {
           router.push('/siswa');
         } else {
           router.push('/dashboard/kepsek');

@@ -21,7 +21,7 @@ apiRouter.use("/jenis", jwtCheckToken, isRole(["super_admin", "admin"]), jenisRo
 apiRouter.use("/komoditas", jwtCheckToken, isRole(["super_admin", "admin"]), komoditasRouter)
 apiRouter.use("/barang", jwtCheckToken, isRole(["super_admin", "admin"]), barangRouter)
 apiRouter.use("/transaksi-barang", jwtCheckToken, isRole(["super_admin", "admin"]), transaksiBarangRouter)
-apiRouter.use("/produksi", jwtCheckToken, isRole(["super_admin", "admin"]), produksiRouter);
-apiRouter.use("/penjualan", jwtCheckToken, isRole(["super_admin", "admin"]), penjualanRouter);
+apiRouter.use("/produksi", jwtCheckToken, isRole(["super_admin", "admin", "siswa"]), produksiRouter);
+apiRouter.use("/penjualan", jwtCheckToken, isRole(["super_admin", "admin", "siswa"]), penjualanRouter);
 apiRouter.use("/asal-produksi", jwtCheckToken, isRole(["super_admin", "admin"]), asalProduksiRouter);
 export default apiRouter

@@ -41,12 +41,15 @@ export interface AsalProduksi {
 export interface Produksi {
   id: number;
   id_asal: number;
+  id_komoditas: number;
+  jumlah: number;
   kode_produksi: string;
   ukuran: string;
   kualitas: string;
   createdAt: string;
   updatedAt: string;
   asal_produksi: AsalProduksi;
+  komoditases: Komoditas;
 }
 
 export interface Penjualan {
