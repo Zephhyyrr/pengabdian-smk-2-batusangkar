@@ -5,7 +5,7 @@ export async function getAllProduksiService() {
     const produksis = await prisma.produksi.findMany({
         include: {
             penjualans: true,
-            komoditas: true,
+            komoditases: true,
             asal_produksi: true
         },
         orderBy: {
