@@ -94,7 +94,7 @@ export default function DashboardKepsek() {
   // Data untuk grafik komoditas terlaris
   const komoditasTerlaris = penjualan
     .reduce((acc, item) => {
-      const nama = item.Komoditas?.nama ?? "Tidak diketahui";
+      const nama = item.komoditas?.nama ?? "Tidak diketahui";
       if (!acc[nama]) {
         acc[nama] = 0;
       }
@@ -196,14 +196,14 @@ export default function DashboardKepsek() {
                 columns={[
                   {
                     header: "Komoditas",
-                    accessorKey: "Komoditas",
-                    cell: (item: Penjualan) => item.Komoditas?.nama,
+                    accessorKey: "komoditas",
+                    cell: (item: Penjualan) => item.komoditas?.nama,
                   },
                   {
                     header: "Jumlah",
                     accessorKey: "jumlah_terjual",
                     cell: (item: Penjualan) => 
-                      `${item.jumlah_terjual} ${item.Komoditas?.satuan}`,
+                      `${item.jumlah_terjual} ${item.komoditas?.satuan}`,
                   },
                   {
                     header: "Tanggal",
