@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { RefreshCcw, Search, Trash2 } from "lucide-react";
+import { PenBox, RefreshCcw, Search, Trash2 } from "lucide-react";
 import { apiRequest } from "@/services/api.service";
 
 type Props = {
@@ -12,15 +12,11 @@ type Props = {
 export default function Jenis_Komoditas({ onEdit, reloadTrigger }: Props) {
   const [jenisList, setJenisList] = useState<any[]>([]);
 
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
-
   // Menampilkan data
   const fetchDataJenis = async () => {
     try {
       const data = await apiRequest({
-        endpoint: "/jenis",
-        token,
+        endpoint: "/jenis"
       });
       setJenisList(Array.isArray(data) ? data : [data]);
     } catch (err) {
@@ -37,8 +33,7 @@ export default function Jenis_Komoditas({ onEdit, reloadTrigger }: Props) {
     try {
       await apiRequest({
         endpoint: `/jenis/${id}`,
-        method: "DELETE",
-        token,
+        method: "DELETE"
       });
       alert("Data berhasil dihapus.");
       fetchDataJenis();
@@ -92,9 +87,9 @@ export default function Jenis_Komoditas({ onEdit, reloadTrigger }: Props) {
                     <TableCell className="dark:text-gray-200">{jenis.name}</TableCell>
                     <TableCell>
                       <button
-                        className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded"
+                        className="bg-yellow-400 hover:bg-yellow-500 text-white hover:underline py-1 px-3 rounded"
                         onClick={() => onEdit(jenis)}>
-                        <RefreshCcw size={15} />
+                        <PenBox size={15} />
                       </button>
                       <button
                         className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline"

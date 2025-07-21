@@ -176,7 +176,7 @@ export default function InputPenjualanForm({ isOpen, onClose, formMode = "create
                         <option value="">Pilih Produk</option>
                         {produksiList.map((produksi) => (
                             <option key={produksi.id} value={produksi.id}>
-                                {produksi.asal_produksi.nama}
+                                {produksi.asal_produksi.nama} - {produksi.kode_produksi} 
                             </option>
                         ))}
                     </select>

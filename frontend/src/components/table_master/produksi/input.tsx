@@ -70,36 +70,51 @@ export default function InputProduksiForm({
     initialData,
     onSubmitSuccess }: InputFormProps) {
     const [id_asal, setId_Asal] = useState("");
+    const [id_komoditas, setIdKomoditas] = useState("");
     const [kode_produksi, setKode_Produksi] = useState("");
     const [ukuran, setUkuran] = useState("");
     const [kualitas, setKualitas] = useState("");
+    const [jumlah_diproduksi, setJumlahDiproduksi] = useState("");
     const [loading, setLoading] = useState(false);
 
     const [asalList, setAsalList] = useState<any[]>([]);
+    const [komoditasList, setKomoditasList] = useState<any[]>([]);
 
-    const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
 
     useEffect(() => {
         fetchDataAsal();
+        fetchDataKomoditas();
 
         if (formMode === "update" && initialData) {
+            console.log("initialData:", initialData);
             setId_Asal(initialData.id_asal?.toString() || "");
+            setIdKomoditas(initialData.id_komoditas?.toString() || "");
             setKode_Produksi(initialData.kode_produksi || "");
             setUkuran(initialData.ukuran || "");
             setKualitas(initialData.kualitas || "");
+            setJumlahDiproduksi(initialData.jumlah?.toString() || "");
         }
     }, [formMode, initialData]);
 
     const fetchDataAsal = async () => {
         try {
             const data = await apiRequest({
-                endpoint: "/asal-produksi",
-                token,
+                endpoint: "/asal-produksi"
             });
             setAsalList(data);
         } catch (error) {
             console.error("Gagal ambil data Asal:", error);
+        }
+    };
+
+    const fetchDataKomoditas = async () => {
+        try {
+            const data = await apiRequest({
+                endpoint: "/komoditas"
+            });
+            setKomoditasList(data);
+        } catch (error) {
+            console.error("Gagal ambil data Komoditas:", error);
         }
     };
 
@@ -109,9 +124,11 @@ export default function InputProduksiForm({
 
         const payload = {
             id_asal: parseInt(id_asal),
+            id_komoditas: parseInt(id_komoditas),
             kode_produksi,
             ukuran,
-            kualitas
+            kualitas,
+            jumlah_diproduksi: parseInt(jumlah_diproduksi)
         };
 
         try {
@@ -122,7 +139,6 @@ export default function InputProduksiForm({
             await apiRequest({
                 endpoint,
                 method,
-                token,
                 data: payload
             });
 
@@ -147,6 +163,15 @@ export default function InputProduksiForm({
                     onSubmit={handleSubmit}
                     className="grid grid-cols-2 gap-4 text-gray-900 dark:text-gray-100"
                 >
+                    <label>Kode Produksi</label>
+                    <input
+                        type="text"
+                        value={kode_produksi}
+                        onChange={(e) => setKode_Produksi(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                    />
+
                     <div className="flex items-center gap-4">
                         <label>Asal Produksi</label>
                     </div>
@@ -164,14 +189,22 @@ export default function InputProduksiForm({
                         ))}
                     </select>
 
-                    <label>Kode Produksi</label>
-                    <input
-                        type="text"
-                        value={kode_produksi}
-                        onChange={(e) => setKode_Produksi(e.target.value)}
-                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    <div className="flex items-center gap-4">
+                        <label>Jenis Komoditas</label>
+                    </div>
+                    <select
+                        value={id_komoditas}
+                        onChange={(e) => setIdKomoditas(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white w-full"
                         required
-                    />
+                    >
+                        <option value="">Pilih Komoditas</option>
+                        {komoditasList.map((komoditas) => (
+                            <option key={komoditas.id} value={komoditas.id}>
+                                {komoditas.nama}
+                            </option>
+                        ))}
+                    </select>
 
                     <label>Ukuran</label>
                     <input
@@ -187,6 +220,14 @@ export default function InputProduksiForm({
                         type="text"
                         value={kualitas}
                         onChange={(e) => setKualitas(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+
+                    <label>Jumlah</label>
+                    <input
+                        type="text"
+                        value={jumlah_diproduksi}
+                        onChange={(e) => setJumlahDiproduksi(e.target.value)}
                         className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
 

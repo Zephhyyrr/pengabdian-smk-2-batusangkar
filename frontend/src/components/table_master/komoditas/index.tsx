@@ -14,8 +14,8 @@ export default function Komoditas() {
     const [selectedKomoditas, setSelectedKomoditas] = useState(null);
     const [komoditasYgDipilih, setKomoditasYgDipilih] = useState<any>(null);
 
-      const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
+    const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
 
     const fetchDataKomoditas = async () => {
         try {
@@ -81,7 +81,7 @@ export default function Komoditas() {
                     className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
                     Buat Komoditas Baru
                 </button>
-                <InputKomoditasForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmitSuccess={fetchDataKomoditas}/>
+                <InputKomoditasForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmitSuccess={fetchDataKomoditas} />
             </div>
 
             {/* Table */}
@@ -103,22 +103,17 @@ export default function Komoditas() {
                                 {komoditasList.map((item, index) => (
                                     <TableRow key={item.id}>
                                         <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
-                                        <TableCell className="dark:text-gray-200">{item.nama_jenis}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.jenis.name}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.nama}</TableCell>
-                                        <TableCell className="dark:text-gray-200">{item.satuan} KG</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.satuan}</TableCell>
                                         <TableCell className="dark:text-gray-200">{item.jumlah}</TableCell>
                                         <TableCell>
                                             <button
                                                 onClick={() => handleOpenUpdateModal(item)}
-                                                className="bg-green-600 hover:bg-green-700 text-white hover:underline py-1 px-3 rounded">
+                                                className="bg-yellow-400 hover:bg-yellow-500 text-white hover:underline py-1 px-3 rounded">
                                                 <PenBox size={15} />
                                             </button>
 
-                                            <button
-                                                onClick={() => deleteDataKomoditas(item.id)}
-                                                className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
-                                                <Trash2 size={15} />
-                                            </button>
                                             <button
                                                 className="ml-2 bg-blue-600 hover:bg-blue-700 text-white hover:underline py-1 px-3 rounded"
                                                 onClick={() => {
@@ -132,6 +127,13 @@ export default function Komoditas() {
                                                 onClose={() => setIsInfoOpen(false)}
                                                 selectedKomoditas={selectedKomoditas}
                                             />
+
+                                            <button
+                                                onClick={() => deleteDataKomoditas(item.id)}
+                                                className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline">
+                                                <Trash2 size={15} />
+                                            </button>
+
                                         </TableCell>
                                     </TableRow>
                                 ))}
