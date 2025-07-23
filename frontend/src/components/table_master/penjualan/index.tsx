@@ -87,27 +87,7 @@ export default function Penjualan() {
         { header: "Jumlah Terjual", accessorKey: "jumlah_terjual" as keyof PenjualanType },
         { header: "Kualitas", accessorKey: "produksi" as keyof PenjualanType, cell: (item: PenjualanType) => item.produksi?.kualitas || "" },
         { header: "Produksi", accessorKey: "produksi" as keyof PenjualanType, cell: (item: PenjualanType) => item.produksi?.asal_produksi?.nama || "" },
-        { header: "Keterangan", accessorKey: "keterangan" as keyof PenjualanType },
-        {
-            header: "Aksi",
-            accessorKey: "id" as keyof PenjualanType,
-            cell: (item: PenjualanType) => (
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => handleOpenUpdateModal(item)}
-                        className="p-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                    >
-                        <PenBox size={16} />
-                    </button>
-                    <button
-                        onClick={() => handleDeleteClick(item.id)}
-                        className="p-2 bg-red-600 hover:bg-red-500 text-white rounded"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
-            ),
-        },
+        { header: "Keterangan", accessorKey: "keterangan" as keyof PenjualanType }
     ];
 
     return (
