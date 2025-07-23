@@ -20,10 +20,10 @@ export async function getAlluserController(req: Request, res: Response<ResponseA
 export async function updateUserController(req: Request, res: Response<ResponseApiType>) {
     try {
         const { id } = req.params
-        const { email, nama, password, role } = req.body
+        const { email, nama, role, password } = req.body
 
         const hashedPassword = password ? await hashing(password) : undefined
-        const updatedUser = await updateUserService(Number(id), email, nama, hashedPassword!, role)
+        const updatedUser = await updateUserService(Number(id), email, nama, role, hashedPassword!)
         return res.status(200).json({
             success: true,
             message: `Berhasil mengupdate user: ${updatedUser.nama}.`,
