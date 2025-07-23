@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/services/api.service";
+import toast from "react-hot-toast";
 
 type Props = {
   selectedJenis: any | null;
@@ -12,6 +13,7 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis, o
   const [name, setName] = useState("");
   const [formMode, setFormMode] = useState<"create" | "update">("create");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (selectedJenis) {
@@ -21,29 +23,42 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis, o
       setFormMode("create");
       setName("");
     }
+    setErrors({}); // Clear errors on modal open/data change
   }, [selectedJenis]);
 
   // Submit create atau update
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({}); // Clear previous errors
+
     try {
       const payload = { name };
       if (formMode === "create") {
         await apiRequest({ endpoint: "/jenis", method: "POST", data: payload });
-        alert("Jenis berhasil ditambahkan");
+        toast.success("Jenis berhasil ditambahkan");
       } else if (formMode === "update" && selectedJenis?.id) {
         await apiRequest({ endpoint: `/jenis/${selectedJenis.id}`, method: "PUT", data: payload });
-        alert("Jenis berhasil diupdate");
+        toast.success("Jenis berhasil diupdate");
       }
 
       setName("");
       setFormMode("create");
       setSelectedJenis(null);
 
-      onSuccess(); 
+      onSuccess();
     } catch (err: any) {
-      alert("Terjadi kesalahan: " + err.message);
+      console.error("Error submitting form:", err);
+      if (err.response?.data?.errors) {
+        const newErrors: Record<string, string> = {};
+        err.response.data.errors.forEach((error: any) => {
+          newErrors[error.path] = error.msg;
+        });
+        setErrors(newErrors);
+        toast.error(err.response.data.message || "Validasi gagal.");
+      } else {
+        toast.error(err.message || "Terjadi kesalahan.");
+      }
     } finally {
       setLoading(false);
     }
@@ -71,6 +86,7 @@ export default function InputJenisKomoditas({ selectedJenis, setSelectedJenis, o
           placeholder="Masukkan jenis"
           required
         />
+        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
       </div>
 
       {/* Tombol Simpan */}

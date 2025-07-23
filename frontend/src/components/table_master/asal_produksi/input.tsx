@@ -1,6 +1,7 @@
 "use client";
 import { apiRequest } from "@/services/api.service";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 type Props = {
   selelectedAsalProduksi: any | null;
@@ -12,6 +13,7 @@ export default function InputAsalProduksi({ selelectedAsalProduksi, setSelectedA
   const [nama, setNama] = useState("");
   const [formMode, setFormMode] = useState<"create" | "update">("create");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (selelectedAsalProduksi) {
@@ -21,30 +23,41 @@ export default function InputAsalProduksi({ selelectedAsalProduksi, setSelectedA
       setFormMode("create");
       setNama("");
     }
+    setErrors({}); // Clear errors on modal open/data change
   }, [selelectedAsalProduksi]);
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc1MjcyNzgzNCwiZXhwIjoxNzU1MzE5ODM0fQ.qgnZfOcI1thz5ZQsTRlWytwMYl-DYV3Opx6UsV5_LNc";
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({}); // Clear previous errors
+
     try {
       const payload = { nama };
       if (formMode === "create") {
-        apiRequest({ endpoint: "/asal-produksi", method: "POST", token, data: payload });
-        alert("Asal Produksi berhasil ditambahkan");
+        await apiRequest({ endpoint: "/asal-produksi", method: "POST", data: payload });
+        toast.success("Asal Produksi berhasil ditambahkan");
       } else if (formMode === "update" && selelectedAsalProduksi?.id) {
-        apiRequest({ endpoint: `/asal-produksi/${selelectedAsalProduksi.id}`, method: "PUT", token, data: payload });
-        alert("Asal Produksi berhasil diupdate");
+        await apiRequest({ endpoint: `/asal-produksi/${selelectedAsalProduksi.id}`, method: "PUT", data: payload });
+        toast.success("Asal Produksi berhasil diupdate");
       }
 
       setNama("");
       setFormMode("create");
       setSelectedAsalProduksi(null);
 
-      onSuccess(); 
+      onSuccess();
     } catch (err: any) {
-      alert("Terjadi kesalahan: " + err.message);
+      console.error("Error submitting form:", err);
+      if (err.response?.data?.errors) {
+        const newErrors: Record<string, string> = {};
+        err.response.data.errors.forEach((error: any) => {
+          newErrors[error.path] = error.msg;
+        });
+        setErrors(newErrors);
+        toast.error(err.response.data.message || "Validasi gagal.");
+      } else {
+        toast.error(err.message || "Terjadi kesalahan.");
+      }
     } finally {
       setLoading(false);
     }
@@ -72,6 +85,7 @@ export default function InputAsalProduksi({ selelectedAsalProduksi, setSelectedA
           placeholder="Masukkan nama"
           required
         />
+        {errors.nama && <p className="text-red-500 text-sm mt-1">{errors.nama}</p>}
       </div>
 
       {/* Tombol Simpan */}
