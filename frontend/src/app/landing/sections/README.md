@@ -21,10 +21,4 @@ Anda bisa mencoba demo aplikasi [di sini](https://www.example.com).
 - ✅ konten
 - ✅ footer
 
-## 🗺️ Roadmap
-
-- [x] Fitur yang sudah selesai
-- [ ] Fitur yang akan datang 1
-- [ ] Fitur yang akan datang 2
-- [ ] Versi 2.0
 

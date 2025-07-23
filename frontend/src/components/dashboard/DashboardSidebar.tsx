@@ -70,7 +70,7 @@ const dashboardMenu = [
   {
     name: "Admin",
     icon: <Users className="w-5 h-5" />,
-    href: "#",
+    href: "/dashboard/admin",
   },
 ];
 
