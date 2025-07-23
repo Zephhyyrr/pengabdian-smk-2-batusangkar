@@ -1,5 +1,6 @@
 import prisma from "../config/prisma";
 import { AppError } from "../errors/api_errors";
+import { RoleUser } from "@prisma/client";
 
 export async function getAllUserService() {
     const users = await prisma.user.findMany()
@@ -14,13 +15,40 @@ export async function addUserService(email: string, nama: string, password: stri
     return newUser
 }
 
-export async function updateUserService(id: number, email: string, nama: string, password: string, role: any) {
+export async function updateUserService(
+    id: number,
+    email: string,
+    nama: string,
+    role: string,
+    password?: string
+) {
+    const parsedRole = role as RoleUser;
+
+    if (!Object.values(RoleUser).includes(parsedRole)) {
+        throw new Error("Role tidak valid.");
+    }
+
+    const data: {
+        email: string;
+        nama: string;
+        role: RoleUser;
+        password?: string;
+    } = {
+        email,
+        nama,
+        role: parsedRole,
+    };
+
+    if (password) {
+        data.password = password;
+    }
+
     const updated = await prisma.user.update({
         where: { id },
-        data: { email, nama, password, role }
-    })
+        data,
+    });
 
-    return updated
+    return updated;
 }
 
 export async function deleteUserService(id: number) {
