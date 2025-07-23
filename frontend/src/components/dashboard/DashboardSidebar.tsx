@@ -68,9 +68,9 @@ const dashboardMenu = [
     ],
   },
   {
-    name: "Admin",
+    name: "User",
     icon: <Users className="w-5 h-5" />,
-    href: "#",
+    href: "/dashboard/user",
   },
 ];
 

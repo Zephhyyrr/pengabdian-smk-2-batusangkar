@@ -219,7 +219,7 @@ export default function DashboardKepsek() {
         </div>
 
         {/* Grafik Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Distribusi Jenis Komoditas */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
@@ -286,7 +286,9 @@ export default function DashboardKepsek() {
               </ResponsiveContainer>
             </div>
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
           {/* Trend Penjualan */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
