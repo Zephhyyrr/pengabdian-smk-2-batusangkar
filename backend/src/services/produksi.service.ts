@@ -82,8 +82,27 @@ export async function updateProduksiService(
     kualitas: string,
     jumlah: number
 ) {
-    const check = await prisma.produksi.findUnique({ where: { id } });
-    if (!check) throw new AppError("Produksi tidak ditemukan", 404);
+    const produksi = await prisma.produksi.findUnique({ where: { id } });
+    if (!produksi) throw new AppError("Produksi tidak ditemukan", 404);
+
+    // Jika id_komoditas null, tidak update jumlah komoditas
+    if (produksi.id_komoditas) {
+        const komoditas = await prisma.komoditas.findUnique({ where: { id: produksi.id_komoditas } });
+        if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
+
+        // Hitung selisih jumlah
+        const selisih = jumlah - produksi.jumlah;
+        if (selisih !== 0) {
+            await prisma.komoditas.update({
+                where: { id: produksi.id_komoditas },
+                data: {
+                    jumlah: {
+                        increment: selisih
+                    }
+                }
+            });
+        }
+    }
 
     return await prisma.produksi.update({
         where: { id },
@@ -98,6 +117,25 @@ export async function updateProduksiService(
 }
 
 export async function deleteProduksiService(id: number) {
+    // Ambil data produksi sebelum dihapus
+    const produksi = await prisma.produksi.findUnique({ where: { id } });
+    if (!produksi) throw new AppError("Produksi tidak ditemukan", 404);
+
+    // Jika id_komoditas ada, kurangi jumlah di komoditas
+    if (produksi.id_komoditas) {
+        const komoditas = await prisma.komoditas.findUnique({ where: { id: produksi.id_komoditas } });
+        if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
+
+        await prisma.komoditas.update({
+            where: { id: produksi.id_komoditas },
+            data: {
+                jumlah: {
+                    decrement: produksi.jumlah
+                }
+            }
+        });
+    }
+
     const deleted = await prisma.produksi.delete({ where: { id } });
     return deleted;
 }
