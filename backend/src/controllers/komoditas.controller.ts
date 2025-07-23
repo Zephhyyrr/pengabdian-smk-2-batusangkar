@@ -17,15 +17,12 @@ async function uploadFileToCloudinary(file: Express.Multer.File): Promise<string
         return uploadResult.secure_url;
 
     } catch (uploadError) {
-        console.error("Upload ke Cloudinary gagal:", uploadError);
         throw new Error(`Upload gagal: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
 
-    } finally {
+    } finally { 
         try {
             unlinkSync(fullPath);
-            console.log("✓ File lokal berhasil dihapus:", fullPath);
         } catch (unlinkError) {
-            console.error("✗ Gagal menghapus file lokal:", unlinkError);
         }
     }
 }
