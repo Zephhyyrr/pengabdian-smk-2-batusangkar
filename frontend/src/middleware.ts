@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
     if (role === "admin")
       return NextResponse.redirect(new URL("/dashboard/penjualan", request.url));
     if (role === "kepsek") return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
   }
 
   if (isLoggedIn) {
