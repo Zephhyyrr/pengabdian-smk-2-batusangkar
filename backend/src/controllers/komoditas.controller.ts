@@ -1,30 +1,60 @@
 import { Request, Response } from "express";
 import { ResponseApiType } from "../types/api_types";
 import { handlerAnyError } from "../errors/api_errors";
-import { deleteFileFromDrive, uploadFileToDrive } from "../services/google_drive.service";
 import { createdKomoditasService, deleteKomoditasService, getAllKomoditasService, getKomoditasByIdService, updateKomoditasService } from "../services/komoditas.service";
+import cloudinary from "../config/cloudinary";
+import { unlinkSync } from "fs"
+import path from "path";
+
+async function uploadFileToCloudinary(file: Express.Multer.File): Promise<string> {
+    const fullPath = path.resolve(file.path);
+
+    try {
+        const uploadResult = await cloudinary.uploader.upload(fullPath, {
+            folder: "PengabdianSMK2Batusangkar/komoditas",
+        });
+
+        return uploadResult.secure_url;
+
+    } catch (uploadError) {
+        throw new Error(`Upload gagal: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
+
+    } finally { 
+        try {
+            unlinkSync(fullPath);
+        } catch (unlinkError) {
+        }
+    }
+}
 
 export async function createKomoditasController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body
-        const file = req.file
+        const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body;
+        const file = req.file;
 
-        const fileBuffer = file?.buffer!;
-        const fileName = file?.originalname!;
-        const mimeType = file?.mimetype!;
-        const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || ""
+        let fotoUrl = "";
 
-        const uploadResult = await uploadFileToDrive(fileBuffer, fileName, mimeType, folderId)
-        const fotoUrl = `https://drive.google.com/uc?id=${uploadResult.id}`
-        const newKomoditas = await createdKomoditasService(Number(id_jenis), nama, deskripsi, fotoUrl, satuan, Number(jumlah))
+        if (file?.path) {
+            fotoUrl = await uploadFileToCloudinary(file);
+        }
+
+        const newKomoditas = await createdKomoditasService(
+            Number(id_jenis),
+            nama,
+            deskripsi,
+            fotoUrl,
+            satuan,
+            Number(jumlah)
+        );
 
         return res.status(201).json({
             success: true,
-            message: `Berhasil menambahkan komoditas baru: .${newKomoditas.nama}`,
+            message: `Berhasil menambahkan komoditas baru: ${newKomoditas.nama}`,
             data: newKomoditas
-        })
+        });
+
     } catch (error) {
-        return handlerAnyError(error, res)
+        return handlerAnyError(error, res);
     }
 }
 
@@ -33,7 +63,7 @@ export async function getAllKomoditasController(req: Request, res: Response<Resp
         const komoditas = (await getAllKomoditasService()).map((komoditas) => ({
             "id": komoditas.id,
             "id_jenis": komoditas.id_jenis,
-            "nama_jenis": komoditas.jenis.name,
+            "jenis": komoditas.jenis,
             "nama": komoditas.nama,
             "deskripsi": komoditas.deskripsi,
             "foto": komoditas.foto,
@@ -55,37 +85,43 @@ export async function getAllKomoditasController(req: Request, res: Response<Resp
 
 export async function updateKomoditasController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { id } = req.params
-        const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body
+        const { id } = req.params;
+        const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body;
+        const file = req.file;
 
-        const file = req?.file;
-        let fotoUrl = undefined;
+        let foto: string | undefined = undefined;
 
-        // cek jika ada file yang diupload
-        if (file !== undefined) {
-
-            const { foto } = await getKomoditasByIdService((Number(id)))
-            const fileID = foto.split("=")[1]
-
-            await deleteFileFromDrive(fileID)
-            const fileBuffer = file?.buffer!;
-            const fileName = file?.originalname!;
-            const mimeType = file?.mimetype!;
-            const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || ""
-
-            const uploadResult = await uploadFileToDrive(fileBuffer, fileName, mimeType, folderId)
-            fotoUrl = `https://drive.google.com/uc?id=${uploadResult.id}`
+        if (file?.path) {
+            foto = await uploadFileToCloudinary(file);
         }
 
-        const updatedKomoditas = await updateKomoditasService(Number(id), (Number(id_jenis) || undefined), nama, deskripsi, fotoUrl!, satuan, jumlah ? Number(jumlah) : jumlah as number)
+        if (!foto) {
+            try {
+                const existingKomoditas = await getKomoditasByIdService(Number(id));
+                foto = existingKomoditas.foto;
+            } catch (error) {
+                console.error("Gagal mengambil data komoditas existing:", error);
+            }
+        }
+
+        const updatedKomoditas = await updateKomoditasService(
+            Number(id),
+            id_jenis ? Number(id_jenis) : undefined,
+            nama,
+            deskripsi,
+            foto ?? "",
+            satuan,
+            jumlah ? Number(jumlah) : 0
+        );
 
         return res.status(200).json({
             success: true,
             message: `Berhasil update komoditas: ${nama}`,
             data: updatedKomoditas
-        })
+        });
+
     } catch (error) {
-        return handlerAnyError(error, res)
+        return handlerAnyError(error, res);
     }
 }
 
@@ -93,9 +129,21 @@ export async function deleteKomoditasController(req: Request, res: Response<Resp
     try {
         const { id } = req.params
 
-        const deletedKomoditas = await deleteKomoditasService(Number(id))
-        const fileID = deletedKomoditas.foto.split("=")[1]
-        await deleteFileFromDrive(fileID)
+        // Ambil data komoditas dulu untuk dapat URL foto
+        const komoditas = await getKomoditasByIdService(Number(id));
+        const fotoUrl = komoditas.foto;
+
+        // Ekstrak public_id dari URL Cloudinary
+        // Contoh URL: https://res.cloudinary.com/demo/image/upload/v1234567890/folder/filename.jpg
+        // public_id: folder/filename (tanpa ekstensi)
+        const matches = fotoUrl.match(/\/([^\/]+\/[^\/]+)\.[a-zA-Z]+$/);
+        const publicId = matches ? matches[1] : undefined;
+
+        if (publicId) {
+            await cloudinary.uploader.destroy(publicId);
+        }
+
+        const deletedKomoditas = await deleteKomoditasService(Number(id));
         return res.status(200).json({
             success: true,
             message: `Berhasil menghapus komoditas: ${deletedKomoditas.nama}`

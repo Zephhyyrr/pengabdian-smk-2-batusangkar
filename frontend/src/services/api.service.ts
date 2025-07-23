@@ -4,7 +4,6 @@ export const apiRequest = async ({
   endpoint,
   method = 'GET',
   data,
-  token,
 }: {
   endpoint: string;
   method?: string;
@@ -15,10 +14,18 @@ export const apiRequest = async ({
 
   const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
 
+  var token = typeof window !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined;
+
   const headers = {
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
   };
+
+  // console.log(`Making API request...`);
+  // console.log(`  URL     : ${baseUrl}${endpoint}`);
+  // console.log(`  Method  : ${method}`);
+  // console.log(`  Token   : ${token}`);
+  // console.log(`  Payload :`, data);
 
   try {
     const res = await axios({
@@ -30,8 +37,9 @@ export const apiRequest = async ({
 
     return res.data.data;
   } catch (error: any) {
+    console.log("error", error.response?.data.errors)
     throw new Error(
-      error.response?.data?.message || error.message || 'Failed to fetch'
+      error.response?.data?.message || error.response?.error || error.message || 'Failed to fetch'
     );
   }
 };

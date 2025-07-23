@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ResponseApiType } from "../types/api_types";
 import {
     getAllAsalProduksiService,
+    getByIdAsalProduksiService,
     createAsalProduksiService,
     updateAsalProduksiService,
     deleteAsalProduksiService
@@ -14,6 +15,26 @@ export async function getAllAsalProduksiController(req: Request, res: Response<R
         return res.status(200).json({
             success: true,
             message: "Berhasil mengambil semua asal produksi.",
+            data: result
+        });
+    } catch (error) {
+        return handlerAnyError(error, res);
+    }
+}
+
+export async function getByIdAsalProduksiController(req: Request, res: Response<ResponseApiType>) {
+    try {
+        const { id } = req.params;
+        const result = await getByIdAsalProduksiService(Number(id));
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                message: "Asal produksi tidak ditemukan."
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: `Berhasil mengambil asal produksi dengan ID ${id}.`,
             data: result
         });
     } catch (error) {

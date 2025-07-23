@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter } from 'lucide
 
 const Footer = () => {
   return (
-    <footer id="kontak" className="bg-school-primary text-white">
+    <footer id="kontak" className="bg-school-primary text-white bg-black">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Contact Info */}

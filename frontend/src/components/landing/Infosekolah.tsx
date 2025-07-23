@@ -7,7 +7,12 @@ import { Award, BookOpen, Users, Calendar } from 'lucide-react';
 const infosekolah = [
   {
     title: 'Visi Kami',
-    description: 'Mewujudkan SMK unggul yang menghasilkan lulusan berkarakter, profesional, dan berdaya saing global.',
+    description: 'Berilmu Pengetahuan, Berteknologi, Kompetitif dan Berakhlak Mulia dengan Jiwa Entrepreuneur Millennial di Bidang Agribisnis, Teknologi dan Seni Kreativ sehingga Mampu Mengisi Kebutuhan Dunia Kerja di Zaman Industri 5.0',
+    icon: <Award className="h-8 w-8 text-school-accent" />,
+  },
+  {
+    title: 'Misi Kami',
+    description: '1. Menciptakan generasi yang mampu menjawab tantangan berbagai hal terkait ilmu pengetahuan dan teknologi 2. Membina generasi agar mampu menjadi seorang yang aktif berbicara, jujur dan disiplin 3. Menciptakan sekolah sehat dan ramah anak 4. Mewujudkan Pembelajaran berbasis Teaching Factory (Tefa) di bidang agribisnis dan teknologi serta industry kreatif. 5.Menyiapkan lulusan yang kompetitif dan professional dengan Sertifikat Kompetensi yang dibutuhkan oleh DUDIKA di bidang agribisnis dan teknologi serta industry kreatif. 6. Menghasilkan lulusan yang tangguh, inovatif dan berjiwa entrepreneur terkini di bidang agribisnis dan teknologi serta industry kreatif. 7. Mengisi quota mahasiswa di berbagai perguruan tinggi',
     icon: <Award className="h-8 w-8 text-school-accent" />,
   },
   {

@@ -92,18 +92,16 @@ const ProfileSekolah = () => {
           >
             <div className="relative h-72 w-72 md:h-80 md:w-80 mb-6 rounded-full overflow-hidden border-4 border-school-primary shadow-xl">
               <Image 
-                src="https://images.pexels.com/photos/3184658/pexels-photo-3184658.jpeg" 
+                src="/image/kepsek.jpg" 
                 alt="Kepala Sekolah SMK 2 Batusangkar"
                 fill
                 className="object-cover"
               />
             </div>
-            <h3 className="text-xl font-semibold text-school-primary">Dr. Ahmad Sumatra</h3>
+            <h3 className="text-xl font-semibold text-school-primary">Budi Dharmawan M.Pd</h3>
             <p className="text-gray-600">Kepala Sekolah</p>
             <p className="mt-4 text-center text-gray-600 max-w-md">
-              "Kami berkomitmen untuk menghasilkan lulusan yang kompeten, 
-              berkarakter, dan siap menghadapi era global melalui pendekatan 
-              pembelajaran berbasis produksi dan teknologi."
+              "Sesuai amanat Undang-Undang (UU) Nomor: 14 Tahun 2008 tentang Keterbukaan Informasi Publik (KIP), SMKN 2 Batusangkar sebagai badan publik berupaya memenuhi kebutuhan publik akan informasi dengan membuat laman ppid.smkn2batusangkar.sch.id Layanan Informasi Publik SMKN 2 Batusangkar disediakan untuk memudahkan publik mendapatkan informasi tentang SMKN 2 Batusangkar. Publik berhak mengajukan informasi publik yang dikelola oleh SMKN 2 Batusangkar sesuai ketentuan-ketentuan yang berlaku. SMKN 2 Batusangkar melayani seluruh permohonan informasi melalui Layanan Informasi Publik secara daring maupun luring.SMKN 2 Batusangkar juga menyediakan berbagai informasi publik, yang dapat diakses dari laman website ppid.smkn2batusangkar.sch.id maupun website ppid.smkn2batusangkar.sch.id"
             </p>
           </motion.div>
         </div>

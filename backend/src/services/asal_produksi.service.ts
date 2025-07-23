@@ -7,6 +7,14 @@ export async function getAllAsalProduksiService() {
     });
 }
 
+export async function getByIdAsalProduksiService(id: number) {
+    const asalProduksi = await prisma.asalProduksi.findUnique({
+        where: { id }
+    });
+    if (!asalProduksi) throw new AppError("Asal produksi tidak ditemukan", 404);
+    return asalProduksi;
+}
+
 export async function createAsalProduksiService(nama: string) {
     return await prisma.asalProduksi.create({
         data: { nama }

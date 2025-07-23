@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { apiRequest } from '@/services/api.service';
-import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface ModalProps {
     isOpen: boolean;
@@ -79,11 +79,9 @@ export default function InputKomoditasForm({
     const [satuan, setSatuan] = useState("");
     const [jumlah, setJumlah] = useState("");
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const [jenisList, setJenisList] = useState<any[]>([]);
-
-    const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWliIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0OTcwNDMxNCwiZXhwIjoxNzUyMjk2MzE0fQ.gPsOkIEBS4bfKHEz-G_JgjEWOl9IU1dhL1U9Bl0TD94";
 
     useEffect(() => {
         fetchDataJenis();
@@ -95,23 +93,25 @@ export default function InputKomoditasForm({
             setSatuan(initialData.satuan || "");
             setJumlah(initialData.jumlah?.toString() || "");
         }
+        setErrors({}); // Clear errors on modal open/data change
     }, [formMode, initialData]);
 
     const fetchDataJenis = async () => {
         try {
             const data = await apiRequest({
                 endpoint: "/jenis",
-                token,
             });
             setJenisList(Array.isArray(data) ? data : [data]);
         } catch (err) {
             console.error("Gagal ambil data jenis:", err);
+            toast.error("Gagal mengambil data jenis.");
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setErrors({}); // Clear previous errors
 
         try {
             const formData = new FormData();
@@ -133,17 +133,26 @@ export default function InputKomoditasForm({
             await apiRequest({
                 endpoint,
                 method,
-                token,
                 data: formData,
             });
 
-            alert(
+            toast.success(
                 `Komoditas berhasil ${formMode === "create" ? "ditambahkan" : "diperbarui"}`
             );
             if (onSubmitSuccess) onSubmitSuccess();
             onClose();
         } catch (err: any) {
-            alert("Gagal menyimpan komoditas: " + err.message);
+            console.error("Error submitting form:", err);
+            if (err.response?.data?.errors) {
+                const newErrors: Record<string, string> = {};
+                err.response.data.errors.forEach((error: any) => {
+                    newErrors[error.path] = error.msg;
+                });
+                setErrors(newErrors);
+                toast.error(err.response.data.message || "Validasi gagal.");
+            } else {
+                toast.error(err.message || "Terjadi kesalahan.");
+            }
         } finally {
             setLoading(false);
         }
@@ -238,7 +247,7 @@ export default function InputKomoditasForm({
                     <div className="col-span-2 mt-4 flex justify-end space-x-2">
                         <button
                             type="button"
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-green-300 dark:hover:bg-green-500"
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
                             onClick={onClose}
                         >
                             Batal
@@ -246,7 +255,7 @@ export default function InputKomoditasForm({
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                         >
                             {loading ? "Menyimpan..." : formMode === "create" ? "Submit" : "Update"}
                         </button>

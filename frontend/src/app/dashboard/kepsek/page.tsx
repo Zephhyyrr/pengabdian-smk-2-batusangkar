@@ -3,7 +3,6 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/table/DataTable";
 import { apiRequest } from "@/services/api.service";
-import { getPenjualan, getKomoditas } from "@/services/dummy_api";
 import { Penjualan, Komoditas } from "@/types";
 import { 
   PieChart, 
@@ -49,17 +48,12 @@ export default function DashboardKepsek() {
   const [komoditas, setKomoditas] = useState<Komoditas[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtYSI6IlN1cGVyIEFkbWluIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc0NzM5NzQ1NCwiZXhwIjoxNzQ5OTg5NDU0fQ.ky6khUQTS2z1SXPea-8j8yun-EtaRb-rAD6RuTSYPpA";
-
   const fetchData = async () => {
     try {
       setLoading(true);
-      // const penj = await apiRequest({ endpoint: "/penjualan", token });
-      // setPenjualan(penj);
-      const penj = await getPenjualan();
+      const penj = await apiRequest({ endpoint: "/penjualan" });
       setPenjualan(penj);
-      const komo = await getKomoditas();
+      const komo = await apiRequest({ endpoint: "/komoditas" });
       setKomoditas(komo);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -100,7 +94,7 @@ export default function DashboardKepsek() {
   // Data untuk grafik komoditas terlaris
   const komoditasTerlaris = penjualan
     .reduce((acc, item) => {
-      const nama = item.komodity.nama;
+      const nama = item.komoditas?.nama ?? "Tidak diketahui";
       if (!acc[nama]) {
         acc[nama] = 0;
       }
@@ -187,7 +181,7 @@ export default function DashboardKepsek() {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Penjualan Terbaru */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
@@ -202,14 +196,14 @@ export default function DashboardKepsek() {
                 columns={[
                   {
                     header: "Komoditas",
-                    accessorKey: "komodity",
-                    cell: (item: Penjualan) => item.komodity.nama,
+                    accessorKey: "komoditas",
+                    cell: (item: Penjualan) => item.komoditas?.nama,
                   },
                   {
                     header: "Jumlah",
                     accessorKey: "jumlah_terjual",
                     cell: (item: Penjualan) => 
-                      `${item.jumlah_terjual} ${item.komodity.satuan}`,
+                      `${item.jumlah_terjual} ${item.komoditas?.satuan}`,
                   },
                   {
                     header: "Tanggal",
@@ -225,7 +219,7 @@ export default function DashboardKepsek() {
         </div>
 
         {/* Grafik Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Distribusi Jenis Komoditas */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
@@ -292,7 +286,9 @@ export default function DashboardKepsek() {
               </ResponsiveContainer>
             </div>
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
           {/* Trend Penjualan */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
