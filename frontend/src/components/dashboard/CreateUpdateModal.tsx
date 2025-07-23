@@ -49,12 +49,15 @@ export default function ModalForm({
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    const {password, ...data} = formData;
+    
+    const lobakUser = mode === "create" ?  formData: {...data, ...(password !== '' ? {password: formData.password}: {})}
 
     try {
       await apiRequest({
         endpoint: mode === "create" ? endpoint : `${endpoint}/${initialData?.id}`,
         method: mode === "create" ? "POST" : "PUT",
-        data: formData,
+        data: lobakUser,
       });
 
       onSuccess();
