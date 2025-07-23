@@ -4,7 +4,7 @@ import {
   Menu,
   ChevronDown,
   BadgeCent,
-  ClipboardList ,
+  ClipboardList,
   Boxes,
   Tractor,
   Warehouse,
@@ -14,69 +14,83 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-const dashboardMenu = [
-  {
-    name: "Kepala Sekolah",
-    icon: <ClipboardList className="w-5 h-5" />,
-    href: "/dashboard/kepsek",
-  },
-  {
-    name: "Penjualan",
-    icon: <BadgeCent className="w-5 h-5" />,
-    href: "/dashboard/produksi/penjualan",
-  },
-  {
-    name: "Komoditas",
-    icon: <Tractor className="w-5 h-5" />,
-    childern: [
-      {
-        name: "Daftar Komoditas",
-        href: "/dashboard/produksi/komoditas",
-      },
-      {
-        name: "Jenis Komoditas",
-        href: "/dashboard/produksi/jenis_komoditas",
-      },
-    ],
-  },
-  {
-    name: "Produksi",
-    icon: <Warehouse className="w-5 h-5" />,
-    childern: [
-      {
-        name: "Daftar Produksi",
-        href: "/dashboard/produksi/produksi",
-      },
-      {
-        name: "Asal Produksi",
-        href: "/dashboard/produksi/asal_produksi",
-      },
-    ],
-  },
-  {
-    name: "Gudang",
-    icon: <Boxes className="w-5 h-5" />,
-    childern: [
-      {
-        name: "Daftar Barang",
-        href: "/dashboard/gudang/barang",
-      },
-      {
-        name: "Barang Masuk/Keluar",
-        href: "/dashboard/gudang/transaksi",
-      },
-    ],
-  },
-  {
-    name: "User",
-    icon: <Users className="w-5 h-5" />,
-    href: "/dashboard/user",
-  },
-];
-
 export default function DashboardSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const role = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("role="))
+    ?.split("=")[1];
+
+  const dashboardMenu = [
+    {
+      name: "Kepala Sekolah",
+      icon: <ClipboardList className="w-5 h-5" />,
+      href: "/dashboard/kepsek",
+    },
+    {
+      name: "Penjualan",
+      icon: <BadgeCent className="w-5 h-5" />,
+      href: "/dashboard/produksi/penjualan",
+    },
+    {
+      name: "Komoditas",
+      icon: <Tractor className="w-5 h-5" />,
+      childern: [
+        {
+          name: "Daftar Komoditas",
+          href: "/dashboard/produksi/komoditas",
+        },
+        {
+          name: "Jenis Komoditas",
+          href: "/dashboard/produksi/jenis_komoditas",
+        },
+      ],
+    },
+    {
+      name: "Produksi",
+      icon: <Warehouse className="w-5 h-5" />,
+      childern: [
+        {
+          name: "Daftar Produksi",
+          href: "/dashboard/produksi/produksi",
+        },
+        {
+          name: "Asal Produksi",
+          href: "/dashboard/produksi/asal_produksi",
+        },
+      ],
+    },
+    {
+      name: "Gudang",
+      icon: <Boxes className="w-5 h-5" />,
+      childern: [
+        {
+          name: "Daftar Barang",
+          href: "/dashboard/gudang/barang",
+        },
+        {
+          name: "Barang Masuk/Keluar",
+          href: "/dashboard/gudang/transaksi",
+        },
+      ],
+    },
+    {
+      name: "User",
+      icon: <Users className="w-5 h-5" />,
+      href: "/dashboard/user",
+    },
+  ];
+
+  // Filter menu sesuai role
+  const filteredMenu = dashboardMenu.filter((item) => {
+    if (role === "admin" && item.href === "/dashboard/user") return false;
+    if (role === "admin" && item.href === "/dashboard/kepsek") return false;
+    if (role === "kepsek" && item.href === "/dashboard/user") return false;
+    if (role === "siswa") return false; // semua di-hide, ditangani dari middleware
+    return true;
+  });
 
   return (
     <>
@@ -95,13 +109,12 @@ export default function DashboardSidebar() {
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
           <Link
             href="/"
-            className="flex items-center mb-6 text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          >
-              SMK 2 Batusangkar
+            className="flex items-center mb-6 text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            SMK 2 Batusangkar
           </Link>
           <hr />
           <ul className="space-y-2 font-medium">
-            {dashboardMenu.map((item, i) =>
+            {filteredMenu.map((item, i) =>
               item.childern ? (
                 <li key={`nav-item-${i}`} className="relative">
                   <input type="checkbox" id={`dropdown-${i}`} className="peer hidden" />

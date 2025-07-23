@@ -24,7 +24,7 @@ export default function UserPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await apiRequest({ endpoint: "/user" });
+      const data = await apiRequest({ endpoint: "/users" });
       setUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -46,7 +46,8 @@ export default function UserPage() {
 
   const handleEditClick = (user: User) => {
     setModalMode("update");
-    setSelectedUser(user);
+    // Ensure password field is empty when editing
+    setSelectedUser({ ...user, password: "" });
     setShowModal(true);
   };
 
@@ -59,7 +60,7 @@ export default function UserPage() {
     if (deleteId !== null) {
       try {
         await apiRequest({
-          endpoint: `/user/${deleteId}`,
+          endpoint: `/users/${deleteId}`,
           method: "DELETE",
         });
         toast.success("User berhasil dihapus.");
@@ -82,7 +83,7 @@ export default function UserPage() {
   const userFormFields = [
     { name: "nama", label: "Nama", type: "text" as const },
     { name: "email", label: "Email", type: "text" as const },
-    { name: "password", label: "Password", type: "text" as const },
+    { name: "password", label: "Password", type: "text" as const }, // Always include password field
     {
       name: "role",
       label: "Role",
@@ -151,7 +152,7 @@ export default function UserPage() {
           mode={modalMode}
           title="User"
           fields={userFormFields}
-          endpoint="/user"
+          endpoint="/users"
           initialData={selectedUser || undefined}
         />
       )}

@@ -14,15 +14,28 @@ export function middleware(request: NextRequest) {
   }
 
   if (isLoggedIn && pathname === "/login") {
-    if (role == "siswa") {
-      return NextResponse.redirect(new URL("/siswa", request.url));
-    } else {
-      return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
-    }
+    if (role === "siswa") return NextResponse.redirect(new URL("/siswa", request.url));
+    if (role === "admin")
+      return NextResponse.redirect(new URL("/dashboard/penjualan", request.url));
+    if (role === "kepsek") return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (isLoggedIn && pathname.startsWith("/dashboard") && role == "siswa") {
-    return NextResponse.redirect(new URL("/siswa", request.url));
+  if (isLoggedIn) {
+    if (role === "siswa" && !pathname.startsWith("/siswa")) {
+      return NextResponse.redirect(new URL("/siswa", request.url));
+    }
+
+    if (
+      role === "admin" &&
+      (pathname.startsWith("/dashboard/users") || pathname.startsWith("/dashboard/kepsek"))
+    ) {
+      return NextResponse.redirect(new URL("/dashboard/produksi/penjualan", request.url));
+    }
+
+    if (role === "kepsek" && pathname.startsWith("/dashboard/users")) {
+      return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
+    }
   }
 
   return NextResponse.next();
