@@ -2,6 +2,7 @@
 import { apiRequest } from "@/services/api.service";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface ModalProps {
     isOpen: boolean;
@@ -104,6 +105,7 @@ export default function InputProduksiForm({
             setAsalList(data);
         } catch (error) {
             console.error("Gagal ambil data Asal:", error);
+            toast.error("Gagal mengambil data asal produksi.");
         }
     };
 
@@ -115,6 +117,7 @@ export default function InputProduksiForm({
             setKomoditasList(data);
         } catch (error) {
             console.error("Gagal ambil data Komoditas:", error);
+            toast.error("Gagal mengambil data komoditas.");
         }
     };
 
@@ -142,14 +145,14 @@ export default function InputProduksiForm({
                 data: payload
             });
 
-            alert(
+            toast.success(
                 `produksi berhasil ${formMode === "create" ? "ditambahkan" : "diperbarui"}`
             );
             if (onSubmitSuccess) onSubmitSuccess();
             onClose();
         } catch (error) {
             console.error("Gagal simpan data Produksi:", error);
-            alert("Gagal menyimpan data.");
+            toast.error("Gagal menyimpan data.");
         } finally {
             setLoading(false);
         }

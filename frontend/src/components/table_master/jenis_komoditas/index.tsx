@@ -1,26 +1,36 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { PenBox, RefreshCcw, Search, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PenBox, Trash2 } from "lucide-react";
 import { apiRequest } from "@/services/api.service";
+import { DataTable } from "@/components/table/DataTable";
+import { Jenis as JenisType } from "@/types";
+import ConfirmButton from "@/components/common/ConfirmButton";
+import toast from "react-hot-toast";
 
 type Props = {
-  onEdit: (jenis: any) => void;
+  onEdit: (jenis: JenisType) => void;
   reloadTrigger: boolean;
 };
 
 export default function Jenis_Komoditas({ onEdit, reloadTrigger }: Props) {
-  const [jenisList, setJenisList] = useState<any[]>([]);
+  const [jenisList, setJenisList] = useState<JenisType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   // Menampilkan data
   const fetchDataJenis = async () => {
     try {
+      setLoading(true);
       const data = await apiRequest({
         endpoint: "/jenis"
       });
       setJenisList(Array.isArray(data) ? data : [data]);
     } catch (err) {
       console.error("Gagal ambil data jenis:", err);
+      toast.error("Gagal mengambil data jenis komoditas.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,111 +38,75 @@ export default function Jenis_Komoditas({ onEdit, reloadTrigger }: Props) {
     fetchDataJenis();
   }, [reloadTrigger]);
 
+  const handleDeleteClick = (id: number) => {
+    setDeleteId(id);
+    setShowConfirm(true);
+  };
+
   // delete data
-  const deleteDataJenis = async (id: number) => {
-    try {
-      await apiRequest({
-        endpoint: `/jenis/${id}`,
-        method: "DELETE"
-      });
-      alert("Data berhasil dihapus.");
-      fetchDataJenis();
-    } catch (error) {
-      console.error("Gagal hapus data jenis", error);
-      alert("Gagal menghapus data.")
+  const confirmDelete = async () => {
+    if (deleteId !== null) {
+      try {
+        await apiRequest({
+          endpoint: `/jenis/${deleteId}`,
+          method: "DELETE"
+        });
+        toast.success("Data berhasil dihapus.");
+        fetchDataJenis();
+      } catch (error) {
+        console.error("Gagal hapus data jenis", error);
+        toast.error("Gagal menghapus data.")
+      } finally {
+        setShowConfirm(false);
+        setDeleteId(null);
+      }
     }
   };
 
-
+  const columns = [
+    {
+      header: "#",
+      accessorKey: "id" as keyof JenisType,
+      cell: (item: JenisType) => (jenisList.findIndex((p) => p.id === item.id) + 1).toString(),
+    },
+    { header: "Nama", accessorKey: "name" as keyof JenisType },
+    {
+      header: "Aksi",
+      accessorKey: "id" as keyof JenisType,
+      cell: (item: JenisType) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => onEdit(item)}
+            className="p-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
+          >
+            <PenBox size={16} />
+          </button>
+          <button
+            onClick={() => handleDeleteClick(item.id)}
+            className="p-2 bg-red-600 hover:bg-red-500 text-white rounded"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
-      {/* Search & Button */}
-      <div className="flex justify-between items-center w-full mb-4">
-        <form className="w-full max-w-md">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search Here..."
-              className="w-full rounded-lg border px-6 py-3 shadow focus:border-blue-500 focus:outline-none 
-                         bg-white text-gray-900 dark:bg-gray-900 dark:text-white dark:border-gray-700"
-            />
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-              aria-label="search-icon"
-            >
-              <Search className="h-6 w-6" />
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mt-6">
-        <div className="max-w-full overflow-x-auto">
-          <div className="min-w-[1100px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableCell isHeader className="dark:text-white">No</TableCell>
-                  <TableCell isHeader className="dark:text-white">Nama</TableCell>
-                  <TableCell isHeader className="dark:text-white">Action</TableCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jenisList.map((jenis, index) => (
-                  <TableRow key={jenis.id}>
-                    <TableCell className="dark:text-gray-200">{index + 1}</TableCell>
-                    <TableCell className="dark:text-gray-200">{jenis.name}</TableCell>
-                    <TableCell>
-                      <button
-                        className="bg-yellow-400 hover:bg-yellow-500 text-white hover:underline py-1 px-3 rounded"
-                        onClick={() => onEdit(jenis)}>
-                        <PenBox size={15} />
-                      </button>
-                      <button
-                        className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline"
-                        onClick={() => deleteDataJenis(jenis.id)}
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      <nav aria-label="Page navigation" className="flex justify-center mt-6">
-        <ul className="inline-flex -space-x-px text-sm">
-          <li>
-            <button className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-300 border border-e-0 border-gray-300 dark:border-gray-700 rounded-s-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-              Previous
-            </button>
-          </li>
-          {[1, 2, 3].map((p) => (
-            <li key={p}>
-              <button
-                className={`flex items-center justify-center px-3 h-8 leading-tight border ${p === 1
-                  ? "text-blue-600 border-gray-300 bg-blue-50 dark:bg-blue-900 dark:border-gray-700"
-                  : "text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700"
-                  }`}
-              >
-                {p}
-              </button>
-            </li>
-          ))}
-          <li>
-            <button className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-e-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <DataTable
+        data={jenisList}
+        columns={columns}
+        loading={loading}
+        emptyMessage="Tidak ada data jenis komoditas."
+      />
+      {showConfirm && (
+        <ConfirmButton
+          message="Yakin ingin menghapus data ini?"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </>
   );
 }

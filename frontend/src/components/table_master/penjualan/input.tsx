@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { apiRequest } from '@/services/api.service';
+import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
 
 interface ModalProps {
     isOpen: boolean;
@@ -94,6 +95,7 @@ export default function InputPenjualanForm({ isOpen, onClose, formMode = "create
             setKomodityList(Array.isArray(data) ? data : [data]);
         } catch (error) {
             console.error('Error fetching komoditas:', error);
+            toast.error('Gagal mengambil data komoditas.');
         }
     };
 
@@ -105,6 +107,7 @@ export default function InputPenjualanForm({ isOpen, onClose, formMode = "create
             setProduksiList(Array.isArray(data) ? data : [data]);
         } catch (error) {
             console.error('Error fetching produksi:', error);
+            toast.error('Gagal mengambil data produksi.');
         }
     };
 
@@ -129,12 +132,12 @@ export default function InputPenjualanForm({ isOpen, onClose, formMode = "create
                 data: payload,
             });
 
-            alert(formMode === 'create' ? 'Data berhasil ditambahkan.' : 'Data berhasil diperbarui.');
+            toast.success(formMode === 'create' ? 'Data berhasil ditambahkan.' : 'Data berhasil diperbarui.');
             onSubmitSuccess?.();
             onClose();
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('Gagal menyimpan data.');
+            toast.error('Gagal menyimpan data.');
         } finally {
             setLoading(false);
         }
@@ -176,7 +179,7 @@ export default function InputPenjualanForm({ isOpen, onClose, formMode = "create
                         <option value="">Pilih Produk</option>
                         {produksiList.map((produksi) => (
                             <option key={produksi.id} value={produksi.id}>
-                                {produksi.asal_produksi.nama} - {produksi.kode_produksi} 
+                                {produksi.asal_produksi.nama} - {produksi.kode_produksi}
                             </option>
                         ))}
                     </select>
