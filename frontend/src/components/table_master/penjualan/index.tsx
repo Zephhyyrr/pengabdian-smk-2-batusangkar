@@ -4,12 +4,16 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { PenBox, Search, Trash2 } from "lucide-react";
 import InputPenjualanForm from "./input";
 import { apiRequest } from "@/services/api.service";
+import ExportPenjualanModal from "./export";
+import { Penjualan } from "@/types";
 
-export default function Penjualan() {
+export default function PenjualanPage() {
     const [penjualanList, setPenjualanList] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
     const [penjualanYgDipilih, setPenjualanYgDipilih] = useState<any>(null);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [dataPenjualan, setDataPenjualan] = useState<Penjualan[]>([]);
 
     const fetchDataPenjualan = async () => {
         try {
@@ -30,6 +34,12 @@ export default function Penjualan() {
     const handleOpenUpdateModal = (data: any) => {
         setPenjualanYgDipilih(data);
         setIsUpdateOpen(true);
+    };
+
+    const handleOpenExportModal = (data: Penjualan[]) => {
+        setDataPenjualan(data);
+        setIsExportModalOpen(true);
+        console.log("Data untuk ekspor:", data);
     };
 
     const deleteDataPenjualan = async (id: number) => {
@@ -67,6 +77,18 @@ export default function Penjualan() {
                         </button>
                     </div>
                 </form>
+                <button
+                    onClick={() => handleOpenExportModal(penjualanList)}
+                    className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
+                    Export Penjualan
+                </button>
+
+                <ExportPenjualanModal
+                    isOpen={isExportModalOpen}
+                    onClose={() => setIsExportModalOpen(false)}
+                    penjualanList={dataPenjualan}
+                />
+
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
@@ -116,7 +138,7 @@ export default function Penjualan() {
                                                 <PenBox size={15} />
                                             </button>
                                             <button className="ml-2 bg-red-600 text-white py-1 px-3 rounded hover:underline"
-                                            onClick={() => deleteDataPenjualan(item.id)}>
+                                                onClick={() => deleteDataPenjualan(item.id)}>
                                                 <Trash2 size={15} />
                                             </button>
                                         </TableCell>
