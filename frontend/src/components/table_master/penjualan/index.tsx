@@ -1,5 +1,6 @@
 "use client";
 import { apiRequest } from "@/services/api.service";
+
 import { DataTable } from "@/components/table/DataTable";
 import { Penjualan as PenjualanType } from "@/types";
 import ConfirmButton from "@/components/common/ConfirmButton";
@@ -7,6 +8,7 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { PenBox, Trash2 } from "lucide-react";
 import InputPenjualanForm from "./input";
+import ExportPenjualanModal from "./export";
 
 export default function Penjualan() {
     const [penjualanList, setPenjualanList] = useState<PenjualanType[]>([]);
@@ -16,6 +18,8 @@ export default function Penjualan() {
     const [loading, setLoading] = useState(true);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [dataPenjualan, setDataPenjualan] = useState<PenjualanType[]>([]);
 
     const fetchDataPenjualan = async () => {
         try {
@@ -40,6 +44,12 @@ export default function Penjualan() {
     const handleOpenUpdateModal = (data: PenjualanType) => {
         setPenjualanYgDipilih(data);
         setIsUpdateOpen(true);
+    };
+
+    const handleOpenExportModal = (data: PenjualanType[]) => {
+        setDataPenjualan(data);
+        setIsExportModalOpen(true);
+        console.log("Data untuk ekspor:", data);
     };
 
     const handleDeleteClick = (id: number) => {
@@ -104,6 +114,18 @@ export default function Penjualan() {
         <>
             <div className="flex justify-end items-center w-full mb-4">
                 <button
+                    onClick={() => handleOpenExportModal(penjualanList)}
+                    className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
+                    Export Penjualan
+                </button>
+
+                <ExportPenjualanModal
+                    isOpen={isExportModalOpen}
+                    onClose={() => setIsExportModalOpen(false)}
+                    penjualanList={dataPenjualan}
+                />
+
+                <button
                     onClick={() => setIsModalOpen(true)}
                     className="ml-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
                     Buat Penjualan
@@ -117,6 +139,7 @@ export default function Penjualan() {
                         fetchDataPenjualan();
                     }} />
             </div>
+
             <DataTable
                 data={penjualanList}
                 columns={columns}
