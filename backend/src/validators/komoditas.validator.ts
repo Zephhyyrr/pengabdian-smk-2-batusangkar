@@ -21,8 +21,6 @@ export const createKomoditasValidator = [
     body("deskripsi").notEmpty().withMessage("Deskripsi harus diisi").bail()
         .isLength({ min: 5 }).withMessage("Deskripsi minimal 5 karakter"),
     body("satuan").notEmpty().withMessage("Satuan harus diisi"),
-    body("jumlah").notEmpty().withMessage("Jumlah harus diisi").bail()
-        .isInt({ min: 0 }).withMessage("Jumlah harus numerik dan minimal 0")
 ]
 
 export const updateKomoditasValidator = [
@@ -48,6 +46,4 @@ export const updateKomoditasValidator = [
         .isLength({ min: 5 }).withMessage("Deskripsi minimal 5 karakter"),
     body("satuan").optional().bail()
         .notEmpty().withMessage("Satuan harus diisi"),
-    body("jumlah").optional().bail()
-        .isInt({ min: 0 }).withMessage("Jumlah harus numerik dan minimal 0")
 ]
