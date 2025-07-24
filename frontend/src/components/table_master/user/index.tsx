@@ -1,7 +1,7 @@
 import { ColumnDef, Column, Row } from "@tanstack/react-table";
 import { User } from "@/types";
 import { Button } from "@/components/landing/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
 
 interface UserTableActionsProps {
   onEdit: (user: User) => void;
@@ -11,17 +11,7 @@ interface UserTableActionsProps {
 export const createColumns = ({ onEdit, onDelete }: UserTableActionsProps): ColumnDef<User>[] => [
   {
     accessorKey: "nama",
-    header: ({ column }: { column: Column<User> }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Nama
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Nama"
   },
   {
     accessorKey: "email",
@@ -38,16 +28,16 @@ export const createColumns = ({ onEdit, onDelete }: UserTableActionsProps): Colu
       const user = row.original;
       return (
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => onEdit(user)}>
-            Edit
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
+          <button
+            onClick={() => onEdit(user)}
+            className="p-2 bg-yellow-500 hover:bg-yellow-400 text-white rounded transition-colors">
+            <Pencil size={16} />
+          </button>
+          <button
             onClick={() => onDelete(user.id)}
-          >
-            Hapus
-          </Button>
+            className="p-2 bg-red-600 hover:bg-red-500 text-white rounded transition-colors">
+            <Trash2 size={16} />
+          </button>
         </div>
       );
     },

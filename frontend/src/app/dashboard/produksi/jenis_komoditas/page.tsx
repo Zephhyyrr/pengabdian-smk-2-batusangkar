@@ -17,7 +17,7 @@ export default function JenisKomoditasPage() {
     };
 
     return (
-        <DashboardLayout title="Jenis Komoditas" role="produksi">
+        <DashboardLayout title="Jenis Komoditas" role="">
             <div className="mt-5">
                 <InputJenisKomoditas selectedJenis={selectedJenis} setSelectedJenis={setSelectedJenis}
                 onSuccess={refreshJenisList}/>

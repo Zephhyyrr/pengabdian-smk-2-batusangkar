@@ -25,7 +25,7 @@ export default function DashboardSidebar() {
 
   const dashboardMenu = [
     {
-      name: "Kepala Sekolah",
+      name: "Dashboard",
       icon: <ClipboardList className="w-5 h-5" />,
       href: "/dashboard/kepsek",
     },

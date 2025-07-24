@@ -145,13 +145,15 @@ export default function DashboardKepsek() {
     );
   }
 
+  const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1] ?? "User"
+
   return (
-    <DashboardLayout title="Dashboard" role="Kepala Sekolah">
+    <DashboardLayout title="Manajemen User" role={username}>
       <div className="space-y-6">
         {/* Welcome Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Selamat Datang, Kepala Sekolah
+            Selamat Datang, {username}
           </h1>
           <p className="text-gray-600">
             Ringkasan aktivitas program pertanian sekolah hari ini

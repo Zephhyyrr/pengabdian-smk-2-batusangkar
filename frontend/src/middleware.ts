@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
 
   if (isLoggedIn && pathname === "/login") {
     if (role === "siswa") return NextResponse.redirect(new URL("/siswa", request.url));
-    if (role === "admin")
+    if (role === "guru")
       return NextResponse.redirect(new URL("/dashboard/penjualan", request.url));
     if (role === "kepsek") return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
     return NextResponse.redirect(new URL("/dashboard/kepsek", request.url));
@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
     }
 
     if (
-      role === "admin" &&
+      role === "guru" &&
       (pathname.startsWith("/dashboard/users") || pathname.startsWith("/dashboard/kepsek"))
     ) {
       return NextResponse.redirect(new URL("/dashboard/produksi/penjualan", request.url));

@@ -43,6 +43,7 @@ export default function LoginPage() {
       if (response.token) {
         document.cookie = `token=${response.token}; path=/; secure; samesite=strict`;
         document.cookie = `role=${response.user.role}; path=/; secure; samesite=strict`;
+        document.cookie = `username=${response.user.nama}; path=/; secure; samesite=strict`;
         if (response.user.role === "siswa") {
           router.push('/siswa');
         } else {

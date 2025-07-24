@@ -281,7 +281,7 @@ export default function DashboardBarang() {
   }, [openCreate, barang]);
 
   return (
-    <DashboardLayout title="Transaksi Barang |" role="Admin">
+    <DashboardLayout title="Barang Masuk dan Keluar" role="">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
         {/* Tab Navigation */}
         <div className="flex border-b">

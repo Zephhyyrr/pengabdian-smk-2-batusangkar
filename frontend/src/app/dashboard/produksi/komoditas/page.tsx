@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 
 export default function JenisKomoditasPage() {
     return (
-        <DashboardLayout title="Jenis Komoditas" role="produksi">
+        <DashboardLayout title="Daftar Komoditas" role="">
             <div className="mt-6">
                 <Komoditas />
             </div>

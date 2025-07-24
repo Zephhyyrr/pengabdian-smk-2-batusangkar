@@ -83,14 +83,18 @@ export default function UserPage() {
   const userFormFields = [
     { name: "nama", label: "Nama", type: "text" as const },
     { name: "email", label: "Email", type: "text" as const },
-    { name: "password", label: "Password", type: "text" as const }, // Always include password field
+    {
+      name: "password",
+      label: modalMode === "update" ? "Password (optional)" : "Password",
+      type: "text" as const
+    },
     {
       name: "role",
       label: "Role",
       type: "select" as const,
       options: [
-        { label: "Super Admin", value: "super_admin" },
         { label: "Admin", value: "admin" },
+        { label: "Guru", value: "guru" },
         { label: "Kepala Sekolah", value: "kepsek" },
         { label: "Siswa", value: "siswa" },
       ],
