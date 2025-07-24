@@ -152,6 +152,7 @@ export default function DashboardBarang() {
       });
 
       fetchData();
+      fetchBarang();
       setOpenCreate(false);
     } catch (error: any) {
       console.error(error);
