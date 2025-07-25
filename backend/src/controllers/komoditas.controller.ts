@@ -3,28 +3,28 @@ import { ResponseApiType } from "../types/api_types";
 import { handlerAnyError } from "../errors/api_errors";
 import { createdKomoditasService, deleteKomoditasService, getAllKomoditasService, getKomoditasByIdService, updateKomoditasService } from "../services/komoditas.service";
 import cloudinary from "../config/cloudinary";
-import { unlinkSync } from "fs"
-import path from "path";
 
-async function uploadFileToCloudinary(file: Express.Multer.File): Promise<string> {
-    const fullPath = path.resolve(file.path);
+async function uploadBufferToCloudinary(file: Express.Multer.File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: "PengabdianSMK2Batusangkar/komoditas",
+                resource_type: "auto", // Otomatis detect tipe file
+            },
+            (error, result) => {
+                if (error) {
+                    reject(new Error(`Upload gagal: ${error.message}`));
+                } else if (result) {
+                    resolve(result.secure_url);
+                } else {
+                    reject(new Error('Upload gagal: No result returned'));
+                }
+            }
+        );
 
-    try {
-        const uploadResult = await cloudinary.uploader.upload(fullPath, {
-            folder: "PengabdianSMK2Batusangkar/komoditas",
-        });
-
-        return uploadResult.secure_url;
-
-    } catch (uploadError) {
-        throw new Error(`Upload gagal: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
-
-    } finally { 
-        try {
-            unlinkSync(fullPath);
-        } catch (unlinkError) {
-        }
-    }
+        // Upload buffer langsung ke Cloudinary
+        uploadStream.end(file.buffer);
+    });
 }
 
 export async function createKomoditasController(req: Request, res: Response<ResponseApiType>) {
@@ -34,8 +34,8 @@ export async function createKomoditasController(req: Request, res: Response<Resp
 
         let fotoUrl = "";
 
-        if (file?.path) {
-            fotoUrl = await uploadFileToCloudinary(file);
+        if (file?.buffer) {
+            fotoUrl = await uploadBufferToCloudinary(file);
         }
 
         const newKomoditas = await createdKomoditasService(
@@ -91,8 +91,8 @@ export async function updateKomoditasController(req: Request, res: Response<Resp
 
         let foto: string | undefined = undefined;
 
-        if (file?.path) {
-            foto = await uploadFileToCloudinary(file);
+        if (file?.buffer) {
+            foto = await uploadBufferToCloudinary(file);
         }
 
         if (!foto) {
