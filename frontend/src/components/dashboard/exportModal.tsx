@@ -1,13 +1,13 @@
 import { useState } from "react";
 import * as XLSX from "xlsx-js-style";
 
-interface ExportPenjualanModalProps {
-    penjualanList: any[];
+interface ExportModalProps {
+    barangList: any[];
     onClose: () => void;
     isOpen: boolean;
 }
 
-export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }: ExportPenjualanModalProps) {
+export default function ExportModal({ barangList, onClose, isOpen }: ExportModalProps) {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -23,22 +23,22 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
             return;
         }
 
-        if (!Array.isArray(penjualanList)) {
-            alert("Data penjualan tidak tersedia.");
+        if (!Array.isArray(barangList)) {
+            alert("Data barang tidak tersedia.");
             return;
         }
 
         setLoading(true);
 
         try {
-            const filteredData = penjualanList.filter((item) => {
+            const filteredData = barangList.filter((item) => {
                 const date = new Date(item.createdAt);
                 const monthString = date.toISOString().slice(0, 7);
                 return monthString === selectedMonth;
             });
 
             if (filteredData.length === 0) {
-                alert("Tidak ada data penjualan pada bulan ini.");
+                alert("Tidak ada data barang pada bulan ini.");
                 setLoading(false);
                 return;
             }
@@ -110,9 +110,9 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
             worksheet['!cols'] = colWidths;
 
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Penjualan");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "barang");
 
-            XLSX.writeFile(workbook, `Laporan-Penjualan-${selectedMonth}.xlsx`);
+            XLSX.writeFile(workbook, `Laporan-barang-${selectedMonth}.xlsx`);
             onClose();
         } catch (err) {
             console.error("Gagal mengekspor data:", err);
@@ -128,22 +128,22 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
             return;
         }
 
-        if (!Array.isArray(penjualanList)) {
-            alert("Data penjualan tidak tersedia.");
+        if (!Array.isArray(barangList)) {
+            alert("Data barang tidak tersedia.");
             return;
         }
 
         setLoading(true);
 
         try {
-            const filteredData = penjualanList.filter((item) => {
+            const filteredData = barangList.filter((item) => {
                 const date = new Date(item.createdAt);
                 const monthString = date.toISOString().slice(0, 7);
                 return monthString === selectedMonth;
             });
 
             if (filteredData.length === 0) {
-                alert("Tidak ada data penjualan pada bulan ini.");
+                alert("Tidak ada data barang pada bulan ini.");
                 setLoading(false);
                 return;
             }
@@ -193,7 +193,7 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
                 margin: { top: 20 }
             });
 
-            doc.save(`Laporan-Penjualan-${selectedMonth}.pdf`);
+            doc.save(`Laporan-barang-${selectedMonth}.pdf`);
             onClose();
         } catch (error) {
             console.error("Gagal ekspor PDF:", error);
@@ -207,7 +207,7 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
     return (
         <div className="fixed inset-0 z-[9999] bg-[rgba(0,0,0,0.5)] backdrop-blur-sm flex justify-center items-center">
             <div className="bg-white rounded-xl p-6 w-96 shadow-xl">
-                <h2 className="text-lg font-semibold mb-4">Export Laporan Penjualan</h2>
+                <h2 className="text-lg font-semibold mb-4">Export Laporan barang</h2>
                 <form onSubmit={handleExport} className="space-y-4">
                     <label className="block text-sm mb-1 text-gray-700 dark:text-gray-200">
                         Pilih Bulan
