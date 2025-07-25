@@ -35,9 +35,9 @@ export async function addProduksiService(
     kode_produksi: string,
     ukuran: string,
     kualitas: string,
-    jumlah_diproduksi: number
+    jumlah_diproduksi: number,
+    harga_persatuan: number,
 ) {
-    // Validasi jumlah_diproduksi
     if (
         typeof jumlah_diproduksi !== "number" ||
         isNaN(jumlah_diproduksi) ||
@@ -46,10 +46,21 @@ export async function addProduksiService(
         throw new AppError("Jumlah diproduksi harus berupa angka > 0", 400);
     }
 
+    if (
+        typeof harga_persatuan !== "number" ||
+        isNaN(harga_persatuan) ||
+        harga_persatuan <= 0
+    ) {
+        throw new AppError("Harga persatuan harus berupa angka >= 0", 400);
+    }
+
     const komoditas = await prisma.komoditas.findUnique({
         where: { id: id_komoditas }
     });
-    if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
+
+    if (!komoditas) {
+        throw new AppError("Komoditas tidak ditemukan", 404);
+    }
 
     await prisma.komoditas.update({
         where: { id: id_komoditas },
@@ -67,7 +78,8 @@ export async function addProduksiService(
             kode_produksi,
             ukuran,
             kualitas,
-            jumlah: jumlah_diproduksi
+            jumlah: jumlah_diproduksi,
+            harga_persatuan
         }
     });
 
@@ -80,17 +92,16 @@ export async function updateProduksiService(
     kode_produksi: string,
     ukuran: string,
     kualitas: string,
-    jumlah: number
+    jumlah: number,
+    harga_persatuan: number
 ) {
     const produksi = await prisma.produksi.findUnique({ where: { id } });
     if (!produksi) throw new AppError("Produksi tidak ditemukan", 404);
 
-    // Jika id_komoditas null, tidak update jumlah komoditas
     if (produksi.id_komoditas) {
         const komoditas = await prisma.komoditas.findUnique({ where: { id: produksi.id_komoditas } });
         if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
 
-        // Hitung selisih jumlah
         const selisih = jumlah - produksi.jumlah;
         if (selisih !== 0) {
             await prisma.komoditas.update({
@@ -111,7 +122,8 @@ export async function updateProduksiService(
             kode_produksi,
             ukuran,
             kualitas,
-            jumlah
+            jumlah,
+            harga_persatuan
         }
     });
 }

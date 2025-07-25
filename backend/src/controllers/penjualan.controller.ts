@@ -19,13 +19,14 @@ export async function getAllPenjualanController(req: Request, res: Response<Resp
 
 export async function createPenjualanController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { keterangan, id_komodity, id_produksi, jumlah_terjual } = req.body;
+        const { keterangan, id_komodity, id_produksi, jumlah_terjual, total_harga } = req.body;
 
         const newPenjualan = await createPenjualanService(
             keterangan,
             Number(id_komodity),
             Number(id_produksi),
-            Number(jumlah_terjual)
+            Number(jumlah_terjual),
+            Number(total_harga)
         );
 
         return res.status(201).json({

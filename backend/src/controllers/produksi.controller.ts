@@ -38,14 +38,24 @@ export async function getProduksiByIdController(req: Request, res: Response<Resp
 
 export async function createProduksiController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { id_asal, id_komoditas, kode_produksi, ukuran, kualitas, jumlah_diproduksi } = req.body;
+        const {
+            id_asal,
+            id_komoditas,
+            kode_produksi,
+            ukuran,
+            kualitas,
+            jumlah_diproduksi,
+            harga_persatuan
+        } = req.body;
+
         const newProduksi = await addProduksiService(
             Number(id_asal),
             Number(id_komoditas),
             kode_produksi,
             ukuran,
             kualitas,
-            Number(jumlah_diproduksi)
+            Number(jumlah_diproduksi),
+            Number(harga_persatuan)
         );
 
         return res.status(201).json({
@@ -61,8 +71,24 @@ export async function createProduksiController(req: Request, res: Response<Respo
 export async function updateProduksiController(req: Request, res: Response<ResponseApiType>) {
     try {
         const { id } = req.params;
-        const { id_asal, kode_produksi, ukuran, kualitas } = req.body;
-        const updatedProduksi = await updateProduksiService(Number(id), id_asal, kode_produksi, ukuran, kualitas, req.body.jumlah_diproduksi);
+        const {
+            id_asal,
+            kode_produksi,
+            ukuran,
+            kualitas,
+            jumlah_diproduksi,
+            harga_persatuan
+        } = req.body;
+
+        const updatedProduksi = await updateProduksiService(
+            Number(id),
+            Number(id_asal),
+            kode_produksi,
+            ukuran,
+            kualitas,
+            Number(jumlah_diproduksi),
+            Number(harga_persatuan)
+        );
 
         return res.status(200).json({
             success: true,

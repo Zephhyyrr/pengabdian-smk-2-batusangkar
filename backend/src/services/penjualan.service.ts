@@ -32,18 +32,25 @@ export async function createPenjualanService(
     keterangan: string,
     id_komodity: number,
     id_produksi: number,
-    jumlah_terjual: number
+    jumlah_terjual: number,
+    total_harga: number
 ) {
-    const komoditas = await prisma.komoditas.findUnique({ where: { id: id_komodity } });
+    const komoditas = await prisma.komoditas.findUnique({
+        where: { id: id_komodity }
+    });
     if (!komoditas) throw new AppError("Komoditas tidak ditemukan", 404);
 
     if (komoditas.jumlah < jumlah_terjual) {
         throw new AppError("Stok komoditas tidak mencukupi", 400);
     }
 
-    const produksi = await prisma.produksi.findUnique({ where: { id: id_produksi  } });
-    if (!produksi) {
-        throw new AppError("Produksi tidak ditemukan", 400)
+    const produksi = await prisma.produksi.findUnique({
+        where: { id: id_produksi }
+    });
+    if (!produksi) throw new AppError("Produksi tidak ditemukan", 404);
+
+    if (produksi.jumlah < jumlah_terjual) {
+        throw new AppError("Stok produksi tidak mencukupi", 400);
     }
 
     await prisma.komoditas.update({
@@ -52,6 +59,7 @@ export async function createPenjualanService(
             jumlah: komoditas.jumlah - jumlah_terjual
         }
     });
+
     await prisma.produksi.update({
         where: { id: id_produksi },
         data: {
@@ -63,6 +71,7 @@ export async function createPenjualanService(
         data: {
             keterangan,
             jumlah_terjual,
+            total_harga,
             Komoditas: {
                 connect: { id: id_komodity }
             },
