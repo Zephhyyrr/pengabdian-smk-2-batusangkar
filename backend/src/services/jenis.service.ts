@@ -1,8 +1,10 @@
 import prisma from "../config/prisma";
 
 export async function getAllJenisService() {
-    const jenis = await prisma.jenis.findMany({ orderBy: { name: "asc" } })
-    return jenis
+    const jenis = await prisma.jenis.findMany({
+        where: { isDeleted: false },
+    });
+    return jenis;
 }
 
 export async function createJenisService(name: string) {
@@ -19,6 +21,9 @@ export async function updateJenisService(id: number, name: string) {
 }
 
 export async function deleteJenisService(id: number) {
-    const deletedJenis = await prisma.jenis.delete({ where: { id } })
-    return deletedJenis
+    const deletedJenis = await prisma.jenis.update({
+        where: { id },
+        data: { isDeleted: true },
+    });
+    return deletedJenis;
 }
