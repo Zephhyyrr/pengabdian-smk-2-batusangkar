@@ -66,18 +66,19 @@ model AsalProduksi {
 }
 
 model Produksi {
-  id            Int          @id @default(autoincrement())
-  id_asal       Int
-  id_komoditas  Int?
-  kode_produksi String
-  ukuran        String
-  kualitas      String
-  jumlah        Int          @default(0)
-  komoditas     Komoditas?   @relation("KomoditasToProduksi", fields: [id_komoditas], references: [id], onDelete: Cascade)
-  penjualans    Penjualan[]
-  asal_produksi AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id              Int          @id @default(autoincrement())
+  id_asal         Int
+  id_komoditas    Int?
+  kode_produksi   String
+  ukuran          String
+  kualitas        String
+  jumlah          Int          @default(0)
+  harga_persatuan Int          @default(0)
+  komoditas       Komoditas?   @relation("KomoditasToProduksi", fields: [id_komoditas], references: [id], onDelete: Cascade)
+  penjualans      Penjualan[]
+  asal_produksi   AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Penjualan {
@@ -85,6 +86,7 @@ model Penjualan {
   id_komodity    Int
   jumlah_terjual Int       @default(0)
   id_produksi    Int
+  total_harga    Int       @default(0)
   keterangan     String    @db.Text
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
