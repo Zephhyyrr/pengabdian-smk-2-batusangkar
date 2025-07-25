@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, Leaf, ArrowRight, Loader2, ImageIcon } from 
 import Image from 'next/image';
 import Link from 'next/link';
 import { apiRequest } from '@/services/api.service';
-import { getKomoditas } from '@/services/dummy_api';
 import type { Komoditas } from '@/types';
 
 const TefaSlider = () => {
@@ -22,36 +21,38 @@ const TefaSlider = () => {
 				setIsLoading(true);
 				// Use actual API if available, otherwise use dummy data
 				let data: Komoditas[];
-				
+
 				try {
 					// Try to fetch from real API first
 					data = await apiRequest({
 						endpoint: '/komoditas',
 						method: 'GET'
 					});
+
+					const processedData = data.map(item => {
+						// If foto exists but doesn't start with "/" or "http", add a leading slash
+						if (item.foto) {
+							if (!item.foto.startsWith('/') && !item.foto.startsWith('http')) {
+								return { ...item, foto: `/${item.foto}` };
+							}
+						} else {
+							// If foto is null or undefined, set a default image
+							return { ...item, foto: '/image/placeholder.jpg' };
+						}
+						return item;
+					});
+					const featuredItems = processedData.slice(0, 4); // Take first 4 items or implement your own logic
+					setKomoditas(featuredItems);
 				} catch (err) {
+
 					// Fallback to dummy data
 					console.log('Falling back to dummy data');
-					data = await getKomoditas();
 				}
-				
+
 				// Process image paths to ensure they're properly formatted
-				const processedData = data.map(item => {
-					// If foto exists but doesn't start with "/" or "http", add a leading slash
-					if (item.foto) {
-						if (!item.foto.startsWith('/') && !item.foto.startsWith('http')) {
-							return { ...item, foto: `/${item.foto}` };
-						}
-					} else {
-						// If foto is null or undefined, set a default image
-						return { ...item, foto: '/image/placeholder.jpg' };
-					}
-					return item;
-				});
-				
+
 				// Filter to get only featured items (you can implement your own logic here)
-				const featuredItems = processedData.slice(0, 4); // Take first 4 items or implement your own logic
-				setKomoditas(featuredItems);
+
 			} catch (err) {
 				setError(err instanceof Error ? err.message : 'Failed to fetch komoditas');
 				console.error('Error fetching komoditas:', err);
@@ -99,7 +100,7 @@ const TefaSlider = () => {
 					></path>
 				</svg>
 			</div>
-			
+
 			{/* Light effects */}
 			<div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/20 rounded-full blur-[100px]"></div>
 			<div className="absolute bottom-0 right-1/4 w-96 h-96 bg-green-400/20 rounded-full blur-[100px]"></div>
@@ -136,7 +137,7 @@ const TefaSlider = () => {
 			>
 				<Leaf size={100} />
 			</motion.div>
-			
+
 			{/* Additional decorative elements */}
 			<motion.div
 				animate={{
@@ -165,7 +166,7 @@ const TefaSlider = () => {
 							Teaching Factory
 						</span>
 					</motion.div>
-					
+
 					<motion.h2
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -174,14 +175,14 @@ const TefaSlider = () => {
 					>
 						Program TEFA <span className="text-green-300">Unggulan</span>
 					</motion.h2>
-					
-					<motion.div 
+
+					<motion.div
 						initial={{ width: 0 }}
 						whileInView={{ width: '120px' }}
 						transition={{ duration: 0.7, delay: 0.1 }}
 						className="h-1 bg-green-400 mx-auto mb-6 rounded-full"
 					/>
-					
+
 					<motion.p
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -197,7 +198,7 @@ const TefaSlider = () => {
 				<div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden border border-white/20">
 					{/* Glass effect overlay - enhanced */}
 					<div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5" />
-					
+
 					{/* Light accent shapes */}
 					<div className="absolute -top-20 -right-20 w-80 h-80 bg-green-400/10 rounded-full blur-3xl"></div>
 					<div className="absolute -bottom-20 -left-20 w-80 h-80 bg-green-500/10 rounded-full blur-3xl"></div>
@@ -210,7 +211,7 @@ const TefaSlider = () => {
 					) : error ? (
 						<div className="text-center py-16">
 							<p className="text-white text-lg">{error}</p>
-							<button 
+							<button
 								className="mt-4 px-6 py-2 bg-white text-green-700 rounded-full hover:bg-green-100 transition-colors"
 								onClick={() => window.location.reload()}
 							>
@@ -231,21 +232,18 @@ const TefaSlider = () => {
 											setIsAutoPlaying(false);
 											setCurrent(index);
 										}}
-										className={`transition-all duration-300 flex items-center group ${
-											current === index
+										className={`transition-all duration-300 flex items-center group ${current === index
 												? 'opacity-100'
 												: 'opacity-60 hover:opacity-90'
-										}`}
+											}`}
 										aria-label={`Go to slide ${index + 1}`}
 									>
-										<span className={`w-10 md:w-12 h-1.5 rounded-full ${
-											current === index
+										<span className={`w-10 md:w-12 h-1.5 rounded-full ${current === index
 												? 'bg-green-400 w-14 md:w-20'
 												: 'bg-white/50 group-hover:bg-white/70'
-										}`}></span>
-										<span className={`ml-2 text-xs md:text-sm text-white ${
-											current === index ? 'font-medium' : 'hidden md:inline-block opacity-70 group-hover:opacity-100'
-										}`}>
+											}`}></span>
+										<span className={`ml-2 text-xs md:text-sm text-white ${current === index ? 'font-medium' : 'hidden md:inline-block opacity-70 group-hover:opacity-100'
+											}`}>
 											{item.nama}
 										</span>
 									</button>
@@ -256,7 +254,7 @@ const TefaSlider = () => {
 								<span className="text-sm text-white/70 hidden md:inline-block">
 									<span className="font-medium text-white">{current + 1}</span>/{komoditas.length}
 								</span>
-								
+
 								<button
 									onClick={handlePrevious}
 									disabled={komoditas.length <= 1}
@@ -298,7 +296,7 @@ const TefaSlider = () => {
 										<div className="absolute inset-0 rounded-2xl border-2 border-white/30 z-20">
 											<div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5"></div>
 										</div>
-										
+
 										{/* Conditionally render image or placeholder */}
 										{komoditas[current].foto && (komoditas[current].foto.startsWith('/') || komoditas[current].foto.startsWith('http')) ? (
 											<Image
@@ -320,22 +318,22 @@ const TefaSlider = () => {
 												<PlaceholderImage />
 											</div>
 										)}
-										
+
 										{/* Enhanced gradient overlay - only show for images, not placeholders */}
 										{komoditas[current].foto && (
 											<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
 										)}
-										
+
 										{/* Stats badge with improved styling */}
 										<div className="absolute top-6 left-6 z-20">
 											<span className="inline-flex items-center bg-school-accent/90 backdrop-blur-sm text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 shadow-xl">
 												{komoditas[current].jumlah} {komoditas[current].satuan}
 											</span>
 										</div>
-										
+
 										{/* Featured badge */}
 										<div className="absolute top-6 right-6 z-20">
-											<motion.span 
+											<motion.span
 												initial={{ opacity: 0, scale: 0.8 }}
 												animate={{ opacity: 1, scale: 1 }}
 												transition={{ delay: 0.3, duration: 0.5 }}
@@ -344,10 +342,10 @@ const TefaSlider = () => {
 												{komoditas[current].jenis.name}
 											</motion.span>
 										</div>
-										
+
 										{/* Highlight title that appears on image on mobile */}
 										<div className="absolute bottom-6 left-6 md:hidden z-20 max-w-[80%]">
-											<motion.h3 
+											<motion.h3
 												initial={{ opacity: 0, y: 10 }}
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: 0.3, duration: 0.5 }}
@@ -368,14 +366,14 @@ const TefaSlider = () => {
 									>
 										{komoditas[current].nama}
 									</motion.h3>
-									
+
 									<motion.div
 										initial={{ width: 0 }}
 										animate={{ width: '6rem' }}
 										transition={{ delay: 0.4, duration: 0.6 }}
 										className="w-24 h-1 bg-gradient-to-r from-green-400 to-green-300 rounded-full mb-6 hidden md:block lg:mx-0 mx-auto"
 									></motion.div>
-									
+
 									<motion.p
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
@@ -384,7 +382,7 @@ const TefaSlider = () => {
 									>
 										{komoditas[current].deskripsi}
 									</motion.p>
-									
+
 									<motion.div
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
@@ -419,32 +417,32 @@ const TefaSlider = () => {
 					></path>
 				</svg>
 			</div>
-			
+
 			{/* Decorative dots at bottom */}
-			<motion.div 
+			<motion.div
 				animate={{
 					y: [-5, 5, -5],
 					opacity: [0.3, 0.5, 0.3],
 				}}
-				transition={{ 
-					repeat: Infinity, 
+				transition={{
+					repeat: Infinity,
 					duration: 4,
 					ease: "easeInOut",
 				}}
 				className="absolute bottom-16 left-0 right-0 flex justify-center space-x-2 z-10"
 			>
 				{[...Array(5)].map((_, i) => (
-					<div 
-						key={i} 
-						className="w-1.5 h-1.5 rounded-full bg-white" 
-						style={{ 
+					<div
+						key={i}
+						className="w-1.5 h-1.5 rounded-full bg-white"
+						style={{
 							animationDelay: `${i * 0.2}s`,
 							opacity: 0.5 + (i * 0.1)
 						}}
 					></div>
 				))}
 			</motion.div>
-			
+
 			{/* Subtle noise texture overlay for richer visual */}
 			<div className="absolute inset-0 opacity-[0.02] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"></div>
 		</div>
@@ -453,14 +451,14 @@ const TefaSlider = () => {
 
 // Create a placeholder image component for when no image is available
 const PlaceholderImage = ({ className }: { className?: string }) => (
-  <div className={`flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 ${className || 'h-full w-full'}`}>
-    <div className="flex flex-col items-center justify-center p-6 rounded-full bg-white/30 backdrop-blur-sm shadow-inner">
-      <div className="mb-2 text-green-600 opacity-70">
-        <ImageIcon size={60} strokeWidth={1.5} />
-      </div>
-      <p className="text-green-700 text-sm font-medium">Gambar Tidak Tersedia</p>
-    </div>
-  </div>
+	<div className={`flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 ${className || 'h-full w-full'}`}>
+		<div className="flex flex-col items-center justify-center p-6 rounded-full bg-white/30 backdrop-blur-sm shadow-inner">
+			<div className="mb-2 text-green-600 opacity-70">
+				<ImageIcon size={60} strokeWidth={1.5} />
+			</div>
+			<p className="text-green-700 text-sm font-medium">Gambar Tidak Tersedia</p>
+		</div>
+	</div>
 );
 
 export default TefaSlider;
