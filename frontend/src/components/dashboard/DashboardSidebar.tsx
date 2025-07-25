@@ -85,8 +85,8 @@ export default function DashboardSidebar() {
 
   // Filter menu sesuai role
   const filteredMenu = dashboardMenu.filter((item) => {
-    if (role === "admin" && item.href === "/dashboard/user") return false;
-    if (role === "admin" && item.href === "/dashboard/kepsek") return false;
+    if (role === "guru" && item.href === "/dashboard/user") return false;
+    if (role === "guru" && item.href === "/dashboard/kepsek") return false;
     if (role === "kepsek" && item.href === "/dashboard/user") return false;
     if (role === "siswa") return false; // semua di-hide, ditangani dari middleware
     return true;
