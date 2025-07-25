@@ -76,6 +76,8 @@ export default function InputProduksiForm({
     const [ukuran, setUkuran] = useState("");
     const [kualitas, setKualitas] = useState("");
     const [jumlah_diproduksi, setJumlahDiproduksi] = useState("");
+    const [harga_persatuan, setHargaPersatuan] = useState("");
+    const [isCustomKualitas, setIsCustomKualitas] = useState(false); // New state for custom kualitas input
     const [loading, setLoading] = useState(false);
 
     const [asalList, setAsalList] = useState<any[]>([]);
@@ -94,6 +96,9 @@ export default function InputProduksiForm({
             setUkuran(initialData.ukuran || "");
             setKualitas(initialData.kualitas || "");
             setJumlahDiproduksi(initialData.jumlah?.toString() || "");
+            setHargaPersatuan(initialData.harga_persatuan?.toString() || "");
+            // Set isCustomKualitas based on initialData.kualitas if it's not 'Medium' or 'Premium'
+            setIsCustomKualitas(initialData.kualitas && !["Medium", "Premium"].includes(initialData.kualitas));
         }
     }, [formMode, initialData]);
 
@@ -131,7 +136,8 @@ export default function InputProduksiForm({
             kode_produksi,
             ukuran,
             kualitas,
-            jumlah_diproduksi: parseInt(jumlah_diproduksi)
+            jumlah_diproduksi: parseInt(jumlah_diproduksi),
+            harga_persatuan: parseFloat(harga_persatuan) // Parse as float for currency
         };
 
         try {
@@ -219,19 +225,51 @@ export default function InputProduksiForm({
                     />
 
                     <label>Kualitas</label>
-                    <input
-                        type="text"
-                        value={kualitas}
-                        onChange={(e) => setKualitas(e.target.value)}
-                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
+                    <select
+                        value={isCustomKualitas ? "Isi Sendiri" : kualitas}
+                        onChange={(e) => {
+                            const selectedValue = e.target.value;
+                            if (selectedValue === "Isi Sendiri") {
+                                setIsCustomKualitas(true);
+                                setKualitas(""); // Clear kualitas when switching to custom
+                            } else {
+                                setIsCustomKualitas(false);
+                                setKualitas(selectedValue);
+                            }
+                        }}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white w-full"
+                    >
+                        <option value="">Pilih Kualitas</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Isi Sendiri">Isi Sendiri</option>
+                    </select>
+                    {isCustomKualitas && (
+                        <input
+                            type="text"
+                            value={kualitas}
+                            onChange={(e) => setKualitas(e.target.value)}
+                            className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white col-span-2"
+                            placeholder="Masukkan kualitas custom"
+                        />
+                    )}
 
                     <label>Jumlah</label>
                     <input
-                        type="text"
+                        type="number" // Changed to number type
                         value={jumlah_diproduksi}
                         onChange={(e) => setJumlahDiproduksi(e.target.value)}
                         className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        min="0" // Allow 0 as input
+                    />
+
+                    <label>Harga per Satuan</label>
+                    <input
+                        type="number" // Changed to number type
+                        value={harga_persatuan}
+                        onChange={(e) => setHargaPersatuan(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        min="0" // Allow 0 as input
                     />
 
                     <div className="col-span-2 mt-4 flex justify-end space-x-2">

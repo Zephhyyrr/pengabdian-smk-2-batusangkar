@@ -84,7 +84,26 @@ export default function Penjualan() {
         },
         { header: "Komoditas", accessorKey: "komoditas" as keyof PenjualanType, cell: (item: PenjualanType) => item.komoditas?.nama || "" },
         { header: "Ukuran", accessorKey: "produksi" as keyof PenjualanType, cell: (item: PenjualanType) => item.produksi?.ukuran || "" },
-        { header: "Jumlah Terjual", accessorKey: "jumlah_terjual" as keyof PenjualanType },
+        { header: "Jumlah Terjual", accessorKey: "jumlah_terjual" as keyof PenjualanType,
+            cell: (item: PenjualanType) => (
+                <span className="font-medium">
+                    {item.jumlah_terjual
+                        ? `${item.jumlah_terjual} ${item.komoditas?.satuan}`
+                        : "-"}
+                </span>
+            ),
+         },
+                {
+            header: "Total Harga",
+            accessorKey: "total_harga" as keyof PenjualanType,
+            cell: (item: PenjualanType) => (
+                <span className="font-medium">
+                    {item.total_harga
+                        ? `Rp${new Intl.NumberFormat("id-ID").format(item.total_harga)},-`
+                        : "-"}
+                </span>
+            ),
+        },
         { header: "Kualitas", accessorKey: "produksi" as keyof PenjualanType, cell: (item: PenjualanType) => item.produksi?.kualitas || "" },
         { header: "Produksi", accessorKey: "produksi" as keyof PenjualanType, cell: (item: PenjualanType) => item.produksi?.asal_produksi?.nama || "" },
         { header: "Keterangan", accessorKey: "keterangan" as keyof PenjualanType }

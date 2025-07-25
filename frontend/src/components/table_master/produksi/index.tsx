@@ -77,6 +77,17 @@ export default function Produksi() {
         { header: "Jenis Komoditas", accessorKey: "komoditas" as keyof ProduksiType, cell: (item: ProduksiType) => item.komoditas?.nama || "" },
         { header: "Ukuran", accessorKey: "ukuran" as keyof ProduksiType },
         { header: "Kualitas", accessorKey: "kualitas" as keyof ProduksiType },
+        {
+            header: "Harga per Satuan",
+            accessorKey: "harga_persatuan" as keyof ProduksiType,
+            cell: (item: ProduksiType) => (
+                <span className="font-medium">
+                    {item.harga_persatuan
+                        ? `Rp${new Intl.NumberFormat("id-ID").format(item.harga_persatuan)},-`
+                        : "Rp0,-"}
+                </span>
+            ),
+        },
         { header: "Jumlah Produksi", accessorKey: "jumlah" as keyof ProduksiType },
         {
             header: "Aksi",

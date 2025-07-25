@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  ChevronDown,
-  ChevronUp,
-  ShoppingCart,
-  Receipt,
-  AlertCircle,
-  Package,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, ShoppingCart, Receipt, AlertCircle, Package } from "lucide-react";
 import { Komoditas, Penjualan, Produksi } from "@/types";
 import { DataTable } from "@/components/table/DataTable";
 import { Button } from "@/components/common/Button";
@@ -19,8 +12,12 @@ import { apiRequest } from "@/services/api.service";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
 export default function KasirPage() {
-  const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1] ?? "User"
-  
+  const username =
+    document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("username="))
+      ?.split("=")[1] ?? "User";
+
   const [produksi, setProduksi] = useState<Produksi[]>([]);
   const [penjualan, setPenjualan] = useState<Penjualan[]>([]);
 
@@ -37,18 +34,20 @@ export default function KasirPage() {
     id_komodity: number;
     id_produksi: number;
     jumlah_terjual: number;
+    total_harga: number;
   }>({
     keterangan: "",
     id_komodity: 0,
     id_produksi: 0,
     jumlah_terjual: 0,
+    total_harga: 0,
   });
 
   const [showPenjualan, setShowPenjualan] = useState(false);
 
   // Get unique komoditas from produksi data - Fixed property name
   const uniqueKomoditas = produksi.reduce((acc, prod) => {
-    const existing = acc.find(item => item.id === prod.komoditas?.id);
+    const existing = acc.find((item) => item.id === prod.komoditas?.id);
     if (!existing && prod.komoditas) {
       acc.push(prod.komoditas);
     }
@@ -56,8 +55,8 @@ export default function KasirPage() {
   }, [] as Komoditas[]);
 
   // Get filtered produksi based on selected komoditas - Fixed property name
-  const filteredProduksiByKomoditas = formData.id_komodity 
-    ? produksi.filter(prod => prod.komoditas?.id === formData.id_komodity)
+  const filteredProduksiByKomoditas = formData.id_komodity
+    ? produksi.filter((prod) => prod.komoditas?.id === formData.id_komodity)
     : produksi;
 
   useEffect(() => {
@@ -114,8 +113,8 @@ export default function KasirPage() {
     // Validasi stok tersedia dari produksi
     if (formData.id_produksi && formData.jumlah_terjual) {
       const selectedProduksi = produksi.find((p) => p.id === formData.id_produksi);
-      if (selectedProduksi && formData.jumlah_terjual > selectedProduksi.komoditas?.jumlah) {
-        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.komoditas?.jumlah} ${selectedProduksi.komoditas?.satuan}`;
+      if (selectedProduksi && formData.jumlah_terjual > selectedProduksi.jumlah) {
+        errors.jumlah_terjual = `Stok tidak mencukupi. Tersedia: ${selectedProduksi.jumlah} ${selectedProduksi.komoditas?.satuan}`;
       }
     }
 
@@ -123,15 +122,44 @@ export default function KasirPage() {
     return Object.keys(errors).length === 0;
   };
 
+const NUMBER_FIELDS = ["jumlah_terjual", "id_komodity", "id_produksi"];
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "jumlah_terjual" || name === "id_komodity" || name === "id_produksi"
-          ? Number(value)
-          : value,
-    }));
+
+    setFormData((prev) => {
+      let newValue: string | number = value;
+
+      if (NUMBER_FIELDS.includes(name)) {
+        const numValue = Number(value);
+        newValue = isNaN(numValue) ? 0 : numValue; // Handle NaN for number fields
+      }
+
+      let newFormData = {
+        ...prev,
+        [name]: newValue,
+      };
+
+      if (name === "jumlah_terjual" || name === "id_produksi") {
+        const currentIdProduksi = name === "id_produksi" ? (newValue as number) : prev.id_produksi;
+        const currentJumlahTerjual = name === "jumlah_terjual" ? (newValue as number) : prev.jumlah_terjual;
+
+        const selectedProduksi = produksi.find((p) => p.id === currentIdProduksi);
+        
+        // Only set default total_harga if it hasn't been manually set or if id_produksi/jumlah_terjual changes
+        if (selectedProduksi && currentJumlahTerjual > 0 && (name === "id_produksi" || name === "jumlah_terjual" || prev.total_harga === 0)) {
+          newFormData.total_harga = selectedProduksi.harga_persatuan * currentJumlahTerjual;
+        } else if (!selectedProduksi || currentJumlahTerjual <= 0) {
+          newFormData.total_harga = 0;
+        }
+      } else if (name === "total_harga") {
+        // Allow manual input for total_harga
+        const numValue = Number(value);
+        newFormData.total_harga = isNaN(numValue) ? 0 : numValue;
+      }
+
+      return newFormData;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,12 +173,13 @@ export default function KasirPage() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const requestBody = {
         keterangan: formData.keterangan,
         id_komodity: formData.id_komodity,
         id_produksi: formData.id_produksi,
         jumlah_terjual: formData.jumlah_terjual,
+        total_harga: formData.total_harga
       };
 
       await apiRequest({
@@ -166,13 +195,14 @@ export default function KasirPage() {
       ]);
       setPenjualan(dataPenjualan);
       setProduksi(dataProduksi);
-      
+
       // Reset form
       setFormData({
         keterangan: "",
         id_komodity: 0,
         id_produksi: 0,
         jumlah_terjual: 0,
+        total_harga: 0,
       });
       setFormErrors({});
 
@@ -208,11 +238,22 @@ export default function KasirPage() {
       ),
     },
     {
-      header: "Jumlah",
+      header: "Jumlah Terjual",
       accessorKey: "jumlah_terjual" as keyof Penjualan,
       cell: (item: Penjualan) => (
         <span className="font-medium">
           {item.jumlah_terjual} {item.komoditas?.satuan}
+        </span>
+      ),
+    },
+    {
+      header: "Total harga",
+      accessorKey: "total_harga" as keyof Penjualan,
+      cell: (item: Penjualan) => (
+        <span className="font-medium">
+          {item.total_harga
+            ? `Rp${new Intl.NumberFormat("id-ID").format(item.total_harga)},-`
+            : "-"}
         </span>
       ),
     },
@@ -260,7 +301,7 @@ export default function KasirPage() {
               {uniqueKomoditas.length > 0 ? (
                 uniqueKomoditas.map((item) => {
                   const totalStock = produksi
-                    .filter(p => p.komoditas?.id === item.id)
+                    .filter((p) => p.komoditas?.id === item.id)
                     .reduce((sum, p) => sum + p.jumlah, 0);
 
                   return (
@@ -268,10 +309,10 @@ export default function KasirPage() {
                       key={item.id}
                       type="button"
                       onClick={() => {
-                        setFormData((prev) => ({ 
-                          ...prev, 
+                        setFormData((prev) => ({
+                          ...prev,
                           id_komodity: item.id,
-                          id_produksi: 0
+                          id_produksi: 0,
                         }));
                         setShowProdukDropdown(false);
                       }}
@@ -350,10 +391,10 @@ export default function KasirPage() {
                     key={item.id}
                     type="button"
                     onClick={() => {
-                      setFormData((prev) => ({ 
-                        ...prev, 
+                      setFormData((prev) => ({
+                        ...prev,
                         id_produksi: item.id,
-                        id_komodity: prev.id_komodity || item.komoditas?.id || 0
+                        id_komodity: prev.id_komodity || item.komoditas?.id || 0,
                       }));
                       setShowProduksiDropdown(false);
                     }}
@@ -367,9 +408,9 @@ export default function KasirPage() {
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          Stok: {item.komoditas?.jumlah} {item.komoditas?.satuan}
+                          Stok: {item.jumlah} {item.komoditas?.satuan}
                         </div>
-                        {item.komoditas?.jumlah <= 5 && (
+                        {item.jumlah <= 5 && (
                           <div className="text-xs text-red-500 font-medium">Stok Menipis!</div>
                         )}
                       </div>
@@ -425,11 +466,15 @@ export default function KasirPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Jumlah *
-                  {selectedProduksi && (
-                    <span className="text-xs text-gray-500 ml-2">
-                      (Tersedia: {selectedProduksi.komoditas?.jumlah} {selectedProduksi.komoditas?.satuan})
-                    </span>
+                  {selectedProduksi ? (
+                    <div>
+                      Jumlah ({selectedProduksi.komoditas?.satuan})
+                      <span className="text-xs text-gray-500 ml-2">
+                        (Tersedia: {selectedProduksi.jumlah} {selectedProduksi.komoditas?.satuan})
+                      </span>
+                    </div>
+                  ) : (
+                    <div>Jumlah</div>
                   )}
                 </label>
                 <Input
@@ -468,6 +513,19 @@ export default function KasirPage() {
                 />
               </div>
             </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Total Harga
+                </label>
+                <Input
+                  type="number"
+                  name="total_harga"
+                  value={formData.total_harga || ""}
+                  onChange={handleInputChange}
+                  placeholder="0"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
 
             <Button
               type="submit"
