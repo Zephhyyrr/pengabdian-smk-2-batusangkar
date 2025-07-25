@@ -14,6 +14,9 @@ export async function getAllPenjualanService() {
                     asal_produksi: true
                 }
             }
+        },
+        orderBy: {
+            createdAt: "desc"
         }
     })
 
