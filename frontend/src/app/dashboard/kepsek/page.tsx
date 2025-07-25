@@ -47,6 +47,7 @@ export default function DashboardKepsek() {
   const [penjualan, setPenjualan] = useState<Penjualan[]>([]);
   const [komoditas, setKomoditas] = useState<Komoditas[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chartPeriod, setChartPeriod] = useState<"7days" | "weekly" | "monthly">("7days");
 
   const fetchData = async () => {
     try {
@@ -111,45 +112,72 @@ export default function DashboardKepsek() {
       transaksi: value,
     }));
 
-  // Data untuk grafik trend penjualan (7 hari terakhir)
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    return date.toISOString().split('T')[0];
-  }).reverse();
+  // Function to get chart data based on period
+  const getChartDataByPeriod = (period: "7days" | "weekly" | "monthly") => {
+    const dataMap: Record<string, { transaksi: number; revenue: number }> = {};
+    const today = new Date();
 
-  const trendData = last7Days.map(date => {
-    const dayPenjualan = penjualan.filter(p => 
-      p.createdAt.split('T')[0] === date
-    ).length;
-    
-    return {
-      date: new Date(date).toLocaleDateString('id-ID', { 
-        day: 'numeric', 
-        month: 'short' 
-      }),
-      transaksi: dayPenjualan,
-    };
-  });
+    if (period === "7days") {
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        const dateString = date.toISOString().split('T')[0];
+        dataMap[dateString] = { transaksi: 0, revenue: 0 };
+      }
 
-  // Data untuk grafik trend pendapatan bulanan
-  const monthlyRevenueData = penjualan.reduce((acc, item) => {
-    const date = new Date(item.createdAt);
-    const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-    
-    if (!acc[yearMonth]) {
-      acc[yearMonth] = 0;
+      penjualan.forEach(item => {
+        const dateString = item.createdAt.split('T')[0];
+        if (dataMap[dateString]) {
+          dataMap[dateString].transaksi += 1;
+          dataMap[dateString].revenue += item.total_harga;
+        }
+      });
+
+      return Object.entries(dataMap).map(([dateString, data]) => ({
+        name: new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+        ...data,
+      })).sort((a, b) => new Date(a.name.split(' ')[1] + ' ' + a.name.split(' ')[0]).getTime() - new Date(b.name.split(' ')[1] + ' ' + b.name.split(' ')[0]).getTime());
+    } else if (period === "weekly") {
+      // Group by week (e.g., "YYYY-WW")
+      penjualan.forEach(item => {
+        const date = new Date(item.createdAt);
+        const year = date.getFullYear();
+        const week = Math.ceil((((date.getTime() - new Date(year, 0, 1).getTime()) / 86400000) + new Date(year, 0, 1).getDay() + 1) / 7);
+        const weekString = `${year}-W${week.toString().padStart(2, '0')}`;
+
+        if (!dataMap[weekString]) {
+          dataMap[weekString] = { transaksi: 0, revenue: 0 };
+        }
+        dataMap[weekString].transaksi += 1;
+        dataMap[weekString].revenue += item.total_harga;
+      });
+
+      return Object.entries(dataMap).map(([weekString, data]) => ({
+        name: `Minggu ${weekString.split('W')[1]} ${weekString.split('-')[0]}`,
+        ...data,
+      })).sort((a, b) => a.name.localeCompare(b.name));
+    } else if (period === "monthly") {
+      // Group by month (e.g., "YYYY-MM")
+      penjualan.forEach(item => {
+        const date = new Date(item.createdAt);
+        const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+        if (!dataMap[yearMonth]) {
+          dataMap[yearMonth] = { transaksi: 0, revenue: 0 };
+        }
+        dataMap[yearMonth].transaksi += 1;
+        dataMap[yearMonth].revenue += item.total_harga;
+      });
+
+      return Object.entries(dataMap).map(([yearMonth, data]) => ({
+        name: new Date(yearMonth).toLocaleDateString('id-ID', { year: 'numeric', month: 'short' }),
+        ...data,
+      })).sort((a, b) => a.name.localeCompare(b.name));
     }
-    acc[yearMonth] += item.total_harga;
-    return acc;
-  }, {} as Record<string, number>);
+    return [];
+  };
 
-  const sortedMonthlyRevenueData = Object.entries(monthlyRevenueData)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, revenue]) => ({
-      month: new Date(month).toLocaleDateString('id-ID', { year: 'numeric', month: 'short' }),
-      revenue,
-    }));
+  const combinedTrendData = getChartDataByPeriod(chartPeriod);
 
   // Warna untuk grafik
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
@@ -315,55 +343,65 @@ export default function DashboardKepsek() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Trend Penjualan */}
+        {/* Combined Trend Chart */}
+        <div className="grid grid-cols-1 gap-6">
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
               <h2 className="text-lg font-semibold text-gray-800">
-                Trend Penjualan
+                Trend Penjualan & Pendapatan
               </h2>
-              <p className="text-sm text-gray-600">7 hari terakhir</p>
+              <div className="flex space-x-2 mt-2">
+                <button
+                  onClick={() => setChartPeriod("7days")}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${chartPeriod === "7days" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                >
+                  7 Hari Terakhir
+                </button>
+                <button
+                  onClick={() => setChartPeriod("weekly")}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${chartPeriod === "weekly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                >
+                  Per Minggu
+                </button>
+                <button
+                  onClick={() => setChartPeriod("monthly")}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${chartPeriod === "monthly" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                >
+                  Per Bulan
+                </button>
+              </div>
             </div>
             <div className="p-6">
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={trendData}>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={combinedTrendData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`${value} transaksi`, 'Jumlah Transaksi']} />
+                  <XAxis dataKey="name" />
+                  <YAxis yAxisId="left" stroke="#00C49F" />
+                  <YAxis yAxisId="right" orientation="right" stroke="#FFBB28" tickFormatter={(value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`} />
+                  <Tooltip formatter={(value: number, name: string) => {
+                    if (name === 'transaksi') {
+                      return [`${value} transaksi`, 'Jumlah Transaksi'];
+                    } else if (name === 'revenue') {
+                      return [`Rp${new Intl.NumberFormat("id-ID").format(value)},-`, 'Pendapatan'];
+                    }
+                    return [value, name];
+                  }} />
+                  <Legend />
                   <Line
+                    yAxisId="left"
                     type="monotone"
                     dataKey="transaksi"
                     stroke="#00C49F"
                     strokeWidth={2}
-                    dot={{ fill: '#00C49F' }}
+                    name="Jumlah Transaksi"
                   />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Trend Pendapatan Bulanan */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <h2 className="text-lg font-semibold text-gray-800">
-                Trend Pendapatan Bulanan
-              </h2>
-              <p className="text-sm text-gray-600">Pendapatan per bulan</p>
-            </div>
-            <div className="p-6">
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={sortedMonthlyRevenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis tickFormatter={(value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`} />
-                  <Tooltip formatter={(value: number) => [`Rp${new Intl.NumberFormat("id-ID").format(value)},-`, 'Pendapatan']} />
                   <Line
+                    yAxisId="right"
                     type="monotone"
                     dataKey="revenue"
                     stroke="#FFBB28"
                     strokeWidth={2}
-                    dot={{ fill: '#FFBB28' }}
+                    name="Pendapatan"
                   />
                 </LineChart>
               </ResponsiveContainer>
