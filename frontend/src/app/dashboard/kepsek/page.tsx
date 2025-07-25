@@ -132,6 +132,25 @@ export default function DashboardKepsek() {
     };
   });
 
+  // Data untuk grafik trend pendapatan bulanan
+  const monthlyRevenueData = penjualan.reduce((acc, item) => {
+    const date = new Date(item.createdAt);
+    const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    
+    if (!acc[yearMonth]) {
+      acc[yearMonth] = 0;
+    }
+    acc[yearMonth] += item.total_harga;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const sortedMonthlyRevenueData = Object.entries(monthlyRevenueData)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, revenue]) => ({
+      month: new Date(month).toLocaleDateString('id-ID', { year: 'numeric', month: 'short' }),
+      revenue,
+    }));
+
   // Warna untuk grafik
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -208,9 +227,15 @@ export default function DashboardKepsek() {
                       `${item.jumlah_terjual} ${item.komoditas?.satuan}`,
                   },
                   {
+                    header: "Total Harga",
+                    accessorKey: "total_harga",
+                    cell: (item: Penjualan) =>
+                      `Rp${new Intl.NumberFormat("id-ID").format(item.total_harga)},-`,
+                  },
+                  {
                     header: "Tanggal",
                     accessorKey: "createdAt",
-                    cell: (item: Penjualan) => 
+                    cell: (item: Penjualan) =>
                       new Date(item.createdAt).toLocaleDateString('id-ID'),
                   },
                 ]}
@@ -290,7 +315,7 @@ export default function DashboardKepsek() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trend Penjualan */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
@@ -306,12 +331,39 @@ export default function DashboardKepsek() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip formatter={(value) => [`${value} transaksi`, 'Jumlah Transaksi']} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="transaksi" 
-                    stroke="#00C49F" 
+                  <Line
+                    type="monotone"
+                    dataKey="transaksi"
+                    stroke="#00C49F"
                     strokeWidth={2}
                     dot={{ fill: '#00C49F' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Trend Pendapatan Bulanan */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Trend Pendapatan Bulanan
+              </h2>
+              <p className="text-sm text-gray-600">Pendapatan per bulan</p>
+            </div>
+            <div className="p-6">
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={sortedMonthlyRevenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis tickFormatter={(value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`} />
+                  <Tooltip formatter={(value: number) => [`Rp${new Intl.NumberFormat("id-ID").format(value)},-`, 'Pendapatan']} />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#FFBB28"
+                    strokeWidth={2}
+                    dot={{ fill: '#FFBB28' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
