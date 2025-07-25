@@ -9,7 +9,20 @@ const config: Config = {
   darkMode: ['class', "class"],
   theme: {
   	extend: {
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0) translateX(0)' },
+          '50%': { transform: 'translateY(-10px) translateX(5px)' },
+        },
+      },
+      animation: {
+        float: 'float 4s ease-in-out infinite',
+      },
   		colors: {
+        'school-primary': '#015E23', // Warna hijau tua untuk tema pertanian
+        'school-secondary': '#53A653', // Warna hijau medium
+        'school-accent': '#FF8C32', // Warna oranye aksen untuk tombol dan highlight
+        'school-light': '#F9FAFB', // Warna abu-abu muda untuk background
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
