@@ -6,7 +6,7 @@ import ConfirmButton from "@/components/common/ConfirmButton";
 
 type DashboardHeaderProps = {
   title: string;
-  role: string;
+  role: any;
 };
 
 export default function DashboardHeader({ title, role }: DashboardHeaderProps) {

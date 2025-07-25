@@ -13,10 +13,10 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
 export default function KasirPage() {
   const username =
-    document.cookie
+    typeof window != "undefined" ? document.cookie
       .split("; ")
       .find((row) => row.startsWith("username="))
-      ?.split("=")[1] ?? "User";
+      ?.split("=")[1] ?? "User": null
 
   const [produksi, setProduksi] = useState<Produksi[]>([]);
   const [penjualan, setPenjualan] = useState<Penjualan[]>([]);

@@ -18,10 +18,10 @@ export default function DashboardSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const role = document.cookie
+  const role = typeof window != "undefined" ? document.cookie
     .split("; ")
     .find((row) => row.startsWith("role="))
-    ?.split("=")[1];
+    ?.split("=")[1]: null
 
   const dashboardMenu = [
     {
