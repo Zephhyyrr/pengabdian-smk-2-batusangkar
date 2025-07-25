@@ -31,14 +31,14 @@ export async function createdKomoditasService
 }
 
 export async function updateKomoditasService
-    (id_komoditas: number, id_jenis: number | undefined, nama: string, deskripsi: string, foto: string, satuan: string, jumlah: number) {
+    (id_komoditas: number, id_jenis: number | undefined, nama: string, deskripsi: string, foto: string, satuan: string) {
 
     await getKomoditasByIdService(id_komoditas)
 
     const updatedKomoditas = await prisma.komoditas.update({
         where: { id: id_komoditas },
         data: {
-            id_jenis, nama, deskripsi, foto, satuan, jumlah
+            id_jenis, nama, deskripsi, foto, satuan
         }
     })
     return updatedKomoditas

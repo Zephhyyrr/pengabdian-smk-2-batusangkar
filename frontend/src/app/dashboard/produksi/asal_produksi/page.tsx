@@ -18,7 +18,7 @@ export default function AsalProduksiPage() {
 
 
     return (
-        <DashboardLayout title="Jenis Komoditas" role="produksi">
+        <DashboardLayout title="Asal Produksi" role="">
             <div className="mt-5">
                 <InputAsalProduksi
                     selelectedAsalProduksi={selectedAsal}

@@ -77,7 +77,6 @@ export default function InputKomoditasForm({
     const [deskripsi, setDeskripsi] = useState("");
     const [foto, setFoto] = useState<File | null>(null);
     const [satuan, setSatuan] = useState("");
-    const [jumlah, setJumlah] = useState("");
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -91,7 +90,6 @@ export default function InputKomoditasForm({
             setNama(initialData.nama || "");
             setDeskripsi(initialData.deskripsi || "");
             setSatuan(initialData.satuan || "");
-            setJumlah(initialData.jumlah?.toString() || "");
         }
         setErrors({}); // Clear errors on modal open/data change
     }, [formMode, initialData]);
@@ -119,7 +117,6 @@ export default function InputKomoditasForm({
             formData.append("nama", nama);
             formData.append("deskripsi", deskripsi);
             formData.append("satuan", satuan);
-            formData.append("jumlah", jumlah.toString());
             if (foto) {
                 formData.append("foto", foto);
             }
@@ -205,14 +202,6 @@ export default function InputKomoditasForm({
                         type="text"
                         value={satuan}
                         onChange={(e) => setSatuan(e.target.value)}
-                        className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-
-                    <label>Jumlah</label>
-                    <input
-                        type="number"
-                        value={jumlah}
-                        onChange={(e) => setJumlah(e.target.value)}
                         className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
 

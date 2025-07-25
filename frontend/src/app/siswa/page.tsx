@@ -19,6 +19,8 @@ import { apiRequest } from "@/services/api.service";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
 export default function KasirPage() {
+  const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1] ?? "User"
+  
   const [produksi, setProduksi] = useState<Produksi[]>([]);
   const [penjualan, setPenjualan] = useState<Penjualan[]>([]);
 
@@ -392,7 +394,7 @@ export default function KasirPage() {
     <div className="min-h-screen text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b px-5 pt-4">
-        <DashboardHeader role="Siswa" title="Kasir" />
+        <DashboardHeader role={username} title="Kasir" />
       </div>
 
       <div className="p-4 space-y-4">

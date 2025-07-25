@@ -44,7 +44,7 @@ export async function createKomoditasController(req: Request, res: Response<Resp
             deskripsi,
             fotoUrl,
             satuan,
-            Number(jumlah)
+            0
         );
 
         return res.status(201).json({
@@ -86,7 +86,7 @@ export async function getAllKomoditasController(req: Request, res: Response<Resp
 export async function updateKomoditasController(req: Request, res: Response<ResponseApiType>) {
     try {
         const { id } = req.params;
-        const { id_jenis, nama, deskripsi, satuan, jumlah } = req.body;
+        const { id_jenis, nama, deskripsi, satuan } = req.body;
         const file = req.file;
 
         let foto: string | undefined = undefined;
@@ -111,7 +111,6 @@ export async function updateKomoditasController(req: Request, res: Response<Resp
             deskripsi,
             foto ?? "",
             satuan,
-            jumlah ? Number(jumlah) : 0
         );
 
         return res.status(200).json({
