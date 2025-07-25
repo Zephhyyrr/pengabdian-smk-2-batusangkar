@@ -126,29 +126,30 @@ export async function updateKomoditasController(req: Request, res: Response<Resp
 
 export async function deleteKomoditasController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { id } = req.params
+        const { id } = req.params;
 
-        // Ambil data komoditas dulu untuk dapat URL foto
         const komoditas = await getKomoditasByIdService(Number(id));
         const fotoUrl = komoditas.foto;
 
-        // Ekstrak public_id dari URL Cloudinary
-        // Contoh URL: https://res.cloudinary.com/demo/image/upload/v1234567890/folder/filename.jpg
-        // public_id: folder/filename (tanpa ekstensi)
         const matches = fotoUrl.match(/\/([^\/]+\/[^\/]+)\.[a-zA-Z]+$/);
         const publicId = matches ? matches[1] : undefined;
 
         if (publicId) {
-            await cloudinary.uploader.destroy(publicId);
+            try {
+                await cloudinary.uploader.destroy(publicId);
+            } catch (cloudErr) {
+                console.warn(`Gagal menghapus gambar dari Cloudinary: ${cloudErr}`);
+            }
         }
 
         const deletedKomoditas = await deleteKomoditasService(Number(id));
+
         return res.status(200).json({
             success: true,
             message: `Berhasil menghapus komoditas: ${deletedKomoditas.nama}`
-        })
+        });
     } catch (error) {
-        return handlerAnyError(error, res)
+        return handlerAnyError(error, res);
     }
 }
 

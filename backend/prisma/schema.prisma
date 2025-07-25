@@ -40,13 +40,14 @@ model Jenis {
 }
 
 model Komoditas {
-  id        Int    @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   id_jenis  Int
   nama      String
-  deskripsi String @db.Text
+  deskripsi String  @db.Text
   foto      String
   satuan    String
-  jumlah    Int    @default(0)
+  jumlah    Int     @default(0)
+  isDeleted Boolean @default(false)
 
   penjualans Penjualan[]
   produksis  Produksi[]  @relation("KomoditasToProduksi")
@@ -65,14 +66,14 @@ model AsalProduksi {
 }
 
 model Produksi {
-  id            Int    @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   id_asal       Int
   id_komoditas  Int?
   kode_produksi String
   ukuran        String
   kualitas      String
-  jumlah        Int    @default(0)
-  komoditas     Komoditas? @relation("KomoditasToProduksi", fields: [id_komoditas], references: [id], onDelete: Cascade)
+  jumlah        Int          @default(0)
+  komoditas     Komoditas?   @relation("KomoditasToProduksi", fields: [id_komoditas], references: [id], onDelete: Cascade)
   penjualans    Penjualan[]
   asal_produksi AsalProduksi @relation(fields: [id_asal], references: [id], onDelete: Cascade)
   createdAt     DateTime     @default(now())
