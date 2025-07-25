@@ -52,7 +52,8 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
                 Komoditas: item?.komoditas?.nama || "-",
                 Jenis: item?.komoditas?.jenis?.name || "-",
                 Ukuran: item?.produksi?.ukuran || "-",
-                "Jumlah Terjual": item?.jumlah_terjual ?? 0,
+                "Jumlah Terjual": `${item?.jumlah_terjual ?? 0} ${item?.komoditas?.satuan || ""}`,
+                "Harga persatuan": item?.produksi?.harga_per_satuan ?? 0,
                 Kualitas: item?.produksi?.kualitas || "-",
                 Produksi: item?.produksi?.asal_produksi?.nama || "-",
                 Keterangan: item?.keterangan || "-",
@@ -157,7 +158,8 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
                 item?.komoditas?.nama || "-",
                 item?.komoditas?.jenis?.name || "-",
                 item?.produksi?.ukuran || "-",
-                item?.jumlah_terjual ?? 0,
+                `${item?.jumlah_terjual ?? 0} ${item?.komoditas?.satuan || ""}`,
+                item?.produksi?.harga_per_satuan ?? 0,
                 item?.produksi?.kualitas || "-",
                 item?.produksi?.asal_produksi?.nama || "-",
                 item?.keterangan || "-",
@@ -169,7 +171,7 @@ export default function ExportPenjualanModal({ penjualanList, onClose, isOpen }:
             autoTable(doc, {
                 head: [[
                     "No", "Tanggal", "Bulan", "Asal Kebun", "Kode Produksi",
-                    "Komoditas", "Jenis", "Ukuran", "Jumlah Terjual",
+                    "Komoditas", "Jenis", "Ukuran", "Jumlah Terjual", "Harga persatuan",
                     "Kualitas", "Produksi", "Keterangan"
                 ]],
                 body: pdfData,

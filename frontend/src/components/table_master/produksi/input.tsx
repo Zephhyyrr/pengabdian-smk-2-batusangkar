@@ -79,6 +79,7 @@ export default function InputProduksiForm({
     const [harga_persatuan, setHargaPersatuan] = useState("");
     const [isCustomKualitas, setIsCustomKualitas] = useState(false); // New state for custom kualitas input
     const [loading, setLoading] = useState(false);
+    const [satuan, setSatuan] = useState("Kg");
 
     const [asalList, setAsalList] = useState<any[]>([]);
     const [komoditasList, setKomoditasList] = useState<any[]>([]);
@@ -203,7 +204,18 @@ export default function InputProduksiForm({
                     </div>
                     <select
                         value={id_komoditas}
-                        onChange={(e) => setIdKomoditas(e.target.value)}
+                        onChange={(e) => {
+                            const selectedKomoditasId = e.target.value;
+                            setIdKomoditas(selectedKomoditasId);
+                            const selectedKomoditas = komoditasList.find(
+                                (komoditas) => komoditas.id.toString() === selectedKomoditasId
+                            );
+                            if (selectedKomoditas) {
+                                setSatuan(selectedKomoditas.satuan);
+                            } else {
+                                setSatuan("Kg"); // Default to Kg if no komoditas is selected
+                            }
+                        }}
                         className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white w-full"
                         required
                     >
@@ -257,6 +269,7 @@ export default function InputProduksiForm({
                     <label>Jumlah</label>
                     <input
                         type="number" // Changed to number type
+                        placeholder={`Dalam ${satuan}`}
                         value={jumlah_diproduksi}
                         onChange={(e) => setJumlahDiproduksi(e.target.value)}
                         className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
