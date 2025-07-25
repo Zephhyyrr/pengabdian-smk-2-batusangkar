@@ -1,19 +1,8 @@
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = './uploads';
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const ext = path.extname(file.originalname);
-        cb(null, `${uniqueSuffix}${ext}`);
-    },
-});
+// Menggunakan memoryStorage untuk menyimpan file di memory (buffer)
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage,
