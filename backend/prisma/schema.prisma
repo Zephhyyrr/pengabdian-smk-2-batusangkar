@@ -31,8 +31,9 @@ model User {
 }
 
 model Jenis {
-  id   Int    @id @default(autoincrement())
-  name String
+  id        Int     @id @default(autoincrement())
+  name      String
+  isDeleted Boolean @default(false)
 
   komoditases Komoditas[]
   createdAt   DateTime    @default(now())
