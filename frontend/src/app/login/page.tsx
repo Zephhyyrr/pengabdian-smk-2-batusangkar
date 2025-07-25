@@ -7,6 +7,7 @@ import { Input } from '@/components/common/Input';
 import { Skeleton } from '@/components/common/Skeleton';
 import { apiRequest } from '@/services/api.service';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,6 +45,12 @@ export default function LoginPage() {
         document.cookie = `token=${response.token}; path=/; secure; samesite=strict`;
         document.cookie = `role=${response.user.role}; path=/; secure; samesite=strict`;
         document.cookie = `username=${response.user.nama}; path=/; secure; samesite=strict`;
+
+        
+        // Show success toast
+        toast.success(`Login berhasil! Selamat datang, ${response.user.nama || 'User'}`);
+        
+
         if (response.user.role === "siswa") {
           router.push('/siswa');
         } else {
