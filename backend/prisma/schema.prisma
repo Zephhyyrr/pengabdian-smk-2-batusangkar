@@ -14,8 +14,8 @@ datasource db {
 }
 
 enum RoleUser {
-  super_admin
   admin
+  guru
   kepsek
   siswa
 }

@@ -15,13 +15,13 @@ import penjualanRouter from "./penjualan.routes";
 const apiRouter = Router()
 
 apiRouter.use("/test", TestController)
-apiRouter.use("/users", jwtCheckToken, isRole(["super_admin"]), userRoute)
+apiRouter.use("/users", jwtCheckToken, isRole(["admin"]), userRoute)
 apiRouter.use("/auth", authRouter)
-apiRouter.use("/jenis", jwtCheckToken, isRole(["super_admin", "admin"]), jenisRouter)
-apiRouter.use("/komoditas", jwtCheckToken, isRole(["super_admin", "admin"]), komoditasRouter)
-apiRouter.use("/barang", jwtCheckToken, isRole(["super_admin", "admin"]), barangRouter)
-apiRouter.use("/transaksi-barang", jwtCheckToken, isRole(["super_admin", "admin"]), transaksiBarangRouter)
-apiRouter.use("/produksi", jwtCheckToken, isRole(["super_admin", "admin", "siswa"]), produksiRouter);
-apiRouter.use("/penjualan", jwtCheckToken, isRole(["super_admin", "admin", "siswa"]), penjualanRouter);
-apiRouter.use("/asal-produksi", jwtCheckToken, isRole(["super_admin", "admin"]), asalProduksiRouter);
+apiRouter.use("/jenis", jwtCheckToken, isRole(["admin", "guru"]), jenisRouter)
+apiRouter.use("/komoditas", jwtCheckToken, isRole(["admin", "guru"]), komoditasRouter)
+apiRouter.use("/barang", jwtCheckToken, isRole(["admin", "guru"]), barangRouter)
+apiRouter.use("/transaksi-barang", jwtCheckToken, isRole(["admin", "guru"]), transaksiBarangRouter)
+apiRouter.use("/produksi", jwtCheckToken, isRole(["admin", "guru", "siswa"]), produksiRouter);
+apiRouter.use("/penjualan", jwtCheckToken, isRole(["admin", "guru", "siswa"]), penjualanRouter);
+apiRouter.use("/asal-produksi", jwtCheckToken, isRole(["admin", "guru"]), asalProduksiRouter);
 export default apiRouter

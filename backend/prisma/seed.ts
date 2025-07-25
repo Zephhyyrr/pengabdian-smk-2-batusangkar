@@ -13,12 +13,20 @@ async function main() {
     await prisma.user.deleteMany({});
 
     // 1. Seed User
-    const superAdmin = await prisma.user.create({
+    const admin = await prisma.user.create({
         data: {
-            nama: 'Super Admin',
-            email: 'superadmin@gmail.com',
+            nama: 'Admin',
+            email: 'admin@gmail.com',
             password: (await hashing("Password123"))!,
-            role: "super_admin"
+            role: "admin"
+        },
+    });
+    const guru = await prisma.user.create({
+        data: {
+            nama: 'Guru',
+            email: 'guru@gmail.com',
+            password: (await hashing("Password123"))!,
+            role: "guru"
         },
     });
     const siswa = await prisma.user.create({
