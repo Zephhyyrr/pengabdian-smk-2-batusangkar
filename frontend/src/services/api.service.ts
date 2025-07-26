@@ -4,6 +4,7 @@ export const apiRequest = async ({
   endpoint,
   method = 'GET',
   data,
+  token: providedToken,
 }: {
   endpoint: string;
   method?: string;
@@ -14,7 +15,10 @@ export const apiRequest = async ({
 
   const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
 
-  var token = typeof window !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined;
+  // Use provided token first, then check cookie, then local storage
+  var token = providedToken || 
+    (typeof window !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined) ||
+    (typeof window !== 'undefined' ? localStorage.getItem('authToken') : undefined);
 
   const headers = {
     ...(token && { Authorization: `Bearer ${token}` }),

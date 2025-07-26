@@ -79,9 +79,15 @@ export default function InfoKomoditasForm({ isOpen, onClose, selectedKomoditas }
                         <label>Gambar</label>
                         {selectedKomoditas?.foto ? (
                             <img
-                                src={selectedKomoditas.foto}
+                                src={selectedKomoditas.foto.startsWith('http') ? 
+                                  selectedKomoditas.foto : 
+                                  `/image/${selectedKomoditas.foto.replace('/image/', '')}`}
                                 alt="Preview Gambar"
                                 className="max-h-48 rounded border"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/image/placeholder.jpg';
+                                }}
                             />
                         ) : (
                             <p className="col-span-1">Tidak ada gambar</p>

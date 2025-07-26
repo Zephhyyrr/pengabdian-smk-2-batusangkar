@@ -48,7 +48,7 @@ const AgribisnisTanamanPage = () => {
               Program Keahlian
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800">
-              Agribisnis  <span className="text-green-600">Tanaman</span>
+              Agribisnis  <span className="text-green-600">Tanaman pangan holtikultura</span>
             </h1>
             <p className="text-lg text-gray-600 mb-6">
               Membekali siswa dengan keterampilan budidaya tanaman pangan dan hortikultura menggunakan teknologi pertanian modern dan berkelanjutan.

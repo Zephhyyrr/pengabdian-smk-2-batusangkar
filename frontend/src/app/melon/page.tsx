@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Import shared interfaces from TefaPrograms
+// Melon data interfaces
 interface MelonDetails {
   brix: string;
   visual: string[];
@@ -477,7 +477,7 @@ export default function MelonPage() {
           'Tingkat kemanisan tertinggi',
           'Aroma yang sangat menggoda',
           'Daya simpan hingga 20 hari',
-          'Hasil pengembangan terbaru TEFA SMK 2 Batusangkar'
+          'Hasil pengembangan terbaru TEFA SMK NEGERI 2 Batusangkar'
         ]
       },
       harvestTime: '55-60 hari setelah tanam',
@@ -505,7 +505,7 @@ export default function MelonPage() {
               Varietas Melon Premium
             </h1>
             <p className="text-emerald-100 max-w-3xl mx-auto text-lg">
-              Koleksi lengkap varietas melon hidroponik premium dari program teaching factory SMK 2 Batusangkar
+              Koleksi lengkap varietas melon hidroponik premium dari program teaching factory SMK NEGERI 2 Batusangkar
             </p>
             
             <div className="mt-8">

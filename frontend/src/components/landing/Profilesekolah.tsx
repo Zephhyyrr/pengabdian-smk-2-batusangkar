@@ -123,7 +123,7 @@ const ProfileSekolah = () => {
                   <div className="relative h-48 w-48 mb-6 rounded-xl overflow-hidden border-4 border-emerald-100 shadow-xl">
                     <Image 
                       src="/image/kepsek.jpeg" 
-                      alt="Kepala Sekolah SMK 2 Batusangkar"
+                      alt="Kepala Sekolah SMK NEGERI 2 Batusangkar"
                       fill
                       className="object-cover"
                     />

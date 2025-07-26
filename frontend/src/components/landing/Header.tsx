@@ -68,7 +68,7 @@ const Header = () => {
               </div>
             </div>
             <div className={`font-bold text-lg transition-all duration-300 ${isScrolled ? 'text-school-primary' : 'text-white'}`}>
-              <span>SMK 2 </span>
+              <span>SMK NEGERI 2 </span>
               <span className="text-school-accent">Batusangkar</span>
             </div>
           </Link>

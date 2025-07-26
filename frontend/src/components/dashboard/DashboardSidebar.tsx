@@ -110,7 +110,7 @@ export default function DashboardSidebar() {
           <Link
             href="/"
             className="flex items-center mb-6 text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            SMK 2 Batusangkar
+            SMK NEGERI 2 Batusangkar
           </Link>
           <hr />
           <ul className="space-y-2 font-medium">

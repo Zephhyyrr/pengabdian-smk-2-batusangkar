@@ -78,7 +78,7 @@ const HeroSection = () => {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
             >
-              SMK 2 <span className="text-green-400">Batusangkar</span>
+              SMK NEGERI 2 <span className="text-green-400">BATUSANGKAR</span>
             </motion.h1>
             
             <motion.h2
@@ -133,7 +133,7 @@ const HeroSection = () => {
               <div className="absolute inset-4 rounded-full overflow-hidden border-4 border-white/10">
                 <img 
                   src="/image/fotosama.png" 
-                  alt="smk 2 batusangkar" 
+                  alt="SMK NEGERI 2 Batusangkar" 
                   className="w-full h-full object-cover"
                 />
               </div>

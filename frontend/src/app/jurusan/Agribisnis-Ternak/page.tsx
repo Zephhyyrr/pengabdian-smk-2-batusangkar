@@ -48,10 +48,10 @@ const AgribisnisTernakPage = () => {
               Program Keahlian
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800">
-              Agribisnis <span className="text-emerald-600">Ternak</span>
+              Agribisnis <span className="text-emerald-600">Ternak Unggas</span>
             </h1>
             <p className="text-lg text-gray-600 mb-6">
-              Program keahlian yang memfokuskan pada budidaya ternak dengan metode modern untuk memenuhi kebutuhan protein hewani berkualitas.
+              Program keahlian yang memfokuskan pada budidaya ternak Unggas dengan metode modern untuk memenuhi kebutuhan protein hewani berkualitas.
             </p>
           </div>
           <div className="w-full md:w-1/2 relative">
@@ -88,7 +88,7 @@ const AgribisnisTernakPage = () => {
                 Tujuan Program Keahlian
               </h2>
               <p className="text-gray-600 mt-3">
-                Program Agribisnis Ternak memiliki tujuan yang dimonitoring, dievaluasi dan dikendalikan setiap
+                Program Agribisnis Ternak Unggas memiliki tujuan yang dimonitoring, dievaluasi dan dikendalikan setiap
                 kurun waktu 1 tahun, sebagai berikut:
               </p>
             </div>
@@ -134,7 +134,7 @@ const AgribisnisTernakPage = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800">Fokus Program</h2>
             <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
-              Program Agribisnis Ternak berfokus pada pengembangan berbagai aspek produksi dan manajemen peternakan modern.
+              Program Agribisnis Ternak Unggas berfokus pada pengembangan berbagai aspek produksi dan manajemen peternakan modern.
             </p>
           </div>
 
@@ -193,7 +193,7 @@ const AgribisnisTernakPage = () => {
             
             <div className="space-y-4">
               <p className="text-gray-700">
-                Program Keahlian Agribisnis Ternak menerapkan pendekatan pembelajaran yang mengintegrasikan teori dan praktik di lingkungan nyata. Siswa akan belajar melalui:
+                Program Keahlian Agribisnis Ternak Unggas menerapkan pendekatan pembelajaran yang mengintegrasikan teori dan praktik di lingkungan nyata. Siswa akan belajar melalui:
               </p>
               
               <ul className="space-y-3 mt-4">

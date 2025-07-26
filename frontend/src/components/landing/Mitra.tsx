@@ -1,226 +1,190 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
-import Link from 'next/link';
-import { ExternalLink, Handshake, Car, Leaf, Utensils, Users, Building2, Hammer, Bird, Scissors } from 'lucide-react';
+import { Handshake, Building2 } from 'lucide-react';
 
-// Data mitra dikelompokkan berdasarkan bidang keahlian
-const mitraByCategory = [
-	{
-		id: 'teknik-otomotif',
-		category: 'Teknik Otomotif',
-		icon: <Car className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian teknik otomotif dan teknologi transportasi',
-		partners: [
-			{
-				name: 'Toyota Astra Motor',
-				logo: 'https://images.pexels.com/photos/2539462/pexels-photo-2539462.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Honda Prospect Motor',
-				logo: 'https://images.pexels.com/photos/3642618/pexels-photo-3642618.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Bengkel Umum Otomindo',
-				logo: 'https://images.pexels.com/photos/3807329/pexels-photo-3807329.jpeg',
-				url: '#',
-			},
-			{
-				name: 'PT Logistik Ekspres Indonesia',
-				logo: 'https://images.pexels.com/photos/4246120/pexels-photo-4246120.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'teknik-pengelasan',
-		category: 'Teknik Pengelasan dan Fabrikasi Logam',
-		icon: <Hammer className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian pengelasan dan fabrikasi logam',
-		partners: [
-			{
-				name: 'PT Krakatau Steel',
-				logo: 'https://images.pexels.com/photos/2760243/pexels-photo-2760243.jpeg',
-				url: '#',
-			},
-			{
-				name: 'PT Indonesia Steel Tube Works',
-				logo: 'https://images.pexels.com/photos/3822843/pexels-photo-3822843.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Bengkel Las Mitra Jaya',
-				logo: 'https://images.pexels.com/photos/4491881/pexels-photo-4491881.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'agribisnis-tanaman',
-		category: 'Agribisnis Tanaman',
-		icon: <Leaf className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian pertanian dan budidaya tanaman',
-		partners: [
-			{
-				name: 'PT Kebun Bumi Lestari',
-				logo: 'https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg',
-				url: '#',
-			},
-			{
-				name: 'The Farmhill',
-				logo: 'https://images.pexels.com/photos/2333991/pexels-photo-2333991.jpeg',
-				description: 'Solo, Jawa Tengah',
-				url: '#',
-			},
-			{
-				name: 'Dinas Pertanian Kabupaten Tanah Datar',
-				logo: 'https://images.pexels.com/photos/5528995/pexels-photo-5528995.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'agriteknologi-pengolahan',
-		category: 'Agriteknologi Pengolahan Hasil Pertanian',
-		icon: <Utensils className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian pengolahan hasil pertanian dan kuliner',
-		partners: [
-			{
-				name: 'Rumah Makan Manndeh',
-				logo: 'https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Toko Kue Zara',
-				logo: 'https://images.pexels.com/photos/6605302/pexels-photo-6605302.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'agribisnis-ternak',
-		category: 'Agribisnis Ternak',
-		icon: <Bird className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian budidaya ternak dan produk peternakan',
-		partners: [
-			{
-				name: 'PT Charoen Pokphand Indonesia',
-				logo: 'https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg',
-				url: '#',
-			},
-			{
-				name: 'PT Japfa Comfeed Indonesia',
-				logo: 'https://images.pexels.com/photos/1772208/pexels-photo-1772208.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Dinas Peternakan Kabupaten Tanah Datar',
-				logo: 'https://images.pexels.com/photos/7474293/pexels-photo-7474293.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'busana',
-		category: 'Busana',
-		icon: <Scissors className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian desain dan produksi busana',
-		partners: [
-			{
-				name: 'Butik Thamrin City',
-				logo: 'https://images.pexels.com/photos/4295441/pexels-photo-4295441.jpeg',
-				url: '#',
-			},
-			{
-				name: 'PT Matahari Department Store',
-				logo: 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'agribisnis-ternak',
-		category: 'Agribisnis Ternak',
-		icon: <Bird className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian budidaya ternak dan produk peternakan',
-		partners: [
-			{
-				name: 'PT Charoen Pokphand Indonesia',
-				logo: 'https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg',
-				url: '#',
-			},
-			{
-				name: 'PT Japfa Comfeed Indonesia',
-				logo: 'https://images.pexels.com/photos/1772208/pexels-photo-1772208.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Dinas Peternakan Kabupaten Tanah Datar',
-				logo: 'https://images.pexels.com/photos/7474293/pexels-photo-7474293.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'busana',
-		category: 'Busana',
-		icon: <Scissors className="text-school-primary" />,
-		description: 'Mitra dalam pengembangan keahlian desain dan produksi busana',
-		partners: [
-			{
-				name: 'Butik Thamrin City',
-				logo: 'https://images.pexels.com/photos/4295441/pexels-photo-4295441.jpeg',
-				url: '#',
-			},
-			{
-				name: 'PT Matahari Department Store',
-				logo: 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'program-magang',
-		category: 'Program Magang',
-		icon: <Users className="text-school-primary" />,
-		description: 'Program magang yang memberikan pengalaman langsung di dunia industri',
-		partners: [
-			{
-				name: 'Youth Farmers Development Program (YFDP)',
-				logo: 'https://images.pexels.com/photos/2382904/pexels-photo-2382904.jpeg',
-				url: '#',
-			},
-		],
-	},
-	{
-		id: 'institusi-pemerintah',
-		category: 'Institusi Pemerintah',
-		icon: <Building2 className="text-school-primary" />,
-		description: 'Kolaborasi dengan berbagai instansi pemerintah',
-		partners: [
-			{
-				name: 'Pemerintah Provinsi Sumatera Barat',
-				logo: 'https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg',
-				url: '#',
-			},
-			{
-				name: 'Kementerian Pendidikan dan Kebudayaan',
-				logo: 'https://images.pexels.com/photos/4386370/pexels-photo-4386370.jpeg',
-				url: '#',
-			},
-		],
-	},
-];
+// CSS for ticker animation
+const tickerStyles = `
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
-const keyAchievements = [
-	{ value: '20+', label: 'Mitra Industri' },
-	{ value: '12+', label: 'Program Kerja Sama' },
-	{ value: '250+', label: 'Lulusan Terserap' },
+.ticker-container {
+  overflow: hidden;
+  position: relative;
+  background: rgba(16, 185, 129, 0.05);
+  background-image: radial-gradient(rgba(16, 185, 129, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-radius: 1rem;
+  padding: 3rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  width: 100%;
+}
+
+.ticker-wrapper {
+  display: flex;
+  width: fit-content;
+  animation: scroll 60s linear infinite;
+}
+
+.ticker-item {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 2.5rem;
+  position: relative;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  min-width: 14rem;
+  max-width: 18rem;
+  width: auto;
+}
+
+.ticker-item:hover {
+  transform: translateY(-4px);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.ticker-image-container {
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.1);
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.ticker-image-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.ticker-gradient-left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rem;
+  background: linear-gradient(to right, rgba(240, 253, 244, 1), transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.ticker-gradient-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rem;
+  background: linear-gradient(to left, rgba(240, 253, 244, 1), transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .ticker-wrapper {
+    animation: scroll 45s linear infinite;
+  }
+  
+  .ticker-image-container {
+    width: 8rem;
+    height: 8rem;
+  }
+  
+  .ticker-item {
+    margin: 0 1.5rem;
+    min-width: 12rem;
+    max-width: 16rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ticker-wrapper {
+    animation: scroll 35s linear infinite;
+  }
+  
+  .ticker-image-container {
+    width: 7rem;
+    height: 7rem;
+  }
+  
+  .ticker-item {
+    margin: 0 1rem;
+    min-width: 9rem;
+    max-width: 12rem;
+  }
+}
+`;
+
+// Data mitra
+const mitraList = [
+	{
+		name: 'PT Kebun Bumi Lestari (KBL)',
+		logo: '/image/mitra/thefamili.jpeg',
+		url: '#',
+	},
+	{
+		name: 'Adhiguna Samasta Harsa (ASH)',
+		logo: '/image/mitra/adhiguna.png',
+		url: '#',
+	},
+	{
+		name: 'Greenhouse Solution Indonesia (GSI)',
+		logo: '/image/mitra/gsiLogo.jpeg',
+		url: '#',
+	},
+	{
+		name: 'PT MEDION',
+		logo: '/image/mitra/medion.png',
+		url: '#',
+	},
+	{
+		name: 'KARYA BERSAMA',
+		logo: '/image/placeholder.jpg',
+		url: '#',
+	},
+	{
+		name: 'DINAS PERTANIAN',
+		logo: '/image/placeholder.jpg',
+		url: '#',
+	},
+	{
+		name: 'POLITANI PAYAKUMBUH',
+		logo: '/image/mitra/poltanipyk.jpg',
+		url: '#',
+	},
+	{
+		name: 'Politeknik Negeri Padang (PNP)',
+		logo: '/image/mitra/pnp.png',
+		url: '#',
+	},
+	{
+		name: 'Pemerintah Kabupaten Tanah Datar',
+		logo: '/image/mitra/pemkabtd.png',
+		url: '#',
+	},
+	{
+		name: 'Pemerintah Provinsi Sumatera Barat',
+		logo: '/image/mitra/pemprovsumbar.png',
+		url: '#',
+	},
+	{
+		name: 'SMK MOENADI Ungaran',
+		logo: '/image/mitra/smknhmoenadiunggaran.png',
+		url: '#',
+	},
 ];
 
 const Mitras = () => {
@@ -229,43 +193,11 @@ const Mitras = () => {
 		triggerOnce: true,
 	});
 	
-	// State for active category
-	const [activeCategory, setActiveCategory] = useState(mitraByCategory[0].id);
 	// State to handle image loading errors
 	const [imageError, setImageError] = useState<Record<string, boolean>>({});
-
-	const containerVariants = {
-		hidden: { opacity: 0 },
-		visible: {
-			opacity: 1,
-			transition: {
-				staggerChildren: 0.1,
-			},
-		},
-	};
-
-	const itemVariants = {
-		hidden: { opacity: 0, scale: 0.9, y: 20 },
-		visible: {
-			opacity: 1,
-			scale: 1,
-			y: 0,
-			transition: { duration: 0.4 },
-		},
-	};
 	
-	const tabVariants = {
-		inactive: { borderColor: 'transparent', color: '#4B5563' },
-		active: { 
-			borderColor: '#015E23', 
-			color: '#015E23',
-			scale: 1.05,
-			transition: { duration: 0.3 }
-		},
-	};
-	
-	// Get the current active category data
-	const activeCategoryData = mitraByCategory.find(cat => cat.id === activeCategory) || mitraByCategory[0];
+	// State to control animation pause on hover
+	const [isHovered, setIsHovered] = useState(false);
 
 	return (
 		<section
@@ -273,12 +205,15 @@ const Mitras = () => {
 			className="py-24 bg-white relative overflow-hidden"
 			ref={ref}
 		>
+			{/* Inject CSS */}
+			<style jsx global>{tickerStyles}</style>
+			
 			{/* Background decorative elements */}
 			<div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-gray-50 to-transparent" />
 			<div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50/50 to-transparent" />
 
-			<div className="absolute -bottom-16 -right-16 w-64 h-64 bg-school-primary/5 rounded-full blur-3xl" />
-			<div className="absolute -top-16 -left-16 w-64 h-64 bg-school-accent/5 rounded-full blur-3xl" />
+			<div className="absolute -bottom-16 -right-16 w-64 h-64 bg-emerald-800/5 rounded-full blur-3xl" />
+			<div className="absolute -top-16 -left-16 w-64 h-64 bg-emerald-600/5 rounded-full blur-3xl" />
 
 			{/* Pattern overlay */}
 			<div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -298,12 +233,12 @@ const Mitras = () => {
 					transition={{ duration: 0.6 }}
 					className="text-center mb-16"
 				>
-					<div className="inline-flex items-center justify-center gap-3 bg-school-primary/10 px-4 py-1.5 rounded-full text-school-primary font-medium text-sm mb-4">
+					<div className="inline-flex items-center justify-center gap-3 bg-emerald-800/10 px-4 py-1.5 rounded-full text-emerald-800 font-medium text-sm mb-4">
 						<Handshake size={18} />
 						<span>Kolaborasi Industri</span>
 					</div>
 
-					<h2 className="text-3xl md:text-4xl font-bold text-school-primary mb-4">
+					<h2 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-4">
 						Mitra Kerja Sama
 					</h2>
 					<p className="text-gray-600 max-w-3xl mx-auto">
@@ -313,146 +248,120 @@ const Mitras = () => {
 					</p>
 				</motion.div>
 
-				{/* Key achievements counter */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-16">
-					{keyAchievements.map((item, index) => (
-						<motion.div
-							key={index}
-							initial={{ opacity: 0, scale: 0.9 }}
-							animate={{ opacity: inView ? 1 : 0, scale: inView ? 1 : 0.9 }}
-							transition={{ duration: 0.4, delay: index * 0.1 }}
-							className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-sm text-center"
-						>
-							<motion.div
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
-								transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-							>
-								<p className="text-4xl font-bold text-school-primary mb-2">
-									{item.value}
-								</p>
-								<p className="text-gray-600">{item.label}</p>
-							</motion.div>
-						</motion.div>
-					))}
-				</div>
-				
-				{/* Category Tabs */}
-				<div className="mb-12">
-					<div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-8 overflow-x-auto py-2 px-2 md:px-0">
-						{mitraByCategory.map((category) => (
-							<motion.button
-								key={category.id}
-								onClick={() => setActiveCategory(category.id)}
-								variants={tabVariants}
-								animate={activeCategory === category.id ? 'active' : 'inactive'}
-								whileHover={{ scale: 1.05 }}
-								className={`flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm md:text-base font-medium 
-                  transition-all duration-300 border-2 bg-white shadow-sm hover:shadow-md
-                  ${activeCategory === category.id ? 'border-school-primary text-school-primary bg-school-primary/5' : 'border-transparent text-gray-600'}`}
-							>
-								<span className="hidden sm:block">{category.icon}</span>
-								<span className="whitespace-nowrap">{category.category}</span>
-							</motion.button>
-						))}
-					</div>
-					
-					{/* Category description */}
-					<motion.div 
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ duration: 0.5 }}
-						className="text-center mb-8"
+				{/* Ticker Tape Animation for Partners */}
+				<div className="mb-20">
+					{/* Create a container with overflow hidden */}
+					<div 
+						className="ticker-container"
+						onMouseEnter={() => setIsHovered(true)}
+						onMouseLeave={() => setIsHovered(false)}
 					>
-						<p className="text-gray-600 max-w-2xl mx-auto">
-							{activeCategoryData.description}
-						</p>
-					</motion.div>
-				</div>
+						{/* Add gradient masks for smooth fade effect */}
+						<div className="ticker-gradient-left"></div>
+						<div className="ticker-gradient-right"></div>
 
-				{/* Partners Grid with Animation */}
-				<AnimatePresence mode="wait">
-					<motion.div
-						key={activeCategory}
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						transition={{ duration: 0.5 }}
-					>
-						<motion.div
-							variants={containerVariants}
-							initial="hidden"
-							animate={inView ? 'visible' : 'hidden'}
-							className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8 justify-items-center"
+						{/* The ticker container */}
+						<div 
+							className="ticker-wrapper"
+							style={{
+								animationPlayState: isHovered ? 'paused' : 'running'
+							}}
 						>
-							{activeCategoryData.partners.map((partner, index) => (
-								<motion.div
-									key={index}
-									variants={itemVariants}
-									whileHover={{ y: -5, scale: 1.05 }}
-									className="flex flex-col items-center justify-center group w-full"
+							{/* First set of items */}
+							{mitraList.map((mitra, index) => (
+								<div 
+									key={`ticker-item-1-${index}`} 
+									className="ticker-item"
 								>
-									<Link href={partner.url} className="relative w-full">
-										<div className="aspect-square relative bg-white rounded-2xl p-2 shadow-lg mb-4 overflow-hidden group-hover:shadow-xl transition-all duration-300 w-full max-w-[140px] mx-auto">
-											<div className="absolute inset-0 bg-gradient-to-br from-school-primary/5 to-school-accent/5 group-hover:opacity-0 transition-opacity duration-300" />
-											<div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-												<ExternalLink className="text-white h-6 w-6" />
-											</div>
+									<div className="ticker-image-container">
+										{!imageError[mitra.name] ? (
 											<Image
-												src={partner.logo}
-												alt={partner.name}
+												src={mitra.logo}
+												alt={mitra.name}
 												fill
-												className="object-cover p-1 rounded-xl"
-												onError={() => setImageError(prev => ({ ...prev, [partner.name]: true }))}
+												className="object-contain p-2"
+												onError={() => setImageError(prev => ({ 
+													...prev, 
+													[mitra.name]: true 
+												}))}
 											/>
-											{imageError[partner.name] && (
-												<div className="absolute inset-0 flex items-center justify-center bg-white rounded-xl">
-													<span className="text-gray-400 text-sm">Logo tidak tersedia</span>
+										) : (
+											<div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg">
+												<div className="text-center p-2">
+													<Building2 className="mx-auto h-12 w-12 text-emerald-600/70 mb-2" />
+													<div className="bg-emerald-600/10 px-3 py-1.5 rounded-full">
+														<span className="text-emerald-700 text-xl font-bold">
+															{mitra.name.split(' ').map(word => word.charAt(0)).join('')}
+														</span>
+													</div>
 												</div>
-											)}
-										</div>
-									</Link>
-									<p className="text-center text-sm text-gray-700 font-medium max-w-[140px] transition-colors group-hover:text-school-primary">
-										{partner.name}
-									</p>
-									{partner.description && (
-										<p className="text-center text-xs text-gray-500 mt-1">
-											{partner.description}
-										</p>
-									)}
-								</motion.div>
+											</div>
+										)}
+									</div>
+									
+									<span className="text-base font-medium text-gray-800 text-center px-2 whitespace-normal" style={{ width: 'auto', minWidth: '10rem', maxWidth: '14rem' }}>
+										{mitra.name}
+									</span>
+								</div>
 							))}
-						</motion.div>
-					</motion.div>
-				</AnimatePresence>
+							
+							{/* Duplicated set for seamless looping */}
+							{mitraList.map((mitra, index) => (
+								<div 
+									key={`ticker-item-2-${index}`} 
+									className="ticker-item"
+								>
+									<div className="ticker-image-container">
+										{!imageError[mitra.name] ? (
+											<Image
+												src={mitra.logo}
+												alt={mitra.name}
+												fill
+												className="object-contain p-2"
+												onError={() => setImageError(prev => ({ 
+													...prev, 
+													[mitra.name]: true 
+												}))}
+											/>
+										) : (
+											<div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg">
+												<div className="text-center p-2">
+													<Building2 className="mx-auto h-12 w-12 text-emerald-600/70 mb-2" />
+													<div className="bg-emerald-600/10 px-3 py-1.5 rounded-full">
+														<span className="text-emerald-700 text-xl font-bold">
+															{mitra.name.split(' ').map(word => word.charAt(0)).join('')}
+														</span>
+													</div>
+												</div>
+											</div>
+										)}
+									</div>
+									
+									<span className="text-base font-medium text-gray-800 text-center px-2 whitespace-normal" style={{ width: 'auto', minWidth: '10rem', maxWidth: '14rem' }}>
+										{mitra.name}
+									</span>
+								</div>
+							))}
+						</div>
+						
+						{/* Hover instruction */}
+						<div className="absolute bottom-2 right-4 text-xs text-emerald-700/80 italic bg-white/60 px-2 py-1 rounded-md backdrop-blur-sm">
+							*Arahkan kursor untuk menghentikan animasi
+						</div>
+					</div>
+				</div>
 
-				{/* Call to action */}
+				{/* Description */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
 					transition={{ duration: 0.6, delay: 0.5 }}
-					className="mt-16 text-center"
+					className="max-w-2xl mx-auto text-center"
 				>
-					<Link
-						href="#"
-						className="inline-flex items-center px-6 py-3 bg-school-primary text-white rounded-full shadow-lg hover:bg-school-primary/90 transition-colors"
-					>
-						Jadi Mitra Kami
-						<svg
-							className="ml-2 w-5 h-5"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2"
-								d="M14 5l7 7m0 0l-7 7m7-7H3"
-							></path>
-						</svg>
-					</Link>
+					<p className="text-gray-600 text-sm">
+						Kemitraan kami membangun jembatan antara pendidikan dan industri, 
+						memberikan siswa kami pengalaman langsung dan relevan dengan dunia kerja.
+					</p>
 				</motion.div>
 			</div>
 		</section>

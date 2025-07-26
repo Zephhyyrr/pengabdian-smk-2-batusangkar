@@ -7,8 +7,8 @@ import { Leaf } from 'lucide-react';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Program Keahlian - SMK 2 Batusangkar',
-  description: 'Program keahlian unggulan di SMK 2 Batusangkar',
+  title: 'Program Keahlian - SMK NEGERI 2 Batusangkar',
+  description: 'Program keahlian unggulan di SMK NEGERI 2 Batusangkar',
 };
 
 export default function JurusanLayout({
