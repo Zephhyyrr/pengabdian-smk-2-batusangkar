@@ -14,8 +14,7 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'res.cloudinary.com',
             },
-        ],
-        domains: ['drive.google.com', 'res.cloudinary.com']
+        ]
     },
 };
 

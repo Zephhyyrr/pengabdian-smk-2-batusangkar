@@ -282,7 +282,7 @@ const KomoditasPage = () => {
 
                       {item.foto ? (
                         <Image
-                          src={item.foto.startsWith('http') ? item.foto : `/image/${item.foto}`}
+                          src={item.foto.startsWith('http') ? item.foto : item.foto}
                           alt={item.nama}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -362,7 +362,7 @@ const KomoditasPage = () => {
                   selectedKomoditas.foto
                     ? (selectedKomoditas.foto.startsWith('http')
                       ? selectedKomoditas.foto
-                      : `/image/${selectedKomoditas.foto}`)
+                      : selectedKomoditas.foto)
                     : '/image/placeholder.jpg'
                 }
                 alt={selectedKomoditas.nama}
