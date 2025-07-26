@@ -41,10 +41,10 @@ const KomoditasPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // State for modal
   const [selectedKomoditas, setSelectedKomoditas] = useState<Komoditas | null>(null);
-  
+
   // Intersection observer for animations
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -56,16 +56,16 @@ const KomoditasPage = () => {
     const fetchKomoditas = async () => {
       try {
         setIsLoading(true);
-        
+
         // For the public page, we'll use the demo data as our main data source
         // In a production environment, you would create a public endpoint
-        console.log('Using demo data for public komoditas page');
-        setKomoditas(demoData);
-        setFilteredKomoditas(demoData);
-        
+        // console.log('Using demo data for public komoditas page');
+        // setKomoditas(demoData);
+        // setFilteredKomoditas(demoData);
+
         // Optionally attempt to fetch from API for authenticated users
         // but this would require a login system
-        /*
+
         try {
           const token = localStorage.getItem('authToken');
           if (token) {
@@ -74,7 +74,7 @@ const KomoditasPage = () => {
               method: 'GET',
               token: token
             });
-            
+
             // Process data to match our interface
             const processedData = Array.isArray(response) ? response.map(item => ({
               id: String(item.id), // Convert number to string
@@ -90,7 +90,7 @@ const KomoditasPage = () => {
                 `Stok: ${item.jumlah} ${item.satuan}`
               ]
             })) : [];
-            
+
             console.log('Fetched komoditas data:', processedData);
             setKomoditas(processedData);
             setFilteredKomoditas(processedData);
@@ -98,11 +98,11 @@ const KomoditasPage = () => {
         } catch (apiError) {
           console.warn('API fetch failed', apiError);
         }
-        */
+
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch komoditas');
         console.error('Error in komoditas component:', err);
-        
+
         // Fallback to empty arrays if everything fails
         setKomoditas([]);
         setFilteredKomoditas([]);
@@ -118,16 +118,16 @@ const KomoditasPage = () => {
   useEffect(() => {
     if (komoditas) {
       let filtered = [...komoditas];
-      
+
       // Apply search filter
       if (searchQuery.trim() !== '') {
-        filtered = filtered.filter(item => 
+        filtered = filtered.filter(item =>
           item.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.deskripsi?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.jenis?.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
-      
+
       setFilteredKomoditas(filtered);
     }
   }, [searchQuery, komoditas]);
@@ -137,7 +137,7 @@ const KomoditasPage = () => {
     setSelectedKomoditas(item);
     document.body.classList.add('overflow-hidden');
   };
-  
+
   const closeKomoditasDetail = () => {
     setSelectedKomoditas(null);
     document.body.classList.remove('overflow-hidden');
@@ -147,7 +147,7 @@ const KomoditasPage = () => {
   const clearSearch = () => {
     setSearchQuery('');
   };
-  
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -175,7 +175,7 @@ const KomoditasPage = () => {
         {/* Decorative elements */}
         <div className="absolute top-10 left-10 w-80 h-80 bg-emerald-700/50 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-0 right-10 w-60 h-60 bg-emerald-600/40 rounded-full blur-[80px]"></div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex items-center mb-6">
             <Link href="/landing" className="flex items-center text-emerald-100 hover:text-white transition-colors">
@@ -183,7 +183,7 @@ const KomoditasPage = () => {
               <span>Kembali ke Beranda</span>
             </Link>
           </div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -197,7 +197,7 @@ const KomoditasPage = () => {
               Jelajahi berbagai komoditas hasil produksi Teaching Factory SMK Negeri 2 Batusangkar
               dengan kualitas premium dan teknologi modern.
             </p>
-            
+
             {/* Search bar */}
             <div className="flex">
               <div className="relative w-full max-w-xl mx-auto">
@@ -212,8 +212,8 @@ const KomoditasPage = () => {
                   className="pl-10 pr-10 py-4 w-full bg-white/10 border border-emerald-600 rounded-lg text-white placeholder-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent shadow-md"
                 />
                 {searchQuery && (
-                  <button 
-                    onClick={clearSearch} 
+                  <button
+                    onClick={clearSearch}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     aria-label="Clear search"
                   >
@@ -225,7 +225,7 @@ const KomoditasPage = () => {
           </motion.div>
         </div>
       </div>
-      
+
       {/* Catalog grid section */}
       <div className="py-16" ref={ref}>
         <div className="container mx-auto px-4">
@@ -264,27 +264,27 @@ const KomoditasPage = () => {
                   {searchQuery ? ` untuk pencarian "${searchQuery}"` : ''}
                 </h2>
               </div>
-              
-              <motion.div 
+
+              <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
               >
                 {filteredKomoditas.map((item, index) => (
-                  <motion.div 
-                    key={index} 
+                  <motion.div
+                    key={index}
                     variants={itemVariants}
                     className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100"
                   >
                     <div className="h-64 relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
+
                       {item.foto ? (
-                        <Image 
-                          src={item.foto.startsWith('http') ? item.foto : `/image/${item.foto}`} 
+                        <Image
+                          src={item.foto.startsWith('http') ? item.foto : `/image/${item.foto}`}
                           alt={item.nama}
-                          fill 
+                          fill
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -299,20 +299,20 @@ const KomoditasPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       <div className="absolute top-4 left-4 z-10">
                         <span className="bg-white/80 backdrop-blur-sm text-emerald-800 text-xs font-semibold py-1 px-3 rounded-full">
                           {item.jenis?.name || 'Komoditas TEFA'}
                         </span>
                       </div>
-                      
+
                       {/* Quantity badge */}
                       <div className="absolute bottom-4 right-4 z-10">
                         <span className="bg-emerald-600/90 backdrop-blur-sm text-white text-xs font-semibold py-1 px-3 rounded-full">
                           {item.jumlah} {item.satuan}
                         </span>
                       </div>
-                      
+
                       {/* View details button on hover */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
                         <button
@@ -330,8 +330,8 @@ const KomoditasPage = () => {
                       <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-3">
                         {item.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}
                       </p>
-                      
-                      <button 
+
+                      <button
                         onClick={() => openKomoditasDetail(item)}
                         className="text-emerald-600 font-medium text-sm hover:text-emerald-800 transition-colors flex items-center"
                       >
@@ -348,25 +348,25 @@ const KomoditasPage = () => {
           )}
         </div>
       </div>
-      
+
       {/* DETAIL MODAL */}
       {selectedKomoditas && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div 
+          <div
             className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative h-80 sm:h-96">
-              <Image 
+              <Image
                 src={
-                  selectedKomoditas.foto 
-                    ? (selectedKomoditas.foto.startsWith('http') 
-                        ? selectedKomoditas.foto 
-                        : `/image/${selectedKomoditas.foto}`)
+                  selectedKomoditas.foto
+                    ? (selectedKomoditas.foto.startsWith('http')
+                      ? selectedKomoditas.foto
+                      : `/image/${selectedKomoditas.foto}`)
                     : '/image/placeholder.jpg'
-                } 
+                }
                 alt={selectedKomoditas.nama}
-                fill 
+                fill
                 className="object-cover"
                 priority
                 onError={(e) => {
@@ -375,9 +375,9 @@ const KomoditasPage = () => {
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/10"></div>
-              
+
               <div className="absolute top-4 right-4">
-                <button 
+                <button
                   onClick={closeKomoditasDetail}
                   className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-full transition-colors"
                 >
@@ -386,7 +386,7 @@ const KomoditasPage = () => {
                   </svg>
                 </button>
               </div>
-              
+
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1 rounded-full inline-block mb-3">
                   {selectedKomoditas.jenis?.name || "Komoditas TEFA"}
@@ -394,13 +394,13 @@ const KomoditasPage = () => {
                 <h2 className="text-3xl sm:text-4xl font-bold text-white">{selectedKomoditas.nama}</h2>
               </div>
             </div>
-            
+
             <div className="p-6 sm:p-8">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-emerald-800 mb-3">Deskripsi</h3>
                 <p className="text-gray-700">{selectedKomoditas.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}</p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <div className="mb-6">
@@ -417,16 +417,16 @@ const KomoditasPage = () => {
                       <div className="flex justify-between py-2">
                         <span className="text-gray-600">Terakhir Diperbarui</span>
                         <span className="font-medium text-emerald-800">
-                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
+                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
                           })}
                         </span>
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Additional details if available */}
                   {selectedKomoditas.details?.brix && (
                     <div className="mb-6">
@@ -436,7 +436,7 @@ const KomoditasPage = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedKomoditas.details?.bentuk && (
                     <div className="mb-6">
                       <h3 className="text-xl font-semibold text-emerald-800 mb-3">Bentuk</h3>
@@ -446,7 +446,7 @@ const KomoditasPage = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div>
                   {selectedKomoditas.details?.visual && selectedKomoditas.details.visual.length > 0 && (
                     <div className="mb-6">
@@ -465,7 +465,7 @@ const KomoditasPage = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedKomoditas.details?.keunggulan && selectedKomoditas.details.keunggulan.length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-xl font-semibold text-emerald-800 mb-3">Keunggulan</h3>
@@ -485,7 +485,7 @@ const KomoditasPage = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
@@ -493,7 +493,7 @@ const KomoditasPage = () => {
                     <p className="text-emerald-800 font-medium">SMK 2 NEGERI BATUSANGKAR</p>
                   </div>
                   <div className="flex space-x-3">
-                    <button 
+                    <button
                       onClick={closeKomoditasDetail}
                       className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
                     >

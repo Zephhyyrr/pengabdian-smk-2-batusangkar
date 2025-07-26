@@ -58,16 +58,16 @@ const TefaHybrid = () => {
   const [komoditas, setKomoditas] = useState<Komoditas[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // State for slider
   const [current, setCurrent] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [featuredItems, setFeaturedItems] = useState<Komoditas[]>([]);
-  
+
   // State for grid view
   const [showAll, setShowAll] = useState(false);
   const [selectedKomoditas, setSelectedKomoditas] = useState<Komoditas | null>(null);
-  
+
   // Intersection observer for animations
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -79,23 +79,23 @@ const TefaHybrid = () => {
     const fetchKomoditas = async () => {
       try {
         setIsLoading(true);
-        
-        // For the public-facing component, use demo data as the main source
-        console.log('Using demo data for TefaHybrid component');
-        
-        // Use shared demo data from demoData.ts
-        setKomoditas(demoData);
-        
-        // Get featured items for slider (first 4 items)
-        const featured = demoData
-          .filter((item: Komoditas, index: number) => index < 4)
-          .map((item: Komoditas) => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
-          
-        setFeaturedItems(featured);
-        
+
+        // // For the public-facing component, use demo data as the main source
+        // console.log('Using demo data for TefaHybrid component');
+
+        // // Use shared demo data from demoData.ts
+        // setKomoditas(demoData);
+
+        // // Get featured items for slider (first 4 items)
+        // const featured = demoData
+        //   .filter((item: Komoditas, index: number) => index < 4)
+        //   .map((item: Komoditas) => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
+
+        // setFeaturedItems(featured);
+
         // Optionally attempt to fetch from API for authenticated users
         // but this would require a login system
-        /*
+
         try {
           const token = localStorage.getItem('authToken');
           if (token) {
@@ -104,9 +104,9 @@ const TefaHybrid = () => {
               method: 'GET',
               token: token
             });
-            
+
             console.log('API response for TefaHybrid:', response);
-            
+
             if (response && Array.isArray(response)) {
               // Process data to match our interface
               const processedData = response.map(item => ({
@@ -123,28 +123,28 @@ const TefaHybrid = () => {
                   `Stok: ${item.jumlah} ${item.satuan}`
                 ]
               }));
-              
+
               console.log('Processed API data for TefaHybrid:', processedData);
-              
+
               // Set all items for grid view
               setKomoditas(processedData);
-              
+
               // Get featured items for slider (first 4)
               const featured = processedData
                 .slice(0, Math.min(4, processedData.length)) // Take first 4 items or less if not enough
                 .map(item => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
-                
+
               setFeaturedItems(featured);
             }
           }
         } catch (apiError) {
           console.error('API error:', apiError);
         }
-        */
+
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch komoditas');
         console.error('Error in TefaHybrid component:', err);
-        
+
         // Fallback to empty arrays if everything fails
         setKomoditas([]);
         setFeaturedItems([]);
@@ -183,19 +183,19 @@ const TefaHybrid = () => {
     setSelectedKomoditas(item);
     document.body.classList.add('overflow-hidden');
   };
-  
+
   const closeKomoditasDetail = () => {
     setSelectedKomoditas(null);
     document.body.classList.remove('overflow-hidden');
   };
-  
+
   // Grid view display control
   const displayedItems = showAll ? komoditas : komoditas.slice(0, 6);
-  
+
   const handleToggleShowAll = () => {
     setShowAll(!showAll);
   };
-  
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -336,11 +336,10 @@ const TefaHybrid = () => {
                           setIsAutoPlaying(false);
                           setCurrent(index);
                         }}
-                        className={`h-2.5 rounded-full transition-all duration-300 ${
-                          current === index
+                        className={`h-2.5 rounded-full transition-all duration-300 ${current === index
                             ? 'bg-white w-8'
                             : 'bg-white/40 w-2.5 hover:bg-white/60'
-                        }`}
+                          }`}
                         aria-label={`Go to slide ${index + 1}`}
                       />
                     ))}
@@ -499,9 +498,9 @@ const TefaHybrid = () => {
                           Lihat Detail
                           <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
                         </button>
-                        
-                        <Link 
-                          href="/komoditas" 
+
+                        <Link
+                          href="/komoditas"
                           className="inline-flex items-center px-7 py-4 bg-white/20 hover:bg-white/30 transition-all text-white backdrop-blur-sm rounded-full font-medium group border border-white/30"
                         >
                           Selengkapnya
@@ -535,17 +534,17 @@ const TefaHybrid = () => {
       {/* DETAIL MODAL */}
       {selectedKomoditas && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div 
+          <div
             className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative h-80 sm:h-96">
-              <Image 
-                src={selectedKomoditas.foto?.startsWith('http') ? 
-                  selectedKomoditas.foto : 
-                  `/image/${selectedKomoditas.foto.replace('/image/', '')}`} 
+              <Image
+                src={selectedKomoditas.foto?.startsWith('http') ?
+                  selectedKomoditas.foto :
+                  `/image/${selectedKomoditas.foto.replace('/image/', '')}`}
                 alt={selectedKomoditas.nama}
-                fill 
+                fill
                 className="object-cover"
                 priority
                 onError={(e) => {
@@ -554,9 +553,9 @@ const TefaHybrid = () => {
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/10"></div>
-              
+
               <div className="absolute top-4 right-4">
-                <button 
+                <button
                   onClick={closeKomoditasDetail}
                   className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-full transition-colors"
                 >
@@ -565,7 +564,7 @@ const TefaHybrid = () => {
                   </svg>
                 </button>
               </div>
-              
+
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1 rounded-full inline-block mb-3">
                   {selectedKomoditas.jenis?.name || "Komoditas TEFA"}
@@ -573,13 +572,13 @@ const TefaHybrid = () => {
                 <h2 className="text-3xl sm:text-4xl font-bold text-white">{selectedKomoditas.nama}</h2>
               </div>
             </div>
-            
+
             <div className="p-6 sm:p-8">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-emerald-800 mb-3">Deskripsi</h3>
                 <p className="text-gray-700">{selectedKomoditas.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}</p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <div className="mb-6">
@@ -596,16 +595,16 @@ const TefaHybrid = () => {
                       <div className="flex justify-between py-2">
                         <span className="text-gray-600">Terakhir Diperbarui</span>
                         <span className="font-medium text-emerald-800">
-                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
+                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
                           })}
                         </span>
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Additional details if available */}
                   {selectedKomoditas.details?.brix && (
                     <div className="mb-6">
@@ -615,7 +614,7 @@ const TefaHybrid = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedKomoditas.details?.bentuk && (
                     <div className="mb-6">
                       <h3 className="text-xl font-semibold text-emerald-800 mb-3">Bentuk</h3>
@@ -625,7 +624,7 @@ const TefaHybrid = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div>
                   {selectedKomoditas.details?.visual && selectedKomoditas.details.visual.length > 0 && (
                     <div className="mb-6">
@@ -644,7 +643,7 @@ const TefaHybrid = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedKomoditas.details?.keunggulan && selectedKomoditas.details.keunggulan.length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-xl font-semibold text-emerald-800 mb-3">Keunggulan</h3>
@@ -664,7 +663,7 @@ const TefaHybrid = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
@@ -672,7 +671,7 @@ const TefaHybrid = () => {
                     <p className="text-emerald-800 font-medium">SMK 2 NEGERI BATUSANGKAR</p>
                   </div>
                   <div className="flex space-x-3">
-                    <button 
+                    <button
                       onClick={closeKomoditasDetail}
                       className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
                     >

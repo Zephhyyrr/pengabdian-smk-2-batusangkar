@@ -18,7 +18,7 @@ apiRouter.use("/test", TestController)
 apiRouter.use("/users", jwtCheckToken, isRole(["admin"]), userRoute)
 apiRouter.use("/auth", authRouter)
 apiRouter.use("/jenis", jwtCheckToken, isRole(["admin", "guru"]), jenisRouter)
-apiRouter.use("/komoditas", jwtCheckToken, isRole(["admin", "guru"]), komoditasRouter)
+apiRouter.use("/komoditas", komoditasRouter)
 apiRouter.use("/barang", jwtCheckToken, isRole(["admin", "guru"]), barangRouter)
 apiRouter.use("/transaksi-barang", jwtCheckToken, isRole(["admin", "guru"]), transaksiBarangRouter)
 apiRouter.use("/produksi", jwtCheckToken, isRole(["admin", "guru", "siswa"]), produksiRouter);
