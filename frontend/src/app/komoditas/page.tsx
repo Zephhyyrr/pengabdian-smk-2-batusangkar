@@ -19,20 +19,38 @@ interface KomoditasDetails {
 
 interface Komoditas {
   id: string;
+  id_jenis?: number;
   nama: string;
   deskripsi: string;
   foto: string;
   features?: string[];
   jumlah: number;
   satuan: string;
-  jenis?: { name: string };
+  jenis?: { 
+    name: string; 
+  };
   updated_at: string;
-  details?: KomoditasDetails;
-  isNew?: boolean;
 }
 
-// Demo data for development
-import { demoData } from '../../components/landing/demoData';
+// Interface for API response - exactly matching the database schema and controller response
+interface ApiKomoditas {
+  id: number;
+  id_jenis: number;
+  nama: string;
+  deskripsi: string;
+  foto: string;
+  satuan: string;
+  jumlah: number;
+  jenis: {
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Define sorting types
+type SortOption = 'name-asc' | 'name-desc' | 'stock-asc' | 'stock-desc' | 'date-newest' | 'date-oldest';
+
 
 const KomoditasPage = () => {
   // State for API data
@@ -41,6 +59,10 @@ const KomoditasPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('name-asc');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [stockFilter, setStockFilter] = useState<'all' | 'available'>('all');
+  const [categories, setCategories] = useState<string[]>([]);
   
   // State for modal
   const [selectedKomoditas, setSelectedKomoditas] = useState<Komoditas | null>(null);
@@ -57,48 +79,40 @@ const KomoditasPage = () => {
       try {
         setIsLoading(true);
         
-        // For the public page, we'll use the demo data as our main data source
-        // In a production environment, you would create a public endpoint
-        console.log('Using demo data for public komoditas page');
-        setKomoditas(demoData);
-        setFilteredKomoditas(demoData);
+        console.log('Fetching komoditas data from public endpoint for catalog page');
         
-        // Optionally attempt to fetch from API for authenticated users
-        // but this would require a login system
-        /*
         try {
-          const token = localStorage.getItem('authToken');
-          if (token) {
-            const response = await apiRequest({
-              endpoint: '/komoditas',
-              method: 'GET',
-              token: token
-            });
-            
-            // Process data to match our interface
-            const processedData = Array.isArray(response) ? response.map(item => ({
-              id: String(item.id), // Convert number to string
-              nama: item.nama,
-              deskripsi: item.deskripsi,
-              foto: item.foto?.startsWith('http') ? item.foto : `/image/${item.foto}`, // Handle both Cloudinary and local paths
-              jumlah: item.jumlah,
-              satuan: item.satuan,
-              jenis: { name: item.jenis?.name || 'Komoditas Premium' }, // Ensure consistent jenis structure
-              updated_at: item.updatedAt || new Date().toISOString(), // Map updatedAt to updated_at
-              features: [
-                item.jenis?.name || 'Komoditas Premium',
-                `Stok: ${item.jumlah} ${item.satuan}`
-              ]
-            })) : [];
-            
-            console.log('Fetched komoditas data:', processedData);
+          // Use the public endpoint instead of the protected one
+          const response = await apiRequest({
+            endpoint: '/public/komoditas',
+            method: 'GET'
+          });
+          
+          if (response && Array.isArray(response)) {
+            // Process data to match our interface with exactly what's available in the database
+            const processedData = response.map((item: any) => ({
+              id: String(item.id),
+              id_jenis: item.id_jenis,
+              nama: item.nama || 'Untitled Komoditas',
+              deskripsi: item.deskripsi || 'Deskripsi tidak tersedia',
+              foto: item.foto?.startsWith('http') 
+                ? item.foto 
+                : `/image/${item.foto?.replace('/image/', '') || 'placeholder.jpg'}`,
+              jumlah: item.jumlah || 0,
+              satuan: item.satuan || 'unit',
+              jenis: { name: item.jenis?.name || 'Umum' },
+              updated_at: item.updatedAt || new Date().toISOString()
+            }));
             setKomoditas(processedData);
             setFilteredKomoditas(processedData);
+            return; // Exit early if successful
           }
         } catch (apiError) {
-          console.warn('API fetch failed', apiError);
+          console.warn('API request failed:', apiError);
+          // Continue to fallback
         }
-        */
+      
+        
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch komoditas');
         console.error('Error in komoditas component:', err);
@@ -128,9 +142,51 @@ const KomoditasPage = () => {
         );
       }
       
+      // Apply category filter
+      if (categoryFilter !== 'all') {
+        filtered = filtered.filter(item => item.jenis?.name === categoryFilter);
+      }
+      
+      // Apply stock availability filter
+      if (stockFilter === 'available') {
+        filtered = filtered.filter(item => item.jumlah > 0);
+      }
+      
       setFilteredKomoditas(filtered);
     }
-  }, [searchQuery, komoditas]);
+  }, [searchQuery, komoditas, categoryFilter, stockFilter]);
+
+  // Sort komoditas based on selected option
+  useEffect(() => {
+    if (filteredKomoditas) {
+      let sorted = [...filteredKomoditas];
+      
+      switch (sortBy) {
+        case 'name-asc':
+          sorted.sort((a, b) => a.nama.localeCompare(b.nama));
+          break;
+        case 'name-desc':
+          sorted.sort((a, b) => b.nama.localeCompare(a.nama));
+          break;
+        case 'stock-asc':
+          sorted.sort((a, b) => a.jumlah - b.jumlah);
+          break;
+        case 'stock-desc':
+          sorted.sort((a, b) => b.jumlah - a.jumlah);
+          break;
+        case 'date-newest':
+          sorted.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+          break;
+        case 'date-oldest':
+          sorted.sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime());
+          break;
+        default:
+          break;
+      }
+      
+      setFilteredKomoditas(sorted);
+    }
+  }, [sortBy, filteredKomoditas]);
 
   // Modal functions
   const openKomoditasDetail = (item: Komoditas) => {
@@ -198,9 +254,10 @@ const KomoditasPage = () => {
               dengan kualitas premium dan teknologi modern.
             </p>
             
-            {/* Search bar */}
-            <div className="flex">
-              <div className="relative w-full max-w-xl mx-auto">
+            {/* Search and sort bar */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              {/* Search bar */}
+              <div className="relative w-full max-w-xl mb-4 md:mb-0">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-emerald-300" />
                 </div>
@@ -221,6 +278,74 @@ const KomoditasPage = () => {
                   </button>
                 )}
               </div>
+              
+              {/* Sort and filter section */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 w-full">
+                {/* Sort by dropdown */}
+                <div className="relative w-full sm:w-auto">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    className="appearance-none bg-white/10 border border-emerald-600 rounded-lg text-white py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent shadow-md"
+                    aria-label="Urutkan berdasarkan"
+                  >
+                    <option value="name-asc">Nama A-Z</option>
+                    <option value="name-desc">Nama Z-A</option>
+                    <option value="stock-asc">Stok Terendah</option>
+                    <option value="stock-desc">Stok Tertinggi</option>
+                    <option value="date-newest">Terbaru</option>
+                    <option value="date-oldest">Terlama</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Category filter */}
+                <div className="relative w-full sm:w-auto">
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="appearance-none bg-white/10 border border-emerald-600 rounded-lg text-white py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent shadow-md"
+                    aria-label="Filter berdasarkan kategori"
+                  >
+                    <option value="all">Semua Kategori</option>
+                    {Array.from(new Set(komoditas
+                      .filter(item => item.jenis?.name) // Filter out items with no category
+                      .map(item => item.jenis?.name)))
+                      .sort() // Sort categories alphabetically
+                      .map((category, index) => (
+                        <option key={index} value={category}>{category}</option>
+                      ))
+                    }
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Stock availability filter */}
+                <div className="relative w-full sm:w-auto">
+                  <select
+                    value={stockFilter}
+                    onChange={(e) => setStockFilter(e.target.value as 'all' | 'available')}
+                    className="appearance-none bg-white/10 border border-emerald-600 rounded-lg text-white py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent shadow-md"
+                    aria-label="Filter berdasarkan ketersediaan stok"
+                  >
+                    <option value="all">Semua Stok</option>
+                    <option value="available">Hanya yang Tersedia</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -230,9 +355,27 @@ const KomoditasPage = () => {
       <div className="py-16" ref={ref}>
         <div className="container mx-auto px-4">
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
-              <p className="ml-3 text-emerald-800 text-lg">Memuat data komoditas...</p>
+            <div className="py-20">
+              <div className="flex items-center justify-center mb-8">
+                <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
+                <p className="ml-3 text-emerald-800 text-lg">Memuat data komoditas...</p>
+              </div>
+              
+              {/* Skeleton loading UI */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100">
+                    <div className="h-64 relative bg-gray-200 animate-pulse"></div>
+                    <div className="p-6">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-4 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3 mb-4 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : error ? (
             <div className="text-center py-20">
@@ -262,14 +405,19 @@ const KomoditasPage = () => {
                 <h2 className="text-2xl font-semibold text-emerald-800">
                   {filteredKomoditas.length} Komoditas
                   {searchQuery ? ` untuk pencarian "${searchQuery}"` : ''}
+                  {categoryFilter !== 'all' ? ` dalam kategori "${categoryFilter}"` : ''}
+                  {stockFilter === 'available' ? ' dengan stok tersedia' : ''}
                 </h2>
+                <p className="text-gray-600 mt-2">
+                  {filteredKomoditas.reduce((total, item) => total + item.jumlah, 0)} total unit dari {komoditas.length} jenis komoditas
+                </p>
               </div>
               
               <motion.div 
                 variants={containerVariants}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
-                className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
               >
                 {filteredKomoditas.map((item, index) => (
                   <motion.div 
@@ -282,7 +430,7 @@ const KomoditasPage = () => {
                       
                       {item.foto ? (
                         <Image 
-                          src={item.foto.startsWith('http') ? item.foto : `/image/${item.foto}`} 
+                          src={item.foto.startsWith('http') ? item.foto : `/image/${item.foto.replace('/image/', '')}`} 
                           alt={item.nama}
                           fill 
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -290,6 +438,8 @@ const KomoditasPage = () => {
                             const target = e.target as HTMLImageElement;
                             target.src = '/image/placeholder.jpg';
                           }}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          priority={index < 4} // Load first 4 images with priority
                         />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100">
@@ -302,14 +452,18 @@ const KomoditasPage = () => {
                       
                       <div className="absolute top-4 left-4 z-10">
                         <span className="bg-white/80 backdrop-blur-sm text-emerald-800 text-xs font-semibold py-1 px-3 rounded-full">
-                          {item.jenis?.name || 'Komoditas TEFA'}
+                          Kategori: {item.jenis?.name || 'Umum'}
                         </span>
                       </div>
                       
                       {/* Quantity badge */}
                       <div className="absolute bottom-4 right-4 z-10">
-                        <span className="bg-emerald-600/90 backdrop-blur-sm text-white text-xs font-semibold py-1 px-3 rounded-full">
-                          {item.jumlah} {item.satuan}
+                        <span className={`${
+                          item.jumlah > 0 
+                            ? 'bg-emerald-600/90' 
+                            : 'bg-rose-600/90'
+                          } backdrop-blur-sm text-white text-xs font-semibold py-1 px-3 rounded-full`}>
+                          Stok: <span className="font-bold">{item.jumlah}</span> {item.satuan}
                         </span>
                       </div>
                       
@@ -330,6 +484,16 @@ const KomoditasPage = () => {
                       <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-3">
                         {item.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}
                       </p>
+                      
+                      <div className="flex items-center justify-between mb-4 text-xs text-gray-500">
+                        <div className="flex items-center">
+                          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
+                          <span>Kategori: {item.jenis?.name || "Umum"}</span>
+                        </div>
+                        <div>
+                          <span>Stok: {item.jumlah} {item.satuan}</span>
+                        </div>
+                      </div>
                       
                       <button 
                         onClick={() => openKomoditasDetail(item)}
@@ -362,7 +526,7 @@ const KomoditasPage = () => {
                   selectedKomoditas.foto 
                     ? (selectedKomoditas.foto.startsWith('http') 
                         ? selectedKomoditas.foto 
-                        : `/image/${selectedKomoditas.foto}`)
+                        : `/image/${selectedKomoditas.foto.replace('/image/', '')}`)
                     : '/image/placeholder.jpg'
                 } 
                 alt={selectedKomoditas.nama}
@@ -389,7 +553,7 @@ const KomoditasPage = () => {
               
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1 rounded-full inline-block mb-3">
-                  {selectedKomoditas.jenis?.name || "Komoditas TEFA"}
+                  Kategori: {selectedKomoditas.jenis?.name || "Umum"}
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-bold text-white">{selectedKomoditas.nama}</h2>
               </div>
@@ -398,7 +562,9 @@ const KomoditasPage = () => {
             <div className="p-6 sm:p-8">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-emerald-800 mb-3">Deskripsi</h3>
-                <p className="text-gray-700">{selectedKomoditas.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}</p>
+                <div className="bg-emerald-50 p-4 rounded-lg">
+                  <p className="text-gray-700">{selectedKomoditas.deskripsi || "Deskripsi tidak tersedia."}</p>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -407,82 +573,71 @@ const KomoditasPage = () => {
                     <h3 className="text-xl font-semibold text-emerald-800 mb-3">Informasi Komoditas</h3>
                     <div className="bg-emerald-50 p-4 rounded-lg">
                       <div className="flex justify-between py-2 border-b border-emerald-100">
-                        <span className="text-gray-600">Jenis</span>
-                        <span className="font-medium text-emerald-800">{selectedKomoditas.jenis?.name || "-"}</span>
+                        <span className="text-gray-600">ID</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.id}</span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-emerald-100">
-                        <span className="text-gray-600">Kuantitas</span>
-                        <span className="font-medium text-emerald-800">{selectedKomoditas.jumlah} {selectedKomoditas.satuan}</span>
+                        <span className="text-gray-600">ID Jenis</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.id_jenis ?? '-'}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Nama</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.nama}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Kategori</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.jenis?.name || "Umum"}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Jumlah</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.jumlah}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Satuan</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.satuan}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">isDeleted</span>
+                        <span className="font-medium text-emerald-800">{'isDeleted' in selectedKomoditas ? (selectedKomoditas.isDeleted ? 'Ya' : 'Tidak') : '-'}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Tanggal Dibuat</span>
+                        <span className="font-medium text-emerald-800">-</span>
                       </div>
                       <div className="flex justify-between py-2">
                         <span className="text-gray-600">Terakhir Diperbarui</span>
-                        <span className="font-medium text-emerald-800">
-                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
-                        </span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.updated_at ? new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Additional details if available */}
-                  {selectedKomoditas.details?.brix && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Brix (Tingkat Kemanisan)</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <p className="text-gray-700 font-medium">{selectedKomoditas.details.brix}</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {selectedKomoditas.details?.bentuk && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Bentuk</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <p className="text-gray-700 font-medium">{selectedKomoditas.details.bentuk}</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
                 
                 <div>
-                  {selectedKomoditas.details?.visual && selectedKomoditas.details.visual.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Karakteristik Visual</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <ul className="space-y-2">
-                          {selectedKomoditas.details.visual.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                              </div>
-                              <span className="text-gray-700">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold text-emerald-800 mb-3">Fitur Produk</h3>
+                    <div className="bg-emerald-50 p-4 rounded-lg">
+                      <ul className="space-y-2">
+                        <li className="flex items-start">
+                          <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                          </div>
+                          <span className="text-gray-700">Nama komoditas: <span className="font-medium">{selectedKomoditas.nama}</span></span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                          </div>
+                          <span className="text-gray-700">Kategori: <span className="font-medium">{selectedKomoditas.jenis?.name || "Umum"}</span></span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                          </div>
+                          <span className="text-gray-700">Jumlah tersedia: <span className="font-medium">{selectedKomoditas.jumlah} {selectedKomoditas.satuan}</span></span>
+                        </li>
+                      </ul>
                     </div>
-                  )}
-                  
-                  {selectedKomoditas.details?.keunggulan && selectedKomoditas.details.keunggulan.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Keunggulan</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <ul className="space-y-2">
-                          {selectedKomoditas.details.keunggulan.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                              </div>
-                              <span className="text-gray-700">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </div>
               
@@ -490,7 +645,7 @@ const KomoditasPage = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
                     <span className="text-sm text-gray-500">Bagian dari program TEFA</span>
-                    <p className="text-emerald-800 font-medium">SMK 2 NEGERI BATUSANGKAR</p>
+                    <p className="text-emerald-800 font-medium">SMK NEGERI 2 BATUSANGKAR</p>
                   </div>
                   <div className="flex space-x-3">
                     <button 

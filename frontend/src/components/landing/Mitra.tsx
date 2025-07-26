@@ -157,7 +157,7 @@ const mitraList = [
 	},
 	{
 		name: 'DINAS PERTANIAN',
-		logo: '/image/placeholder.jpg',
+		logo: '/image/mitra/dinaspertaniantanahdatar.png',
 		url: '#',
 	},
 	{

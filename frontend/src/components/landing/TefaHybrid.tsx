@@ -6,20 +6,18 @@ import { useInView } from "react-intersection-observer";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2, ImageIcon, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { demoData } from "./demoData";
 import { apiRequest } from "@/services/api.service";
 
-// Import interfaces from shared demoData
-import { KomoditasDetails, Komoditas } from './demoData';
-
-// Extended interface for API response
+// Extended interface for API response - updated to match database schema
 interface ApiKomoditas {
   id: number;
+  id_jenis: number;
   nama: string;
   deskripsi: string;
   foto: string;
-  jumlah: number;
   satuan: string;
+  jumlah: number;
+  isDeleted?: boolean;
   jenis: {
     id: number;
     name: string;
@@ -54,19 +52,19 @@ const Leaf = ({ size = 24 }: { size?: number }) => (
 );
 
 const TefaHybrid = () => {
-  // State for API data
-  const [komoditas, setKomoditas] = useState<Komoditas[]>([]);
+  // State untuk data API
+  const [komoditas, setKomoditas] = useState<ApiKomoditas[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   // State for slider
   const [current, setCurrent] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [featuredItems, setFeaturedItems] = useState<Komoditas[]>([]);
+  const [featuredItems, setFeaturedItems] = useState<ApiKomoditas[]>([]);
   
   // State for grid view
   const [showAll, setShowAll] = useState(false);
-  const [selectedKomoditas, setSelectedKomoditas] = useState<Komoditas | null>(null);
+  const [selectedKomoditas, setSelectedKomoditas] = useState<ApiKomoditas | null>(null);
   
   // Intersection observer for animations
   const { ref, inView } = useInView({
@@ -80,74 +78,53 @@ const TefaHybrid = () => {
       try {
         setIsLoading(true);
         
-        // For the public-facing component, use demo data as the main source
-        console.log('Using demo data for TefaHybrid component');
+        console.log('Fetching komoditas data from public endpoint');
         
-        // Use shared demo data from demoData.ts
-        setKomoditas(demoData);
-        
-        // Get featured items for slider (first 4 items)
-        const featured = demoData
-          .filter((item: Komoditas, index: number) => index < 4)
-          .map((item: Komoditas) => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
-          
-        setFeaturedItems(featured);
-        
-        // Optionally attempt to fetch from API for authenticated users
-        // but this would require a login system
-        /*
         try {
-          const token = localStorage.getItem('authToken');
-          if (token) {
-            const response = await apiRequest({
-              endpoint: '/komoditas',
-              method: 'GET',
-              token: token
-            });
+          // Use the public endpoint we created
+          const response = await apiRequest({
+            endpoint: '/public/komoditas',
+            method: 'GET'
+          });
+          
+          if (response && Array.isArray(response)) {
+            // Process data to match our interface
+            const processedData = response.map((item: any) => ({
+              id: item.id,
+              id_jenis: item.id_jenis,
+              nama: item.nama || 'Untitled Komoditas',
+              deskripsi: item.deskripsi || 'Deskripsi tidak tersedia',
+              foto: item.foto?.startsWith('http') 
+                ? item.foto 
+                : `/image/${item.foto?.replace('/image/', '') || 'placeholder.jpg'}`,
+              jumlah: item.jumlah || 0,
+              satuan: item.satuan || 'unit',
+              isDeleted: item.isDeleted ?? false,
+              jenis: {
+                id: item.jenis?.id || item.id_jenis || 0,
+                name: item.jenis?.name || 'Umum'
+              },
+              createdAt: item.createdAt || '',
+              updatedAt: item.updatedAt || ''
+            }));
             
-            console.log('API response for TefaHybrid:', response);
+            console.log('Processed API data for TefaHybrid:', processedData);
             
-            if (response && Array.isArray(response)) {
-              // Process data to match our interface
-              const processedData = response.map(item => ({
-                id: String(item.id), // Convert number to string
-                nama: item.nama,
-                deskripsi: item.deskripsi,
-                foto: item.foto?.startsWith('http') ? item.foto : `/image/${item.foto}`, // Handle image path
-                jumlah: item.jumlah,
-                satuan: item.satuan,
-                jenis: { name: item.jenis?.name || 'Komoditas Premium' },
-                updated_at: item.updatedAt || new Date().toISOString(),
-                features: [
-                  item.jenis?.name || 'Komoditas Premium',
-                  `Stok: ${item.jumlah} ${item.satuan}`
-                ]
-              }));
-              
-              console.log('Processed API data for TefaHybrid:', processedData);
-              
-              // Set all items for grid view
-              setKomoditas(processedData);
-              
-              // Get featured items for slider (first 4)
-              const featured = processedData
-                .slice(0, Math.min(4, processedData.length)) // Take first 4 items or less if not enough
-                .map(item => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
-                
-              setFeaturedItems(featured);
-            }
+            // Set all items for grid view
+            setKomoditas(processedData);
+            // Tampilkan semua komoditas di slider, bukan hanya 4
+            setFeaturedItems(processedData);
+            return; // Exit early if successful
           }
         } catch (apiError) {
-          console.error('API error:', apiError);
+          console.warn('API request failed:', apiError);
+          // Continue to fallback
         }
-        */
+        // Jika gagal, jangan set demoData, cukup tampilkan error
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch komoditas');
         console.error('Error in TefaHybrid component:', err);
-        
-        // Fallback to empty arrays if everything fails
-        setKomoditas([]);
-        setFeaturedItems([]);
+        // Tidak ada fallback ke demoData
       } finally {
         setIsLoading(false);
       }
@@ -179,7 +156,7 @@ const TefaHybrid = () => {
   };
 
   // Modal functions
-  const openKomoditasDetail = (item: Komoditas) => {
+  const openKomoditasDetail = (item: ApiKomoditas) => {
     setSelectedKomoditas(item);
     document.body.classList.add('overflow-hidden');
   };
@@ -427,14 +404,20 @@ const TefaHybrid = () => {
                         {/* Enhanced gradient overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
 
-                        {/* Stats badge */}
+                        {/* Stock badge */}
                         <div className="absolute top-6 left-6 z-20">
-                          <span className="inline-flex items-center bg-emerald-600/90 backdrop-blur-sm text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 shadow-xl">
-                            {featuredItems[current].jumlah} {featuredItems[current].satuan}
+                          <span className={`inline-flex items-center ${
+                            featuredItems[current].jumlah > 0 
+                              ? 'bg-emerald-600/90' 
+                              : 'bg-rose-600/90'
+                            } backdrop-blur-sm text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 shadow-xl`}>
+                            <span className="mr-1">Stok:</span>
+                            <span className="font-bold mr-1">{featuredItems[current].jumlah}</span> 
+                            <span>{featuredItems[current].satuan}</span>
                           </span>
                         </div>
 
-                        {/* Featured badge */}
+                        {/* Category badge */}
                         <div className="absolute top-6 right-6 z-20">
                           <motion.span
                             initial={{ opacity: 0, scale: 0.8 }}
@@ -442,7 +425,8 @@ const TefaHybrid = () => {
                             transition={{ delay: 0.3, duration: 0.5 }}
                             className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-xs font-medium border border-white/30 shadow-xl"
                           >
-                            {featuredItems[current].jenis?.name || "Komoditas Premium"}
+                            <span className="mr-1">Kategori:</span>
+                            <span className="font-medium">{featuredItems[current].jenis?.name || "Umum"}</span>
                           </motion.span>
                         </div>
 
@@ -568,7 +552,7 @@ const TefaHybrid = () => {
               
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1 rounded-full inline-block mb-3">
-                  {selectedKomoditas.jenis?.name || "Komoditas TEFA"}
+                  Kategori: {selectedKomoditas.jenis?.name || "Umum"}
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-bold text-white">{selectedKomoditas.nama}</h2>
               </div>
@@ -577,7 +561,9 @@ const TefaHybrid = () => {
             <div className="p-6 sm:p-8">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-emerald-800 mb-3">Deskripsi</h3>
-                <p className="text-gray-700">{selectedKomoditas.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}</p>
+                <div className="bg-emerald-50 p-4 rounded-lg">
+                  <p className="text-gray-700">{selectedKomoditas.deskripsi || "Deskripsi tidak tersedia."}</p>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -586,82 +572,71 @@ const TefaHybrid = () => {
                     <h3 className="text-xl font-semibold text-emerald-800 mb-3">Informasi Komoditas</h3>
                     <div className="bg-emerald-50 p-4 rounded-lg">
                       <div className="flex justify-between py-2 border-b border-emerald-100">
-                        <span className="text-gray-600">Jenis</span>
-                        <span className="font-medium text-emerald-800">{selectedKomoditas.jenis?.name || "-"}</span>
+                        <span className="text-gray-600">ID</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.id}</span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-emerald-100">
-                        <span className="text-gray-600">Kuantitas</span>
-                        <span className="font-medium text-emerald-800">{selectedKomoditas.jumlah} {selectedKomoditas.satuan}</span>
+                        <span className="text-gray-600">ID Jenis</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.jenis?.id ?? '-'}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Nama</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.nama}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Kategori</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.jenis?.name || "Umum"}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Jumlah</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.jumlah}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Satuan</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.satuan}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">isDeleted</span>
+                        <span className="font-medium text-emerald-800">{'isDeleted' in selectedKomoditas ? (selectedKomoditas.isDeleted ? 'Ya' : 'Tidak') : '-'}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-emerald-100">
+                        <span className="text-gray-600">Tanggal Dibuat</span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.createdAt ? new Date(selectedKomoditas.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
                       </div>
                       <div className="flex justify-between py-2">
                         <span className="text-gray-600">Terakhir Diperbarui</span>
-                        <span className="font-medium text-emerald-800">
-                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
-                        </span>
+                        <span className="font-medium text-emerald-800">{selectedKomoditas.updatedAt ? new Date(selectedKomoditas.updatedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Additional details if available */}
-                  {selectedKomoditas.details?.brix && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Brix (Tingkat Kemanisan)</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <p className="text-gray-700 font-medium">{selectedKomoditas.details.brix}</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {selectedKomoditas.details?.bentuk && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Bentuk</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <p className="text-gray-700 font-medium">{selectedKomoditas.details.bentuk}</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
                 
                 <div>
-                  {selectedKomoditas.details?.visual && selectedKomoditas.details.visual.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Karakteristik Visual</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <ul className="space-y-2">
-                          {selectedKomoditas.details.visual.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                              </div>
-                              <span className="text-gray-700">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold text-emerald-800 mb-3">Fitur Produk</h3>
+                    <div className="bg-emerald-50 p-4 rounded-lg">
+                      <ul className="space-y-2">
+                        <li className="flex items-start">
+                          <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                          </div>
+                          <span className="text-gray-700">Nama komoditas: <span className="font-medium">{selectedKomoditas.nama}</span></span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                          </div>
+                          <span className="text-gray-700">Kategori: <span className="font-medium">{selectedKomoditas.jenis?.name || "Umum"}</span></span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                          </div>
+                          <span className="text-gray-700">Jumlah tersedia: <span className="font-medium">{selectedKomoditas.jumlah} {selectedKomoditas.satuan}</span></span>
+                        </li>
+                      </ul>
                     </div>
-                  )}
-                  
-                  {selectedKomoditas.details?.keunggulan && selectedKomoditas.details.keunggulan.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Keunggulan</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <ul className="space-y-2">
-                          {selectedKomoditas.details.keunggulan.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                              </div>
-                              <span className="text-gray-700">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </div>
               
@@ -669,7 +644,7 @@ const TefaHybrid = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
                     <span className="text-sm text-gray-500">Bagian dari program TEFA</span>
-                    <p className="text-emerald-800 font-medium">SMK 2 NEGERI BATUSANGKAR</p>
+                    <p className="text-emerald-800 font-medium">SMK NEGERI 2 BATUSANGKAR</p>
                   </div>
                   <div className="flex space-x-3">
                     <button 

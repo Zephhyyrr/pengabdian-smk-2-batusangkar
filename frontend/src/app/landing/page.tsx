@@ -11,8 +11,8 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      <TefaHybrid />
       <ProfileSekolah />
+      <TefaHybrid />
       <InfoSekolah />
       <Jurusans />
       <Mitras />
