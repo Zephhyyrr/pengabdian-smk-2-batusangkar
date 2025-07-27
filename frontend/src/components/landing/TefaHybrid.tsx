@@ -1,16 +1,23 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2, ImageIcon, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import {
+  Loader2,
+  ImageIcon,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+} from "lucide-react";
 import { demoData } from "./demoData";
 import { apiRequest } from "@/services/api.service";
 
 // Import interfaces from shared demoData
-import { KomoditasDetails, Komoditas } from './demoData';
+import { KomoditasDetails, Komoditas } from "./demoData";
+import axios from "axios";
 
 // Extended interface for API response
 interface ApiKomoditas {
@@ -66,7 +73,9 @@ const TefaHybrid = () => {
 
   // State for grid view
   const [showAll, setShowAll] = useState(false);
-  const [selectedKomoditas, setSelectedKomoditas] = useState<Komoditas | null>(null);
+  const [selectedKomoditas, setSelectedKomoditas] = useState<Komoditas | null>(
+    null
+  );
 
   // Intersection observer for animations
   const { ref, inView } = useInView({
@@ -79,71 +88,53 @@ const TefaHybrid = () => {
     const fetchKomoditas = async () => {
       try {
         setIsLoading(true);
-
-        // // For the public-facing component, use demo data as the main source
-        // console.log('Using demo data for TefaHybrid component');
-
-        // // Use shared demo data from demoData.ts
-        // setKomoditas(demoData);
-
-        // // Get featured items for slider (first 4 items)
-        // const featured = demoData
-        //   .filter((item: Komoditas, index: number) => index < 4)
-        //   .map((item: Komoditas) => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
-
-        // setFeaturedItems(featured);
-
-        // Optionally attempt to fetch from API for authenticated users
-        // but this would require a login system
-
         try {
-          const token = localStorage.getItem('authToken');
-          if (token) {
-            const response = await apiRequest({
-              endpoint: '/komoditas',
-              method: 'GET',
-              token: token
-            });
+          const response = await apiRequest({
+            endpoint: "/komoditas",
+            method: "GET",
+          });
 
-            console.log('API response for TefaHybrid:', response);
+          console.log("API response for TefaHybrid:", response);
 
-            if (response && Array.isArray(response)) {
-              // Process data to match our interface
-              const processedData = response.map(item => ({
-                id: String(item.id), // Convert number to string
-                nama: item.nama,
-                deskripsi: item.deskripsi,
-                foto: item.foto?.startsWith('http') ? item.foto : `/image/${item.foto}`, // Handle image path
-                jumlah: item.jumlah,
-                satuan: item.satuan,
-                jenis: { name: item.jenis?.name || 'Komoditas Premium' },
-                updated_at: item.updatedAt || new Date().toISOString(),
-                features: [
-                  item.jenis?.name || 'Komoditas Premium',
-                  `Stok: ${item.jumlah} ${item.satuan}`
-                ]
-              }));
+          if (response && Array.isArray(response)) {
+            // Process data to match our interface
+            const processedData = response.map((item) => ({
+              id: String(item.id), // Convert number to string
+              nama: item.nama,
+              deskripsi: item.deskripsi,
+              foto: item.foto?.startsWith("http")
+                ? item.foto
+                : `/image/${item.foto}`, // Handle image path
+              jumlah: item.jumlah,
+              satuan: item.satuan,
+              jenis: { name: item.jenis?.name || "Komoditas Premium" },
+              updated_at: item.updatedAt || new Date().toISOString(),
+              features: [
+                item.jenis?.name || "Komoditas Premium",
+                `Stok: ${item.jumlah} ${item.satuan}`,
+              ],
+            }));
 
-              console.log('Processed API data for TefaHybrid:', processedData);
+            console.log("Processed API data for TefaHybrid:", processedData);
 
-              // Set all items for grid view
-              setKomoditas(processedData);
+            // Set all items for grid view
+            setKomoditas(processedData);
 
-              // Get featured items for slider (first 4)
-              const featured = processedData
-                .slice(0, Math.min(4, processedData.length)) // Take first 4 items or less if not enough
-                .map(item => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
+            // Get featured items for slider (first 4)
+            const featured = processedData
+              .slice(0, Math.min(4, processedData.length)) // Take first 4 items or less if not enough
+              .map((item) => ({ ...item, isNew: Math.random() > 0.7 })); // Randomly set some as new
 
-              setFeaturedItems(featured);
-            }
+            setFeaturedItems(featured);
           }
         } catch (apiError) {
-          console.error('API error:', apiError);
+          console.error("API error:", apiError);
         }
-
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch komoditas');
-        console.error('Error in TefaHybrid component:', err);
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch komoditas"
+        );
+        console.error("Error in TefaHybrid component:", err);
 
         // Fallback to empty arrays if everything fails
         setKomoditas([]);
@@ -181,12 +172,12 @@ const TefaHybrid = () => {
   // Modal functions
   const openKomoditasDetail = (item: Komoditas) => {
     setSelectedKomoditas(item);
-    document.body.classList.add('overflow-hidden');
+    document.body.classList.add("overflow-hidden");
   };
 
   const closeKomoditasDetail = () => {
     setSelectedKomoditas(null);
-    document.body.classList.remove('overflow-hidden');
+    document.body.classList.remove("overflow-hidden");
   };
 
   // Grid view display control
@@ -202,9 +193,9 @@ const TefaHybrid = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2
-      }
-    }
+        staggerChildren: 0.2,
+      },
+    },
   };
 
   const itemVariants = {
@@ -212,12 +203,16 @@ const TefaHybrid = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6 }
-    }
+      transition: { duration: 0.6 },
+    },
   };
 
   return (
-    <section id="tefa" className="relative bg-gradient-to-b from-emerald-50 to-white overflow-hidden" ref={ref}>
+    <section
+      id="tefa"
+      className="relative bg-gradient-to-b from-emerald-50 to-white overflow-hidden"
+      ref={ref}
+    >
       {/* FEATURED SLIDER SECTION */}
       {featuredItems.length > 0 && (
         <div className="relative bg-gradient-to-b from-emerald-900 to-green-800 py-20">
@@ -250,7 +245,7 @@ const TefaHybrid = () => {
             transition={{
               repeat: Infinity,
               duration: 8,
-              ease: 'easeInOut',
+              ease: "easeInOut",
             }}
             className="absolute top-1/4 left-10 text-green-200/30"
           >
@@ -266,7 +261,7 @@ const TefaHybrid = () => {
             transition={{
               repeat: Infinity,
               duration: 10,
-              ease: 'easeInOut',
+              ease: "easeInOut",
             }}
             className="absolute bottom-1/3 right-10 text-green-200/30"
           >
@@ -292,7 +287,7 @@ const TefaHybrid = () => {
 
               <motion.div
                 initial={{ width: 0 }}
-                whileInView={{ width: '120px' }}
+                whileInView={{ width: "120px" }}
                 transition={{ duration: 0.7, delay: 0.1 }}
                 className="h-1 bg-green-400 mx-auto mb-6 rounded-full"
               />
@@ -306,7 +301,9 @@ const TefaHybrid = () => {
             {isLoading ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="h-8 w-8 text-white animate-spin" />
-                <p className="ml-3 text-white text-lg">Memuat data komoditas...</p>
+                <p className="ml-3 text-white text-lg">
+                  Memuat data komoditas...
+                </p>
               </div>
             ) : error ? (
               <div className="text-center py-16">
@@ -336,10 +333,11 @@ const TefaHybrid = () => {
                           setIsAutoPlaying(false);
                           setCurrent(index);
                         }}
-                        className={`h-2.5 rounded-full transition-all duration-300 ${current === index
-                            ? 'bg-white w-8'
-                            : 'bg-white/40 w-2.5 hover:bg-white/60'
-                          }`}
+                        className={`h-2.5 rounded-full transition-all duration-300 ${
+                          current === index
+                            ? "bg-white w-8"
+                            : "bg-white/40 w-2.5 hover:bg-white/60"
+                        }`}
                         aria-label={`Go to slide ${index + 1}`}
                       />
                     ))}
@@ -347,7 +345,10 @@ const TefaHybrid = () => {
 
                   <div className="flex items-center space-x-4">
                     <span className="text-sm text-white/70 hidden md:inline-block">
-                      <span className="font-medium text-white">{current + 1}</span>/{featuredItems.length}
+                      <span className="font-medium text-white">
+                        {current + 1}
+                      </span>
+                      /{featuredItems.length}
                     </span>
 
                     <button
@@ -401,7 +402,13 @@ const TefaHybrid = () => {
                             className="h-full w-full"
                           >
                             <Image
-                              src={featuredItems[current].foto.startsWith('http') ? featuredItems[current].foto : `/image/${featuredItems[current].foto.replace('/image/', '')}`}
+                              src={
+                                featuredItems[current].foto.startsWith("http")
+                                  ? featuredItems[current].foto
+                                  : `/image/${featuredItems[
+                                      current
+                                    ].foto.replace("/image/", "")}`
+                              }
                               alt={featuredItems[current].nama}
                               fill
                               className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
@@ -410,15 +417,20 @@ const TefaHybrid = () => {
                               onError={(e) => {
                                 // If image fails to load, replace with placeholder
                                 const target = e.target as HTMLImageElement;
-                                target.src = '/image/placeholder.jpg';
+                                target.src = "/image/placeholder.jpg";
                               }}
                             />
                           </motion.div>
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
                             <div className="p-6 rounded-full bg-white/30 backdrop-blur-sm shadow-inner">
-                              <ImageIcon size={60} className="text-emerald-600 opacity-70" />
-                              <p className="mt-2 text-emerald-700 text-sm font-medium">Gambar Tidak Tersedia</p>
+                              <ImageIcon
+                                size={60}
+                                className="text-emerald-600 opacity-70"
+                              />
+                              <p className="mt-2 text-emerald-700 text-sm font-medium">
+                                Gambar Tidak Tersedia
+                              </p>
                             </div>
                           </div>
                         )}
@@ -429,7 +441,8 @@ const TefaHybrid = () => {
                         {/* Stats badge */}
                         <div className="absolute top-6 left-6 z-20">
                           <span className="inline-flex items-center bg-emerald-600/90 backdrop-blur-sm text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 shadow-xl">
-                            {featuredItems[current].jumlah} {featuredItems[current].satuan}
+                            {featuredItems[current].jumlah}{" "}
+                            {featuredItems[current].satuan}
                           </span>
                         </div>
 
@@ -441,7 +454,8 @@ const TefaHybrid = () => {
                             transition={{ delay: 0.3, duration: 0.5 }}
                             className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-xs font-medium border border-white/30 shadow-xl"
                           >
-                            {featuredItems[current].jenis?.name || "Komoditas Premium"}
+                            {featuredItems[current].jenis?.name ||
+                              "Komoditas Premium"}
                           </motion.span>
                         </div>
 
@@ -471,7 +485,7 @@ const TefaHybrid = () => {
 
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: '6rem' }}
+                        animate={{ width: "6rem" }}
                         transition={{ delay: 0.4, duration: 0.6 }}
                         className="w-24 h-1 bg-gradient-to-r from-green-400 to-green-300 rounded-full mb-6 hidden md:block lg:mx-0 mx-auto"
                       ></motion.div>
@@ -482,7 +496,8 @@ const TefaHybrid = () => {
                         transition={{ delay: 0.4, duration: 0.5 }}
                         className="text-lg md:text-xl text-white/90 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0"
                       >
-                        {featuredItems[current].deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}
+                        {featuredItems[current].deskripsi ||
+                          "Informasi detail tentang komoditas ini akan segera hadir."}
                       </motion.p>
 
                       <motion.div
@@ -492,11 +507,16 @@ const TefaHybrid = () => {
                         className="flex flex-col sm:flex-row gap-3"
                       >
                         <button
-                          onClick={() => openKomoditasDetail(featuredItems[current])}
+                          onClick={() =>
+                            openKomoditasDetail(featuredItems[current])
+                          }
                           className="inline-flex items-center px-7 py-4 bg-emerald-500 hover:bg-emerald-400 transition-all text-white rounded-full font-medium group shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/50"
                         >
                           Lihat Detail
-                          <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
+                          <ArrowRight
+                            className="ml-2 group-hover:translate-x-2 transition-transform"
+                            size={20}
+                          />
                         </button>
 
                         <Link
@@ -504,7 +524,10 @@ const TefaHybrid = () => {
                           className="inline-flex items-center px-7 py-4 bg-white/20 hover:bg-white/30 transition-all text-white backdrop-blur-sm rounded-full font-medium group border border-white/30"
                         >
                           Selengkapnya
-                          <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={20} />
+                          <ArrowRight
+                            className="ml-2 group-hover:translate-x-2 transition-transform"
+                            size={20}
+                          />
                         </Link>
                       </motion.div>
                     </div>
@@ -540,16 +563,18 @@ const TefaHybrid = () => {
           >
             <div className="relative h-80 sm:h-96">
               <Image
-                src={selectedKomoditas.foto?.startsWith('http') ?
-                  selectedKomoditas.foto :
-                  `/image/${selectedKomoditas.foto.replace('/image/', '')}`}
+                src={
+                  selectedKomoditas.foto?.startsWith("http")
+                    ? selectedKomoditas.foto
+                    : `/image/${selectedKomoditas.foto.replace("/image/", "")}`
+                }
                 alt={selectedKomoditas.nama}
                 fill
                 className="object-cover"
                 priority
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/image/placeholder.jpg';
+                  target.src = "/image/placeholder.jpg";
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/10"></div>
@@ -559,8 +584,19 @@ const TefaHybrid = () => {
                   onClick={closeKomoditasDetail}
                   className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-full transition-colors"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -569,36 +605,53 @@ const TefaHybrid = () => {
                 <span className="bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1 rounded-full inline-block mb-3">
                   {selectedKomoditas.jenis?.name || "Komoditas TEFA"}
                 </span>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white">{selectedKomoditas.nama}</h2>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white">
+                  {selectedKomoditas.nama}
+                </h2>
               </div>
             </div>
 
             <div className="p-6 sm:p-8">
               <div className="mb-8">
-                <h3 className="text-xl font-semibold text-emerald-800 mb-3">Deskripsi</h3>
-                <p className="text-gray-700">{selectedKomoditas.deskripsi || "Informasi detail tentang komoditas ini akan segera hadir."}</p>
+                <h3 className="text-xl font-semibold text-emerald-800 mb-3">
+                  Deskripsi
+                </h3>
+                <p className="text-gray-700">
+                  {selectedKomoditas.deskripsi ||
+                    "Informasi detail tentang komoditas ini akan segera hadir."}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-emerald-800 mb-3">Informasi Komoditas</h3>
+                    <h3 className="text-xl font-semibold text-emerald-800 mb-3">
+                      Informasi Komoditas
+                    </h3>
                     <div className="bg-emerald-50 p-4 rounded-lg">
                       <div className="flex justify-between py-2 border-b border-emerald-100">
                         <span className="text-gray-600">Jenis</span>
-                        <span className="font-medium text-emerald-800">{selectedKomoditas.jenis?.name || "-"}</span>
+                        <span className="font-medium text-emerald-800">
+                          {selectedKomoditas.jenis?.name || "-"}
+                        </span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-emerald-100">
                         <span className="text-gray-600">Kuantitas</span>
-                        <span className="font-medium text-emerald-800">{selectedKomoditas.jumlah} {selectedKomoditas.satuan}</span>
+                        <span className="font-medium text-emerald-800">
+                          {selectedKomoditas.jumlah} {selectedKomoditas.satuan}
+                        </span>
                       </div>
                       <div className="flex justify-between py-2">
-                        <span className="text-gray-600">Terakhir Diperbarui</span>
+                        <span className="text-gray-600">
+                          Terakhir Diperbarui
+                        </span>
                         <span className="font-medium text-emerald-800">
-                          {new Date(selectedKomoditas.updated_at).toLocaleDateString('id-ID', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                          {new Date(
+                            selectedKomoditas.updated_at
+                          ).toLocaleDateString("id-ID", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                           })}
                         </span>
                       </div>
@@ -608,67 +661,89 @@ const TefaHybrid = () => {
                   {/* Additional details if available */}
                   {selectedKomoditas.details?.brix && (
                     <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Brix (Tingkat Kemanisan)</h3>
+                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">
+                        Brix (Tingkat Kemanisan)
+                      </h3>
                       <div className="bg-emerald-50 p-4 rounded-lg">
-                        <p className="text-gray-700 font-medium">{selectedKomoditas.details.brix}</p>
+                        <p className="text-gray-700 font-medium">
+                          {selectedKomoditas.details.brix}
+                        </p>
                       </div>
                     </div>
                   )}
 
                   {selectedKomoditas.details?.bentuk && (
                     <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Bentuk</h3>
+                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">
+                        Bentuk
+                      </h3>
                       <div className="bg-emerald-50 p-4 rounded-lg">
-                        <p className="text-gray-700 font-medium">{selectedKomoditas.details.bentuk}</p>
+                        <p className="text-gray-700 font-medium">
+                          {selectedKomoditas.details.bentuk}
+                        </p>
                       </div>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  {selectedKomoditas.details?.visual && selectedKomoditas.details.visual.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Karakteristik Visual</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <ul className="space-y-2">
-                          {selectedKomoditas.details.visual.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                              </div>
-                              <span className="text-gray-700">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+                  {selectedKomoditas.details?.visual &&
+                    selectedKomoditas.details.visual.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-xl font-semibold text-emerald-800 mb-3">
+                          Karakteristik Visual
+                        </h3>
+                        <div className="bg-emerald-50 p-4 rounded-lg">
+                          <ul className="space-y-2">
+                            {selectedKomoditas.details.visual.map(
+                              (item, idx) => (
+                                <li key={idx} className="flex items-start">
+                                  <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                  </div>
+                                  <span className="text-gray-700">{item}</span>
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {selectedKomoditas.details?.keunggulan && selectedKomoditas.details.keunggulan.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold text-emerald-800 mb-3">Keunggulan</h3>
-                      <div className="bg-emerald-50 p-4 rounded-lg">
-                        <ul className="space-y-2">
-                          {selectedKomoditas.details.keunggulan.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                              </div>
-                              <span className="text-gray-700">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+                  {selectedKomoditas.details?.keunggulan &&
+                    selectedKomoditas.details.keunggulan.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-xl font-semibold text-emerald-800 mb-3">
+                          Keunggulan
+                        </h3>
+                        <div className="bg-emerald-50 p-4 rounded-lg">
+                          <ul className="space-y-2">
+                            {selectedKomoditas.details.keunggulan.map(
+                              (item, idx) => (
+                                <li key={idx} className="flex items-start">
+                                  <div className="h-5 w-5 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                  </div>
+                                  <span className="text-gray-700">{item}</span>
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
-                    <span className="text-sm text-gray-500">Bagian dari program TEFA</span>
-                    <p className="text-emerald-800 font-medium">SMK 2 NEGERI BATUSANGKAR</p>
+                    <span className="text-sm text-gray-500">
+                      Bagian dari program TEFA
+                    </span>
+                    <p className="text-emerald-800 font-medium">
+                      SMK NEGERI 2 BATUSANGKAR
+                    </p>
                   </div>
                   <div className="flex space-x-3">
                     <button
