@@ -51,7 +51,7 @@ const ProfileSekolah = () => {
 
               <div className="relative">
                 <div className="mb-2 inline-flex items-center">
-                  <div className="w-8 sm:w-10 h-1 bg-emerald-500 mr-2 sm:mr-3"></div>
+                  <div className="w-6 sm:w-8 lg:w-10 h-1 bg-emerald-500 mr-2 sm:mr-3"></div>
                   <span className="text-emerald-600 font-medium text-xs sm:text-sm uppercase tracking-wider">
                     Sekolah Unggulan
                   </span>
@@ -82,13 +82,13 @@ const ProfileSekolah = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mt-6 sm:mt-8">
                   <div className="bg-emerald-50 rounded-xl p-3 sm:p-4 hover:bg-emerald-100 transition-colors flex items-start">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-500 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0 shadow-md">
                       <Award className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">
+                      <h4 className="font-bold text-gray-800 text-sm sm:text-base lg:text-lg leading-tight">
                         Akreditasi B
                       </h4>
                       <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
@@ -102,7 +102,7 @@ const ProfileSekolah = () => {
                       <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">
+                      <h4 className="font-bold text-gray-800 text-sm sm:text-base lg:text-lg leading-tight">
                         3 Bidang Keahlian
                       </h4>
                       <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
@@ -116,7 +116,7 @@ const ProfileSekolah = () => {
                       <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">
+                      <h4 className="font-bold text-gray-800 text-sm sm:text-base lg:text-lg leading-tight">
                         27 Tenaga Pendidik
                       </h4>
                       <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
@@ -130,7 +130,7 @@ const ProfileSekolah = () => {
                       <Target className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-gray-800 text-base sm:text-lg leading-tight">
+                      <h4 className="font-bold text-gray-800 text-sm sm:text-base lg:text-lg leading-tight">
                         467 Siswa
                       </h4>
                       <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">

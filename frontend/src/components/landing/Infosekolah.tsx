@@ -425,33 +425,33 @@ const InfoSekolah = () => {
 
 				{/* Modal */}
 				{activeModal && (
-					<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+					<div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
 						<div 
-							className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden animate-fadeIn border border-school-primary/10"
+							className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-fadeIn border border-school-primary/10"
 							onClick={(e) => e.stopPropagation()}
 						>
-							<div className="flex justify-between items-center border-b border-gray-200 px-6 py-4 bg-gradient-to-r from-school-primary to-school-accent/80">
-								<h3 className="font-bold text-xl text-white">
+							<div className="flex justify-between items-center border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-school-primary to-school-accent/80">
+								<h3 className="font-bold text-lg sm:text-xl text-white truncate mr-4">
 									{infoCards.find(card => card.id === activeModal)?.title}
 								</h3>
 								<button 
 									onClick={closeModal}
-									className="p-1 rounded-full hover:bg-white/20 transition-colors"
+									className="p-1.5 sm:p-1 rounded-full hover:bg-white/20 transition-colors flex-shrink-0"
 								>
-									<X className="w-6 h-6 text-white" />
+									<X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
 								</button>
 							</div>
 							
-							<div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+							<div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-140px)]">
 								{activeModal === 'prestasi' && detailsContent.prestasi}
 								{activeModal === 'tefa' && detailsContent.tefa}
 								{activeModal === 'pengajar' && detailsContent.pengajar}
 							</div>
 							
-							<div className="border-t border-gray-200 p-4 bg-gray-50 flex justify-end sticky bottom-0">
+							<div className="border-t border-gray-200 p-3 sm:p-4 bg-gray-50 flex justify-end sticky bottom-0">
 								<button 
 									onClick={closeModal}
-									className="px-6 py-2.5 bg-school-accent hover:bg-school-primary text-white rounded-md transition-colors text-sm font-medium shadow-sm"
+									className="px-4 sm:px-6 py-2 sm:py-2.5 bg-school-accent hover:bg-school-primary text-white rounded-md transition-colors text-sm font-medium shadow-sm min-w-[80px]"
 								>
 									Tutup
 								</button>
