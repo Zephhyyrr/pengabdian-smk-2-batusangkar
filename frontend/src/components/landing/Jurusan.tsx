@@ -82,6 +82,7 @@ const bidangKeahlian = [
       {
         id: "agriteknologi-pengolahan",
         name: "Agriteknologi Pengolahan Hasil Pertanian",
+        Image: "/image/agribisnis pengolahan hasil pertanian.jpg",
         description: "Mempersiapkan siswa untuk mengolah hasil pertanian menjadi produk bernilai tambah dengan penerapan teknologi pengolahan pangan modern.",
         konsentrasi: [
           {
@@ -490,7 +491,7 @@ const Jurusans = () => {
                     <div className="p-6 md:p-8 flex-grow">
                       <p className="text-gray-600">{konsentrasi.description}</p>
                       <div className="mt-6 pt-4 border-t border-gray-100">
-                        <Link
+                        {/* <Link
                           href={`/jurusan/${konsentrasi.id}`}
                           className="text-sm font-medium text-emerald-600 flex items-center hover:text-emerald-800 transition-colors"
                         >
@@ -509,7 +510,7 @@ const Jurusans = () => {
                               d="M9 5l7 7-7 7"
                             ></path>
                           </svg>
-                        </Link>
+                        </Link> */}
                       </div>
                     </div>
                   </motion.div>

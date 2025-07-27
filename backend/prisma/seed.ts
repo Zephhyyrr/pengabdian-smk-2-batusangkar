@@ -64,14 +64,14 @@ async function main() {
             }
         ]
     });
-    
+
     console.log('User seeded successfully!');
 
     // 2. Seed Jenis (only Melon)
     const jenisMelon = await prisma.jenis.create({
         data: { name: 'Melon' }
     });
-    
+
     console.log('Jenis seeded successfully!');
 
     // 3. Seed AsalProduksi (Greenhouse format)
@@ -82,10 +82,10 @@ async function main() {
         { nama: 'Greenhouse 4' },
         { nama: 'Greenhouse 5' }
     ];
-    
+
     await prisma.asalProduksi.createMany({ data: asalProduksiData });
     const asalProduksiList = await prisma.asalProduksi.findMany();
-    
+
     console.log('Asal Produksi seeded successfully!');
 
     // 4. Seed Komoditas (only Melon varieties) - jumlah set to 0 initially
@@ -147,33 +147,33 @@ async function main() {
             jumlah: 0
         }
     ];
-    
+
     await prisma.komoditas.createMany({ data: komoditasData });
     const komoditasList = await prisma.komoditas.findMany();
-    
+
     console.log('Komoditas seeded successfully!');
 
     // 5. Seed Produksi with random data (only for melon)
     const produksiData = [];
     const kualitasOptions = ['A', 'B', 'Premium'];
     const ukuranOptions = ['Kecil', 'Sedang', 'Besar'];
-    
+
     // Track total production per commodity for updating komoditas.jumlah
     const komoditasProductionTotals: { [key: number]: number } = {};
-    
+
     for (let i = 0; i < komoditasList.length; i++) {
         const komoditas = komoditasList[i];
         const basePrice = randomInt(20000, 40000); // Melon price range
-        
+
         // Initialize total for this commodity
         komoditasProductionTotals[komoditas.id] = 0;
-        
+
         // Create 3-4 productions per commodity from different greenhouses
         const prodCount = randomInt(3, 4);
         for (let j = 0; j < prodCount; j++) {
             const jumlahProduksi = randomInt(50, 200);
             komoditasProductionTotals[komoditas.id] += jumlahProduksi;
-            
+
             produksiData.push({
                 id_asal: randomChoice(asalProduksiList).id,
                 kode_produksi: `PROD-${komoditas.nama.replace(/\s+/g, '').toUpperCase()}-${String(j + 1).padStart(3, '0')}`,
@@ -185,10 +185,10 @@ async function main() {
             });
         }
     }
-    
+
     await prisma.produksi.createMany({ data: produksiData });
     const produksiList = await prisma.produksi.findMany({ include: { komoditas: true } });
-    
+
     console.log('Produksi seeded successfully!');
 
     // 6. Update Komoditas jumlah based on total production
@@ -198,7 +198,7 @@ async function main() {
             data: { jumlah: komoditasProductionTotals[parseInt(komoditasId)] }
         });
     }
-    
+
     console.log('Komoditas quantities updated based on production data!');
 
     // 7. Seed Penjualan with multiple transactions on same dates
@@ -215,27 +215,27 @@ async function main() {
         'Penjualan ke warung sekitar',
         'Penjualan untuk festival sekolah'
     ];
-    
+
     const startDate = new Date('2025-01-01');
     const endDate = new Date('2025-07-30');
-    
+
     // Track total sold per commodity to update komoditas.jumlah
     const komoditasSoldTotals: { [key: number]: number } = {};
-    
+
     // Initialize sold totals
     komoditasList.forEach(komoditas => {
         komoditasSoldTotals[komoditas.id] = 0;
     });
-    
+
     // Create 40-60 sales transactions
     for (let i = 0; i < randomInt(40, 60); i++) {
         const produksi = randomChoice(produksiList);
         const tanggalJual = randomDate(startDate, endDate);
         const jumlahTerjual = randomInt(5, Math.min(50, produksi.jumlah));
-        
+
         // Track sold quantity
         komoditasSoldTotals[produksi.id_komoditas!] += jumlahTerjual;
-        
+
         penjualanData.push({
             id_komodity: produksi.id_komoditas!,
             id_produksi: produksi.id,
@@ -246,22 +246,22 @@ async function main() {
             updatedAt: tanggalJual
         });
     }
-    
+
     // Sort by date to create some same-day transactions
     penjualanData.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-    
+
     // Artificially create some same-day transactions
     for (let i = 0; i < 15; i++) {
         const baseDate = randomDate(startDate, endDate);
         const sameDayCount = randomInt(2, 4);
-        
+
         for (let j = 0; j < sameDayCount; j++) {
             const produksi = randomChoice(produksiList);
             const jumlahTerjual = randomInt(3, 20);
-            
+
             // Track sold quantity
             komoditasSoldTotals[produksi.id_komoditas!] += jumlahTerjual;
-            
+
             penjualanData.push({
                 id_komodity: produksi.id_komoditas!,
                 id_produksi: produksi.id,
@@ -273,9 +273,9 @@ async function main() {
             });
         }
     }
-    
+
     await prisma.penjualan.createMany({ data: penjualanData });
-    
+
     console.log('Penjualan seeded successfully!');
 
     // 8. Update Komoditas jumlah after sales (subtract sold quantities)
@@ -283,7 +283,7 @@ async function main() {
         const currentKomoditas = await prisma.komoditas.findUnique({
             where: { id: parseInt(komoditasId) }
         });
-        
+
         if (currentKomoditas) {
             const remainingQuantity = Math.max(0, currentKomoditas.jumlah - komoditasSoldTotals[parseInt(komoditasId)]);
             await prisma.komoditas.update({
@@ -292,7 +292,7 @@ async function main() {
             });
         }
     }
-    
+
     console.log('Komoditas quantities updated after sales!');
 
     // 9. Seed Barang (only melon-related items)
@@ -310,10 +310,10 @@ async function main() {
         { nama: 'Jaring Peneduh 70%', satuan: 'meter' },
         { nama: 'Ajir Bambu', satuan: 'batang' }
     ];
-    
+
     await prisma.barang.createMany({ data: barangData });
     const barangList = await prisma.barang.findMany();
-    
+
     console.log('Barang seeded successfully!');
 
     // 10. Seed TransaksiBarang with multiple transactions on same dates
@@ -330,18 +330,18 @@ async function main() {
         'Pembelian untuk backup',
         'Penggunaan untuk pelatihan'
     ];
-    
+
     // Generate transactions from Jan 2024 to Nov 2024
     for (let month = 0; month < 11; month++) {
         const monthStart = new Date(2024, month, 1);
         const monthEnd = new Date(2024, month + 1, 0);
-        
+
         // Create 20-30 transactions per month
         for (let i = 0; i < randomInt(20, 30); i++) {
             const barang = randomChoice(barangList);
             const tanggalTransaksi = randomDate(monthStart, monthEnd);
             const isMasuk = Math.random() > 0.4; // 60% chance masuk, 40% keluar
-            
+
             transaksiBarangData.push({
                 id_barang: barang.id,
                 tanggal: tanggalTransaksi,
@@ -351,16 +351,16 @@ async function main() {
             });
         }
     }
-    
+
     // Create specific same-day transactions
     for (let i = 0; i < 25; i++) {
         const baseDate = randomDate(startDate, endDate);
         const sameDayCount = randomInt(3, 6);
-        
+
         for (let j = 0; j < sameDayCount; j++) {
             const barang = randomChoice(barangList);
             const isMasuk = Math.random() > 0.5;
-            
+
             transaksiBarangData.push({
                 id_barang: barang.id,
                 tanggal: baseDate,
@@ -370,9 +370,9 @@ async function main() {
             });
         }
     }
-    
+
     await prisma.transaksiBarang.createMany({ data: transaksiBarangData });
-    
+
     console.log('TransaksiBarang seeded successfully!');
 
     // Get final counts and show updated quantities
@@ -401,12 +401,12 @@ async function main() {
     console.log('✅ Penjualan:', finalCounts.penjualan, '(With same-day transactions)');
     console.log('✅ Barang:', finalCounts.barang, '(Melon farming supplies)');
     console.log('✅ Transaksi Barang:', finalCounts.transaksiBarang, '(With same-day transactions)');
-    
+
     console.log('\n📦 Final Komoditas Quantities (Production - Sales):');
     finalKomoditasQuantities.forEach(komoditas => {
         console.log(`${komoditas.nama}: ${komoditas.jumlah} Kg`);
     });
-    
+
     // Show some same-day transaction examples (fixed table names)
     const sameDayPenjualan = await prisma.$queryRaw`
         SELECT DATE("createdAt") as tanggal, COUNT(*) as jumlah_transaksi
@@ -416,7 +416,7 @@ async function main() {
         ORDER BY jumlah_transaksi DESC 
         LIMIT 5
     `;
-    
+
     const sameDayTransaksiBarang = await prisma.$queryRaw`
         SELECT DATE(tanggal) as tanggal, COUNT(*) as jumlah_transaksi
         FROM "TransaksiBarang" 
@@ -425,7 +425,7 @@ async function main() {
         ORDER BY jumlah_transaksi DESC 
         LIMIT 5
     `;
-    
+
     console.log('\n📊 Same-day transaction examples:');
     console.log('Penjualan:', sameDayPenjualan);
     console.log('TransaksiBarang:', sameDayTransaksiBarang);
