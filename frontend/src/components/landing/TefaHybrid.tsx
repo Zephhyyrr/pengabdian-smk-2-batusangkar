@@ -439,12 +439,12 @@ const TefaHybrid = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
 
                         {/* Stats badge */}
-                        <div className="absolute top-6 left-6 z-20">
+                        {/* <div className="absolute top-6 left-6 z-20">
                           <span className="inline-flex items-center bg-emerald-600/90 backdrop-blur-sm text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 shadow-xl">
                             {featuredItems[current].jumlah}{" "}
                             {featuredItems[current].satuan}
                           </span>
-                        </div>
+                        </div> */}
 
                         {/* Featured badge */}
                         <div className="absolute top-6 right-6 z-20">
